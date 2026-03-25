@@ -193,5 +193,69 @@
             <li>Add support for extracting image galleries (multiple images) from a single 9GAG post URL.</li>
         </ul>
     </div>
+    <!-- Task 6: Website Contact Extractor -->
+    <div class="task-card">
+        <h2 class="task-title">6. Extract Emails, Contacts, & Socials <span class="badge easy">Easy</span></h2>
+        <h3>Implementation Plan</h3>
+        <ul>
+            <li><strong>Environment:</strong> Vercel Serverless Function.</li>
+            <li><strong>Route:</strong> <code>apps/api-gateway/app/api/v1/osint/website-contact-extractor/route.ts</code></li>
+            <li><strong>Mechanism:</strong> Fetch HTML via <code>got-scraping</code> and parse with Regex for standard patterns (emails, phones, social URLs).</li>
+        </ul>
+        <h3>Feature List Delivered</h3>
+        <ul><li>Extracts standard contact information instantly from raw HTML.</li></ul>
+    </div>
+
+    <!-- Task 7: Czech News Scraper -->
+    <div class="task-card">
+        <h2 class="task-title">7. Czech News Scraper <span class="badge medium">Medium</span></h2>
+        <h3>Implementation Plan</h3>
+        <ul>
+            <li><strong>Environment:</strong> Vercel Serverless Function.</li>
+            <li><strong>Route:</strong> <code>apps/api-gateway/app/api/v1/news/czech-scraper/route.ts</code></li>
+            <li><strong>Mechanism:</strong> Fetch the target site's RSS feed and parse the XML nodes using Cheerio with <code>{ xmlMode: true }</code>.</li>
+        </ul>
+        <h3>Feature List Delivered</h3>
+        <ul><li>Reliable extraction of headlines, summaries, and publish dates via structured feeds.</li></ul>
+    </div>
+
+    <!-- Task 8: Universal Social Media Scraper -->
+    <div class="task-card">
+        <h2 class="task-title">8. Universal Social Media Scraper <span class="badge easy">Easy</span></h2>
+        <h3>Implementation Plan</h3>
+        <ul>
+            <li><strong>Environment:</strong> Vercel Serverless Function.</li>
+            <li><strong>Route:</strong> <code>apps/api-gateway/app/api/v1/osint/universal-social-scraper/route.ts</code></li>
+            <li><strong>Mechanism:</strong> Fetch HTML and extract basic profile information using <code>og:meta</code> tags. Provide heuristic handle extraction.</li>
+        </ul>
+        <h3>Feature List Delivered</h3>
+        <ul><li>Single endpoint routing for extracting profile names, bios, and avatars across multiple platforms.</li></ul>
+    </div>
+
+    <!-- Task 9: TikTok Frame Extractor -->
+    <div class="task-card">
+        <h2 class="task-title">9. TikTok Frame Extractor <span class="badge medium">Medium</span></h2>
+        <h3>Implementation Plan</h3>
+        <ul>
+            <li><strong>Environment:</strong> Vercel Serverless Function.</li>
+            <li><strong>Route:</strong> <code>apps/api-gateway/app/api/v1/tiktok/frame-extractor/route.ts</code></li>
+            <li><strong>Mechanism:</strong> Fetch HTML with desktop headers. Parse the <code>__UNIVERSAL_DATA_FOR_REHYDRATION__</code> JSON object embedded in the script tag to extract media URLs.</li>
+        </ul>
+        <h3>Feature List Delivered</h3>
+        <ul><li>Extraction of default, original, and animated (WebP) cover thumbnails from TikTok videos.</li></ul>
+    </div>
+
+    <!-- Task 10: Epicurious Recipes Scraper -->
+    <div class="task-card">
+        <h2 class="task-title">10. Epicurious Recipes Scraper <span class="badge easy">Easy</span></h2>
+        <h3>Implementation Plan</h3>
+        <ul>
+            <li><strong>Environment:</strong> Vercel Serverless Function.</li>
+            <li><strong>Route:</strong> <code>apps/api-gateway/app/api/v1/food/epicurious-scraper/route.ts</code></li>
+            <li><strong>Mechanism:</strong> Fetch HTML and extract the <code>application/ld+json</code> script tag containing the structured Recipe Schema.</li>
+        </ul>
+        <h3>Feature List Delivered</h3>
+        <ul><li>Clean extraction of ingredients, instructions, and prep times without relying on brittle DOM selectors.</li></ul>
+    </div>
 </body>
 </html>

@@ -201,5 +201,189 @@
         <p>Used Cheerio to extract <code>$('video source').attr('src')</code>. Used Regex <code>/"upVoteCount":(\d+)/</code> on <code>response.body</code> to extract the dynamically loaded upvotes.</p>
     </div>
 
+    <!-- Task 6: Website Contact Extractor -->
+    <div class="api-card">
+        <h2>6. Extract Emails, Contacts, & Socials</h2>
+        <div class="endpoint">POST /api/v1/osint/website-contact-extractor</div>
+        <p><strong>Use Case:</strong> Quickly scan a webpage's HTML to extract email addresses, phone numbers, and social media links using regular expressions.</p>
+
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "url": "https://www.targetcompany.com"
+}</code></pre>
+
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "url": "https://www.targetcompany.com",
+    "emails": ["contact@targetcompany.com", "support@targetcompany.com"],
+    "phones": ["(555) 123-4567"],
+    "socials": ["https://twitter.com/targetcompany"]
+  },
+  "metadata": { ... },
+  "error": null
+}</code></pre>
+
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Regex matching can result in false positives (e.g., matching a random number string as a phone number). The phone regex must be robust enough to handle international formats but strict enough to avoid matching standard numerical IDs. Some websites obfuscate emails using JavaScript (e.g., <code>[at]</code> instead of <code>@</code>), which this fast HTTP scraper won't catch unless run through a headless browser first.</p>
+
+        <div class="section-title">Configuration Needed</div>
+        <p>None. Runs entirely on Vercel's edge/serverless tier.</p>
+
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Fetched raw HTML via <code>gotScraping.get()</code>. Used <code>html.match()</code> with predefined Regex patterns for emails, phones, and specific social media domain URLs. Deduplicated results using <code>[...new Set(matches)]</code>.</p>
+    </div>
+
+    <!-- Task 7: Czech News Scraper -->
+    <div class="api-card">
+        <h2>7. Czech News Scraper</h2>
+        <div class="endpoint">POST /api/v1/news/czech-scraper</div>
+        <p><strong>Use Case:</strong> Extract article headlines, summaries, and publish dates from popular Czech news websites (like Novinky.cz or iDnes.cz).</p>
+
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "site": "novinky.cz",
+  "limit_articles": 5
+}</code></pre>
+
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "site": "novinky.cz",
+    "total_extracted": 5,
+    "articles": [
+      {
+        "headline": "New Technology Trends",
+        "url": "https://www.novinky.cz/...",
+        "summary": "A brief overview of the latest trends...",
+        "published_at": "Wed, 25 Oct 2023 10:00:00 GMT"
+      }
+    ]
+  },
+  "metadata": { ... },
+  "error": null
+}</code></pre>
+
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>HTML structures for news sites change frequently. To ensure reliability without constant maintenance, this scraper targets the site's official RSS/XML feeds rather than parsing the messy HTML homepage.</p>
+
+        <div class="section-title">Configuration Needed</div>
+        <p>Cheerio must be configured to parse XML correctly.</p>
+
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Requested the <code>/rss</code> endpoint of the target site. Loaded the response into Cheerio using <code>{ xmlMode: true }</code>. Iterated over <code>$('item')</code> to extract <code>title</code>, <code>link</code>, and <code>description</code> nodes.</p>
+    </div>
+
+    <!-- Task 8: Universal Social Media Scraper -->
+    <div class="api-card">
+        <h2>8. Universal Social Media Scraper</h2>
+        <div class="endpoint">POST /api/v1/osint/universal-social-scraper</div>
+        <p><strong>Use Case:</strong> Provide a single endpoint that detects the social media platform from the URL and extracts high-level profile data (handle, bio, avatar) using generic Open Graph meta tags.</p>
+
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "url": "https://twitter.com/elonmusk"
+}</code></pre>
+
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "platform": "twitter",
+    "url": "https://twitter.com/elonmusk",
+    "title": "Elon Musk (@elonmusk) / X",
+    "profile_data": {
+      "handle": "elonmusk",
+      "bio": "..."
+    },
+    "avatar_url": "https://pbs.twimg.com/profile_images/..."
+  },
+  "metadata": { ... },
+  "error": null
+}</code></pre>
+
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Platforms like Twitter and Instagram aggressively block datacenter IPs and redirect to login pages. Relying solely on <code>og:meta</code> tags works sometimes, but true scraping requires platform-specific undocumented APIs or guest-mode tokens.</p>
+
+        <div class="section-title">Configuration Needed</div>
+        <p>Proxy rotation highly recommended in production.</p>
+
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Detected platform using <code>url.includes()</code>. Extracted standard SEO tags using Cheerio: <code>$('meta[property="og:image"]').attr('content')</code>. Used Regex to parse handles directly from the URL path.</p>
+    </div>
+
+    <!-- Task 9: TikTok Frame Extractor -->
+    <div class="api-card">
+        <h2>9. TikTok Frame Extractor</h2>
+        <div class="endpoint">POST /api/v1/tiktok/frame-extractor</div>
+        <p><strong>Use Case:</strong> Extract high-quality, unwatermarked cover images and animated thumbnails (WebP/GIF) directly from a TikTok video URL.</p>
+
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "video_url": "https://www.tiktok.com/@user/video/123456789"
+}</code></pre>
+
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "video_url": "https://www.tiktok.com/@user/video/123456789",
+    "title": "Funny dance video",
+    "thumbnails": {
+      "default": "https://p16-sign.tiktokcdn.com/...",
+      "original": "https://p16-sign.tiktokcdn.com/...",
+      "animated": "https://p16-sign.tiktokcdn.com/..."
+    }
+  },
+  "metadata": { ... },
+  "error": null
+}</code></pre>
+
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>TikTok is a heavily obfuscated SPA. The raw video and image links are not in the standard HTML body. They must be extracted from a massive JSON object embedded in a specific script tag used for state hydration.</p>
+
+        <div class="section-title">Configuration Needed</div>
+        <p>Requires specific desktop/mobile user-agent spoofing to ensure TikTok serves the HTML version rather than forcing an app download interstitial.</p>
+
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Located the hydration script tag using <code>$('#__UNIVERSAL_DATA_FOR_REHYDRATION__').text()</code>. Parsed the JSON and traversed the object path <code>__DEFAULT_SCOPE__['webapp.video-detail'].itemInfo.itemStruct.video</code> to find the cover URLs.</p>
+    </div>
+
+    <!-- Task 10: Epicurious Recipes Scraper -->
+    <div class="api-card">
+        <h2>10. Epicurious Recipes Scraper</h2>
+        <div class="endpoint">POST /api/v1/food/epicurious-scraper</div>
+        <p><strong>Use Case:</strong> Extract structured recipe data including ingredients, instructions, prep time, and nutritional info from Epicurious (or any site using standard Recipe Schema).</p>
+
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "recipe_url": "https://www.epicurious.com/recipes/food/views/pasta"
+}</code></pre>
+
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "source_url": "https://www.epicurious.com/recipes/food/views/pasta",
+    "name": "Classic Pasta",
+    "prep_time": "PT15M",
+    "ingredients": ["1 lb pasta", "2 cups tomato sauce"],
+    "instructions": ["Boil water", "Add pasta", "Serve with sauce"]
+  },
+  "metadata": { ... },
+  "error": null
+}</code></pre>
+
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Relying on HTML classes (e.g., <code>.ingredient-list</code>) breaks often because sites redesign frequently. The most resilient method is extracting the hidden JSON-LD structured data (schema.org/Recipe) that search engines rely on.</p>
+
+        <div class="section-title">Configuration Needed</div>
+        <p>None. Very reliable on serverless architectures.</p>
+
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Iterated over <code>$('script[type="application/ld+json"]')</code>. Parsed each JSON block looking for an object where <code>@type === 'Recipe'</code>. Mapped the structured schema properties (like <code>recipeIngredient</code> and <code>recipeInstructions</code>) directly to the API response.</p>
+    </div>
 </body>
 </html>
