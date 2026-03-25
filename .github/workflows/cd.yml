@@ -1,0 +1,54 @@
+name: Continuous Deployment
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy-vercel:
+    runs-on: ubuntu-latest
+    name: Trigger Vercel Deployment
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Deployment Note
+        run: |
+          echo "Vercel natively integrates with GitHub."
+          echo "Pushes to the main branch automatically trigger deployments for the connected Vercel project."
+          echo "If manual CLI deployment is preferred, configure VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID."
+
+          # Optional: Manual Vercel Deployment via CLI
+          # - name: Install Vercel CLI
+          #   run: npm install --global vercel@latest
+          # - name: Deploy to Vercel
+          #   run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+  deploy-render:
+    runs-on: ubuntu-latest
+    name: Trigger Render Deployment
+    steps:
+      - name: Trigger Render Deploy Hook
+        # Uses a deploy hook provided by Render's free tier to trigger a rebuild and deploy
+        # Add the webhook URL to your repository secrets as RENDER_DEPLOY_HOOK_URL
+        if: env.RENDER_DEPLOY_HOOK_URL != ''
+        run: |
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+
+  keep-alive-render:
+    runs-on: ubuntu-latest
+    name: Keep Render Service Awake
+    # Optional cron job to ping the Render service every 14 minutes
+    # Un-comment the trigger below to enable
+    # on:
+    #   schedule:
+    #     - cron: '*/14 * * * *'
+    steps:
+      - name: Ping Service
+        if: env.RENDER_SERVICE_URL != ''
+        run: |
+          curl -s ${{ secrets.RENDER_SERVICE_URL }} > /dev/null
+        env:
+          RENDER_SERVICE_URL: ${{ secrets.RENDER_SERVICE_URL }}
