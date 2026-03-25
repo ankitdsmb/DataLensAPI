@@ -1,0 +1,25 @@
+{
+  "name": "api-gateway",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001"
+  },
+  "dependencies": {
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "cheerio": "^1.0.0-rc.12",
+    "got-scraping": "^4.0.0",
+    "stopword": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@types/stopword": "^2.0.3",
+    "typescript": "^5"
+  }
+}

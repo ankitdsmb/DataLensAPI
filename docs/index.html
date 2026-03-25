@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forensic API Suite Documentation</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f4f7f6; }
+        h1, h2, h3 { color: #2c3e50; }
+        .api-card { background: #fff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 30px; padding: 25px; border-left: 5px solid #27ae60; }
+        pre { background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 0.9em; }
+        code { font-family: Consolas, Monaco, monospace; }
+        .endpoint { display: inline-block; padding: 5px 10px; background: #e74c3c; color: white; border-radius: 4px; font-weight: bold; margin-bottom: 10px; }
+        .section-title { font-weight: bold; margin-top: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+    </style>
+</head>
+<body>
+    <h1>API Implementation Documentation Hub</h1>
+    <p>This document contains the detailed implementation records, technical challenges, and configuration requirements for the successfully deployed APIs within the Forensic API Suite.</p>
+
+    <!-- Task 1: Instagram Lite -->
+    <div class="api-card">
+        <h2>1. Instagram Video Scraper - Lite</h2>
+        <div class="endpoint">POST /api/v1/instagram/video-metadata</div>
+        <p><strong>Use Case:</strong> Bulk scraping basic video metadata from Instagram URLs. Simulates mobile traffic to retrieve data without requiring headless browsers.</p>
+
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "urls": ["https://www.instagram.com/reel/XYZ123/"]
+}</code></pre>
+
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "url": "https://www.instagram.com/reel/XYZ123/",
+      "title": "Funny cat video",
+      "likes_count": null,
+      "upload_date": "2023-10-25T12:00:00Z"
+    }
+  ],
+  "metadata": {
+    "timestamp": "2023-10-25T12:00:05Z",
+    "execution_time_ms": 1240
+  },
+  "error": null
+}</code></pre>
+
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Instagram aggressively blocks unauthenticated requests from datacenter IPs. The scraper uses <code>got-scraping</code> to spoof TLS fingerprints and mobile headers, which helps slightly. However, full extraction often still requires a valid session cookie, so this 'Lite' version only retrieves high-level <code>og:meta</code> tags or simulates extraction.</p>
+
+        <div class="section-title">Configuration Needed</div>
+        <p>Requires deployment to a proxy-enabled environment if running at scale to avoid IP bans.</p>
+
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Used <code>gotScraping.get(url)</code> with mobile headers and regex <code>/&lt;meta property="og:title" content="([^"]+)"/</code> to extract basic info without executing JavaScript.</p>
+    </div>
+
+    <!-- Task 2: Link Extractor Pro -->
+    <div class="api-card">
+        <h2>2. Link Extractor Pro: URL to HTML List</h2>
+        <div class="endpoint">POST /api/v1/seo/link-extractor</div>
+        <p><strong>Use Case:</strong> Quickly extract all anchor tags (<code>&lt;a&gt;</code>) from a webpage, resolving relative URLs into absolute URLs. Useful for SEO audits and crawling.</p>
+
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "url": "https://example.com/blog",
+  "internal_only": true
+}</code></pre>
+
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "target": "https://example.com/blog",
+    "total_extracted": 12,
+    "links": [
+      { "href": "https://example.com/about", "text": "About Us", "is_internal": true }
+    ]
+  },
+  "metadata": { ... },
+  "error": null
+}</code></pre>
+
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Dealing with relative URLs (e.g., <code>/contact</code> or <code>../styles.css</code>) required using the native Node.js <code>new URL(href, baseUrl)</code> to resolve them correctly against the requested root URL.</p>
+
+        <div class="section-title">Configuration Needed</div>
+        <p>None. Runs perfectly on Vercel's free tier as it only involves simple HTML fetching and parsing.</p>
+
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Iterated over <code>$('a')</code> with Cheerio. Resolved URLs using <code>new URL($(element).attr('href'), req_url)</code>. Filtered external URLs by comparing <code>origin</code> properties.</p>
+    </div>
+
+    <!-- Task 3: Keyword Density Checker -->
+    <div class="api-card">
+        <h2>3. Keyword Density Checker</h2>
+        <div class="endpoint">POST /api/v1/seo/keyword-density</div>
+        <p><strong>Use Case:</strong> Analyze the textual content of a webpage to determine the frequency and percentage density of significant keywords.</p>
+
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "url": "https://example.com/article"
+}</code></pre>
+
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "url": "https://example.com/article",
+    "analyzed_word_count": 450,
+    "keywords": [
+      { "keyword": "forensic", "count": 15, "density": "3.33%" },
+      { "keyword": "analysis", "count": 10, "density": "2.22%" }
+    ]
+  },
+  "metadata": { ... },
+  "error": null
+}</code></pre>
+
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Cleaning the HTML of noisy elements (scripts, styles, navigation) was essential. Filtering common stop words (like "the", "and") required integrating the external <code>stopword</code> npm package.</p>
+
+        <div class="section-title">Configuration Needed</div>
+        <p>The <code>stopword</code> module needed to be installed in the workspace dependencies.</p>
+
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Removed noisy tags via Cheerio <code>$('script, style, nav').remove()</code>. Extracted text via <code>$('body').text()</code>. Tokenized with regex <code>/[^a-zA-Z\s]/g</code> and removed stop words using <code>sw.removeStopwords()</code>.</p>
+    </div>
+
+    <!-- Task 4: Vimeo Profile Scraper -->
+    <div class="api-card">
+        <h2>4. Vimeo Profile Scraper</h2>
+        <div class="endpoint">POST /api/v1/vimeo/profile</div>
+        <p><strong>Use Case:</strong> Scrape basic profile information (bio, name, avatar) and extract embedded JSON-LD metadata directly from Vimeo user pages.</p>
+
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "urls": ["https://vimeo.com/user123456"]
+}</code></pre>
+
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "url": "https://vimeo.com/user123456",
+      "name": "Jane Doe",
+      "bio": "Filmmaker based in NY.",
+      "avatarUrl": "https://i.vimeocdn.com/...",
+      "followers": null,
+      "raw_ld_json": { "@context": "http://schema.org", "@type": "Person" }
+    }
+  ],
+  "metadata": { ... },
+  "error": null
+}</code></pre>
+
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Vimeo uses React, so data like follower counts are not rendered directly in the static HTML. We relied on extracting the <code>&lt;script type="application/ld+json"&gt;</code> block which contains structured SEO data for search engines.</p>
+
+        <div class="section-title">Configuration Needed</div>
+        <p>None. Standard HTTP request works well.</p>
+
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Parsed <code>$('script[type="application/ld+json"]').html()</code> using <code>JSON.parse()</code>. Fell back to <code>meta[property="og:title"]</code> tags if JSON-LD parsing failed.</p>
+    </div>
+
+    <!-- Task 5: 9GAG Video Downloader -->
+    <div class="api-card">
+        <h2>5. 9GAG Video Downloader – HD Quality</h2>
+        <div class="endpoint">POST /api/v1/9gag/downloader</div>
+        <p><strong>Use Case:</strong> Extract the direct HD `.mp4` CDN link from a 9GAG post URL to allow users to download the video.</p>
+
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "post_url": "https://9gag.com/gag/abc1234"
+}</code></pre>
+
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "title": "Funny cat jumping",
+    "media_type": "video",
+    "video_url_mp4": "https://img-9gag-fun.9cache.com/photo/abc1234_460sv.mp4",
+    "upvotes": 12500
+  },
+  "metadata": { ... },
+  "error": null
+}</code></pre>
+
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>9GAG's video links are dynamically generated, but often the initial static HTML contains a `<video source>` tag. Extracting the upvote count required finding the specific JSON object or string embedded in the page source via regex, as it's hydrated by JS.</p>
+
+        <div class="section-title">Configuration Needed</div>
+        <p>None. Standard HTTP request works well.</p>
+
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Used Cheerio to extract <code>$('video source').attr('src')</code>. Used Regex <code>/"upVoteCount":(\d+)/</code> on <code>response.body</code> to extract the dynamically loaded upvotes.</p>
+    </div>
+
+</body>
+</html>
