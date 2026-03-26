@@ -563,5 +563,255 @@
         <div class="section-title">Coding Recall Notes</div>
         <p>Used vanilla JavaScript arrays/sets to perform in-memory data manipulation pipeline.</p>
     </div>
+    <!-- Task 31: Spotify Tracks Downloader -->
+    <div class="api-card">
+        <h2>31. Spotify Tracks Downloader</h2>
+        <div class="endpoint">POST /api/v1/spotify/track-downloader</div>
+        <p><strong>Use Case:</strong> Extract track metadata from a Spotify URL and generate a proxy download link.</p>
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "url": "https://open.spotify.com/track/3n3Ppam7vgaPR1"
+}</code></pre>
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "track_url": "https://open.spotify.com/track/3n3Ppam7vgaPR1",
+    "title": "Mr. Brightside",
+    "download_link": "https://api.example-downloader.com/process?url=..."
+  }
+}</code></pre>
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Spotify's audio streams are DRM encrypted. This lightweight API parses the public HTML metadata (og:title) and delegates the decryption/download task to a simulated heavyweight backend processing queue.</p>
+        <div class="section-title">Configuration Needed</div>
+        <p>Requires an external processing service for actual audio extraction.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Fetched standard HTML and extracted <code>&lt;meta property="og:title"&gt;</code> using Regex.</p>
+    </div>
+
+    <!-- Task 32: PDF to HTML Converter Lite -->
+    <div class="api-card">
+        <h2>32. PDF to HTML Converter Lite</h2>
+        <div class="endpoint">POST /api/v1/document/pdf-to-html-lite</div>
+        <p><strong>Use Case:</strong> Submit a PDF document for asynchronous HTML conversion.</p>
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "pdf_url": "https://example.com/file.pdf"
+}</code></pre>
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "status": "processing",
+    "job_id": "8a7v3",
+    "message": "PDF submitted to asynchronous processing queue."
+  }
+}</code></pre>
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Vercel's Serverless Functions have a 10-second timeout and 50MB payload limit. PDF conversion using binaries like `pdftohtml` cannot run synchronously here. We simulate a queueing system where the API immediately returns a <code>job_id</code> for the client to poll later.</p>
+        <div class="section-title">Configuration Needed</div>
+        <p>Requires a Redis/Upstash queue and a Render worker to process the jobs.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Implemented the queuing pattern returning an immediate HTTP 200 with a randomly generated <code>job_id</code>.</p>
+    </div>
+
+    <!-- Task 33: Leboncoin Vehicle Scraper -->
+    <div class="api-card">
+        <h2>33. Leboncoin Vehicle Scraper</h2>
+        <div class="endpoint">POST /api/v1/vehicles/leboncoin-scraper</div>
+        <p><strong>Use Case:</strong> Scrape classified vehicle ads from Leboncoin.</p>
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "brand": "renault",
+  "max_price": 5000
+}</code></pre>
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "total_found": 1,
+    "ads": [{ "title": "Renault Clio", "price": 4500, "city": "Paris" }]
+  }
+}</code></pre>
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Leboncoin uses extreme Datadome anti-bot protection. Direct HTTP requests usually return HTTP 403. The API includes the logic to parse <code>window.__PRELOADED_STATE__</code> if it bypasses the bot check, but gracefully falls back to simulated data if blocked.</p>
+        <div class="section-title">Configuration Needed</div>
+        <p>High-quality residential rotating proxies are absolutely mandatory.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Searched for <code>window.__PRELOADED_STATE__</code> using Regex and extracted the JSON object representing the search results.</p>
+    </div>
+
+    <!-- Task 34: Bing Copilot API - Advanced -->
+    <div class="api-card">
+        <h2>34. Bing Copilot API - Advanced</h2>
+        <div class="endpoint">POST /api/v1/ai/bing-copilot-advanced</div>
+        <p><strong>Use Case:</strong> Handle multi-turn contextual conversations with Bing Copilot.</p>
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "prompt": "What did I ask previously?",
+  "session_id": "conv_123"
+}</code></pre>
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "reply": "Here is the response based on previous context...",
+    "session_id": "conv_123"
+  }
+}</code></pre>
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Maintaining a continuous WebSocket connection in a stateless Serverless Function is impossible. We simulate a stateful interaction by requiring the client to pass the <code>session_id</code> back in the payload on every request.</p>
+        <div class="section-title">Configuration Needed</div>
+        <p>Requires an external database (Redis) to actually store the conversation context between HTTP calls.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Implemented a stateful proxy pattern checking for the presence of <code>session_id</code>.</p>
+    </div>
+
+    <!-- Task 35: Fast Indeed Job Scraper -->
+    <div class="api-card">
+        <h2>35. Fast Indeed Job Scraper</h2>
+        <div class="endpoint">POST /api/v1/jobs/indeed-fast-scraper</div>
+        <p><strong>Use Case:</strong> Scrape Indeed job listings directly from search URLs without headless rendering.</p>
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "direct_url": "https://www.indeed.com/jobs?q=python"
+}</code></pre>
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "jobs": [{ "title": "Python Dev", "company": "Tech Co" }]
+  }
+}</code></pre>
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Indeed heavily blocks AWS/Vercel IPs. The scraper uses standard DOM parsing on <code>.job_seen_beacon</code> but will throw a deliberate 403 error if blocked, reminding the user to attach residential proxies.</p>
+        <div class="section-title">Configuration Needed</div>
+        <p>Datacenter or Residential Proxies attached to the <code>got-scraping</code> client.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Used Cheerio to iterate over <code>div.job_seen_beacon</code>, extracting titles and the <code>data-jk</code> attribute to rebuild the full apply link.</p>
+    </div>
+
+    <!-- Task 36: Stepstone Job Scraper -->
+    <div class="api-card">
+        <h2>36. Stepstone Job Scraper</h2>
+        <div class="endpoint">POST /api/v1/jobs/stepstone-scraper</div>
+        <p><strong>Use Case:</strong> Extract job listings from Stepstone (EU) using embedded JSON-LD schemas.</p>
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "keyword": "Engineer"
+}</code></pre>
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "jobs": [{ "title": "Software Engineer", "city": "Berlin" }]
+  }
+}</code></pre>
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Rather than relying on volatile CSS classes for job cards, Stepstone reliably embeds SEO-friendly JSON-LD schemas (type JobPosting) in the page source.</p>
+        <div class="section-title">Configuration Needed</div>
+        <p>Standard HTTP request.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Iterated over <code>script[type="application/ld+json"]</code> blocks searching for <code>@type: "JobPosting"</code> to extract clean structured data.</p>
+    </div>
+
+    <!-- Task 37: YouTube Music Downloader -->
+    <div class="api-card">
+        <h2>37. YouTube Music Downloader</h2>
+        <div class="endpoint">POST /api/v1/ytmusic/downloader</div>
+        <p><strong>Use Case:</strong> Convert YouTube Music URLs to MP3 files.</p>
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "url": "https://music.youtube.com/watch?v=123"
+}</code></pre>
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "download_status": "Proxy queued",
+    "simulated_url": "https://api.ytmusic-proxy.internal/download?url=..."
+  }
+}</code></pre>
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Audio extraction and FFmpeg conversion requires the <code>yt-dlp</code> binary which exceeds Vercel limits. The API simulates acting as a router/proxy, directing the request to the Render heavy processing service.</p>
+        <div class="section-title">Configuration Needed</div>
+        <p>Deployment of the Heavyweight Render service.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Implemented endpoint validation and constructed a simulated proxy URL string.</p>
+    </div>
+
+    <!-- Task 38: TikTok Video Transcriber -->
+    <div class="api-card">
+        <h2>38. TikTok Video Transcriber</h2>
+        <div class="endpoint">POST /api/v1/tiktok/transcriber</div>
+        <p><strong>Use Case:</strong> Extract the hidden auto-generated subtitles/transcriptions from TikTok videos.</p>
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "url": "https://www.tiktok.com/@user/video/123"
+}</code></pre>
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "language": "eng",
+    "transcript_content": "Hello welcome to my video..."
+  }
+}</code></pre>
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>The subtitle URL is deeply buried inside the TikTok hydration JSON object. Finding the correct language and fetching the `.vtt` file requires traversing complex object paths.</p>
+        <div class="section-title">Configuration Needed</div>
+        <p>Desktop user-agent spoofing.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Traversed <code>__DEFAULT_SCOPE__['webapp.video-detail'].itemInfo.itemStruct.video.subtitleInfos</code>, extracted the URL, and executed a secondary HTTP GET to fetch the transcript text.</p>
+    </div>
+
+    <!-- Task 39: Telegram Channel History -->
+    <div class="api-card">
+        <h2>39. Telegram Channel History</h2>
+        <div class="endpoint">POST /api/v1/telegram/channel-history</div>
+        <p><strong>Use Case:</strong> Scrape the recent message history (text + media links) from public Telegram channels.</p>
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "channel_url": "https://t.me/news_channel",
+  "limit": 10
+}</code></pre>
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "history": [{ "text": "Breaking news...", "media_type": "image" }]
+  }
+}</code></pre>
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Appending <code>/s/</code> to the channel URL is mandatory to view the channel in a web browser without being forced into the Telegram native application.</p>
+        <div class="section-title">Configuration Needed</div>
+        <p>None.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Iterated backwards over <code>.tgme_widget_message</code> elements using Cheerio's <code>slice(-limit)</code>, extracting text and background-image URLs.</p>
+    </div>
+
+    <!-- Task 40: Google Maps Business Emails -->
+    <div class="api-card">
+        <h2>40. Google Maps Business Emails</h2>
+        <div class="endpoint">POST /api/v1/google-maps/business-emails</div>
+        <p><strong>Use Case:</strong> Retrieve business details and associated emails for local search queries.</p>
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "query": "Plumbers in NYC"
+}</code></pre>
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "results": [{ "name": "Joe's Plumbing", "email": "info@joesplumbingny.com" }]
+  }
+}</code></pre>
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>True Google Maps scraping requires Puppeteer/Playwright due to dynamic map rendering. This endpoint simulates the Vercel-side proxy that would forward the request to the Render heavy service or a third-party Maps API.</p>
+        <div class="section-title">Configuration Needed</div>
+        <p>Render Heavyweight service deployment.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Implemented structural mock data to demonstrate the proxy architectural pattern.</p>
+    </div>
 </body>
 </html>
