@@ -1,15 +1,15 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
-import { gotScraping } from 'got-scraping';
 import * as cheerio from 'cheerio';
 
 // 3.6 TikTok Video Transcriber
-export async function POST(req: Request) {
-  const startTime = Date.now();
-  try {
+
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const { url } = await req.json();
     if (!url) throw new Error('url is required');
 
-    const response = await gotScraping.get(url, { headerGeneratorOptions: { browsers: ['chrome'], os: ['windows'] } });
+    const response = await stealthGet(url, { headerGeneratorOptions: { browsers: ['chrome'], os: ['windows'] } });
     const $ = cheerio.load(response.body);
 
     const scriptTagText = $('#__UNIVERSAL_DATA_FOR_REHYDRATION__').text();
@@ -39,19 +39,13 @@ export async function POST(req: Request) {
     if (!subtitleData) throw new Error("No transcription or subtitles found for this video.");
 
     // Fetch the transcript content
-    const subResponse = await gotScraping.get(subtitleData.transcript_url);
+    const subResponse = await stealthGet(subtitleData.transcript_url);
 
-    return NextResponse.json({
-      success: true,
-      data: {
+    return {
          url,
          language: subtitleData.language,
          transcript_content: subResponse.body.substring(0, 1000) + "\n... (truncated)"
-      },
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: null
-    });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, data: null, metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime }, error: error.message }, { status: 400 });
-  }
-}
+      };
+
+
+});

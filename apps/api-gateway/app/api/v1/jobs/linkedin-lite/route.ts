@@ -1,11 +1,11 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
-import { gotScraping } from 'got-scraping';
 import * as cheerio from 'cheerio';
 
 // 6.3 LinkedIn Job Scraper (Lightweight)
-export async function POST(req: Request) {
-  const startTime = Date.now();
-  try {
+
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const { job_title_query, location = 'Worldwide' } = await req.json();
     if (!job_title_query) throw new Error('job_title_query is required');
 
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     const encodedLocation = encodeURIComponent(location);
     const url = `https://www.linkedin.com/jobs/search?keywords=${encodedQuery}&location=${encodedLocation}`;
 
-    const response = await gotScraping.get(url, { headerGeneratorOptions: { browsers: ['chrome'] } });
+    const response = await stealthGet(url, { headerGeneratorOptions: { browsers: ['chrome'] } });
     const $ = cheerio.load(response.body);
 
     const jobs: any[] = [];
@@ -29,13 +29,7 @@ export async function POST(req: Request) {
        }
     });
 
-    return NextResponse.json({
-      success: true,
-      data: { query: job_title_query, location, total_found: jobs.length, jobs },
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: null
-    });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, data: null, metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime }, error: error.message }, { status: 400 });
-  }
-}
+    return { query: job_title_query, location, total_found: jobs.length, jobs };
+
+
+});

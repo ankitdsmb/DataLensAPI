@@ -1,9 +1,10 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
 
 // 4.1 LinkedIn Scraper - Professional
-export async function POST(req: Request) {
-  const startTime = Date.now();
-  try {
+
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const { keyword, location, limit = 50 } = await req.json();
     if (!keyword) throw new Error('keyword is required');
 
@@ -12,19 +13,13 @@ export async function POST(req: Request) {
     // to view full job posters, insights, and applicant counts.
     const jobId = "li_" + Math.random().toString(36).substring(7);
 
-    return NextResponse.json({
-      success: true,
-      data: {
+    return {
         keyword,
         location,
         status: "processing",
         job_id: jobId,
         action: "Delegated to Heavyweight Service (Authenticated crawler worker)"
-      },
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: null
-    });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, data: null, metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime }, error: error.message }, { status: 400 });
-  }
-}
+      };
+
+
+});

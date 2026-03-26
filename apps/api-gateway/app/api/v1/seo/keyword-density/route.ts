@@ -1,19 +1,18 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
-import { gotScraping } from 'got-scraping';
 import * as cheerio from 'cheerio';
 // @ts-ignore - Assuming stopword doesn't have proper types or we ignore them for speed
-import sw from 'stopword';
+import * as sw from 'stopword';
 
-export async function POST(req: Request) {
-  const startTime = Date.now();
 
-  try {
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const body = await req.json();
     const { url } = body;
 
     if (!url) throw new Error('url is required');
 
-    const response = await gotScraping.get(url);
+    const response = await stealthGet(url);
     const $ = cheerio.load(response.body);
 
     // Remove unwanted elements
@@ -47,23 +46,12 @@ export async function POST(req: Request) {
       };
     }).sort((a, b) => b.count - a.count).slice(0, 50); // Top 50 keywords
 
-    return NextResponse.json({
-      success: true,
-      data: {
+    return {
         url,
         analyzed_word_count: totalWords,
         keywords: densityList
-      },
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: null
-    });
+      };
 
-  } catch (error: any) {
-    return NextResponse.json({
-      success: false,
-      data: null,
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: error.message || 'Internal Server Error'
-    }, { status: 500 });
-  }
-}
+
+
+});

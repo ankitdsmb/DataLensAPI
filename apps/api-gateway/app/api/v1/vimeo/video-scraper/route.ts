@@ -1,14 +1,13 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
-import { gotScraping } from 'got-scraping';
-
 // 6.10 Vimeo Video Scraper
-export async function POST(req: Request) {
-  const startTime = Date.now();
-  try {
+
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const { video_url } = await req.json();
     if (!video_url) throw new Error('video_url is required');
 
-    const response = await gotScraping.get(video_url, { headerGeneratorOptions: { browsers: ['chrome'] } });
+    const response = await stealthGet(video_url, { headerGeneratorOptions: { browsers: ['chrome'] } });
 
     const match = response.body.match(/window\.vimeo\.clip_page_config = ({.*?});/);
     let playerConfig = null;
@@ -23,9 +22,7 @@ export async function POST(req: Request) {
     const authorData = playerConfig.owner;
     const statsData = clipData?.stats || {};
 
-    return NextResponse.json({
-      success: true,
-      data: {
+    return {
         video_url,
         title: clipData.title,
         duration: clipData.duration,
@@ -36,11 +33,7 @@ export async function POST(req: Request) {
         },
         likes_count: statsData.likes,
         plays_count: statsData.plays
-      },
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: null
-    });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, data: null, metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime }, error: error.message }, { status: 400 });
-  }
-}
+      };
+
+
+});

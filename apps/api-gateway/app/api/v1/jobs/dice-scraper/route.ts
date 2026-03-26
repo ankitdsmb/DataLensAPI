@@ -1,9 +1,10 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
 
 // 6.1 Dice.com FULL Job Scraper
-export async function POST(req: Request) {
-  const startTime = Date.now();
-  try {
+
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const { search_query, location, employment_type = 'all' } = await req.json();
     if (!search_query) throw new Error('search_query is required');
 
@@ -12,19 +13,13 @@ export async function POST(req: Request) {
     // often rotated. Best handled by headless browser or deep reverse engineering script
     // stored in the heavyweight service.
 
-    return NextResponse.json({
-      success: true,
-      data: {
+    return {
         search_query,
         location,
         employment_type,
         action: "Delegated to Heavyweight Service",
         status: "Requires Render instance to retrieve rotating Algolia keys or execute JS."
-      },
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: null
-    });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, data: null, metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime }, error: error.message }, { status: 400 });
-  }
-}
+      };
+
+
+});

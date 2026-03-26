@@ -1,10 +1,11 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
 
 // 4.6 Extract Emails, Socials and Contacts (Fastest version)
 // Note: Next.js edge runtime / standard fetch is used here for pure speed instead of got-scraping overhead
-export async function POST(req: Request) {
-  const startTime = Date.now();
-  try {
+
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const { url } = await req.json();
     if (!url) throw new Error('url is required');
 
@@ -16,16 +17,10 @@ export async function POST(req: Request) {
     const phoneRegex = /(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g;
 
     // Simpler, faster matching
-    const emails = [...new Set(html.match(emailRegex) || [])];
-    const phones = [...new Set(html.match(phoneRegex) || [])];
+    const emails = Array.from(new Set(html.match(emailRegex) || []));
+    const phones = Array.from(new Set(html.match(phoneRegex) || []));
 
-    return NextResponse.json({
-      success: true,
-      data: { url, total_found: emails.length + phones.length, emails, phones },
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: null
-    });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, data: null, metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime }, error: error.message }, { status: 400 });
-  }
-}
+    return { url, total_found: emails.length + phones.length, emails, phones };
+
+
+});

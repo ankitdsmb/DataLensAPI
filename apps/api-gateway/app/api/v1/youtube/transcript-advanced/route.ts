@@ -1,14 +1,13 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
-import { gotScraping } from 'got-scraping';
-
 // 5.9 Youtube Transcript Scraper - Caption, Subtitles
-export async function POST(req: Request) {
-  const startTime = Date.now();
-  try {
+
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const { video_url, target_language = "en" } = await req.json();
     if (!video_url) throw new Error('video_url is required');
 
-    const response = await gotScraping.get(video_url, { headerGeneratorOptions: { browsers: ['chrome'] } });
+    const response = await stealthGet(video_url, { headerGeneratorOptions: { browsers: ['chrome'] } });
 
     // Find captionTracks array
     const match = response.body.match(/"captionTracks":\[(.*?)\]/);
@@ -30,11 +29,11 @@ export async function POST(req: Request) {
     if (!captionsUrl) throw new Error("Captions not found for this video.");
 
     // Fetch the raw XML transcript
-    const xmlResponse = await gotScraping.get(captionsUrl);
+    const xmlResponse = await stealthGet(captionsUrl);
 
     // Quick regex conversion to SRT-like format
     const xmlText = xmlResponse.body;
-    const textNodes = [...xmlText.matchAll(/<text start="([\d.]+)" dur="([\d.]+)".*?>(.*?)<\/text>/g)];
+    const textNodes = Array.from(xmlText.matchAll(/<text start="([\d.]+)" dur="([\d.]+)".*?>(.*?)<\/text>/g));
 
     const formatTime = (secondsStr: string) => {
         const totalSecs = parseFloat(secondsStr);
@@ -54,13 +53,7 @@ export async function POST(req: Request) {
        srtData += `${idx + 1}\n${start} --> ${end}\n${text}\n\n`;
     });
 
-    return NextResponse.json({
-      success: true,
-      data: { video_url, translated: target_language !== 'en', subtitles_srt: srtData.substring(0, 1000) + "\n... (truncated for preview)" },
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: null
-    });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, data: null, metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime }, error: error.message }, { status: 400 });
-  }
-}
+    return { video_url, translated: target_language !== 'en', subtitles_srt: srtData.substring(0, 1000) + "\n... (truncated for preview)" };
+
+
+});

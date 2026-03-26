@@ -1,9 +1,10 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
 
 // 4.7 Google Maps Business with Emails Extractor
-export async function POST(req: Request) {
-  const startTime = Date.now();
-  try {
+
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const { query, extract_emails = true } = await req.json();
     if (!query) throw new Error('query is required');
 
@@ -20,18 +21,12 @@ export async function POST(req: Request) {
       }
     ];
 
-    return NextResponse.json({
-      success: true,
-      data: {
+    return {
         query,
         extracted_results: mock_data.length,
         results: mock_data,
         warning: "This is a lightweight API proxy simulation. Real Maps extraction requires the Render Heavyweight service."
-      },
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: null
-    });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, data: null, metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime }, error: error.message }, { status: 400 });
-  }
-}
+      };
+
+
+});

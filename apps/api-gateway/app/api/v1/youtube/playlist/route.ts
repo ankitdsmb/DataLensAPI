@@ -1,16 +1,16 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
-import { gotScraping } from 'got-scraping';
 import * as cheerio from 'cheerio';
 
 // 2.4 Free Youtube Playlist Scraper
-export async function POST(req: Request) {
-  const startTime = Date.now();
-  try {
+
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const { playlist_id } = await req.json();
     if (!playlist_id) throw new Error('playlist_id is required');
 
     const url = `https://www.youtube.com/playlist?list=${playlist_id}`;
-    const response = await gotScraping.get(url, { headerGeneratorOptions: { browsers: ['chrome'] } });
+    const response = await stealthGet(url, { headerGeneratorOptions: { browsers: ['chrome'] } });
 
     // Extract ytInitialData from script tag
     const dataMatch = response.body.match(/var ytInitialData = ({.*?});<\/script>/);
@@ -25,13 +25,7 @@ export async function POST(req: Request) {
        } catch (e) {}
     }
 
-    return NextResponse.json({
-      success: true,
-      data: playlistData,
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: null
-    });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, data: null, metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime }, error: error.message }, { status: 400 });
-  }
-}
+    return playlistData;
+
+
+});

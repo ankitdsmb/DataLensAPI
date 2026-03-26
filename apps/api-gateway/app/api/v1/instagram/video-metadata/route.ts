@@ -1,11 +1,9 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
-import { gotScraping } from 'got-scraping';
-
 // Instagram Video Scraper - Lite
-export async function POST(req: Request) {
-  const startTime = Date.now();
 
-  try {
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const body = await req.json();
     const { urls } = body;
 
@@ -19,7 +17,7 @@ export async function POST(req: Request) {
     for (const url of urls) {
       try {
         // We use got-scraping to spoof TLS fingerprints and appear as a real browser
-        const response = await gotScraping.get(url, {
+        const response = await stealthGet(url, {
           headerGeneratorOptions: {
             devices: ['mobile'],
             browsers: ['safari'],
@@ -45,25 +43,8 @@ export async function POST(req: Request) {
       }
     }
 
-    return NextResponse.json({
-      success: true,
-      data: results,
-      metadata: {
-        timestamp: new Date().toISOString(),
-        execution_time_ms: Date.now() - startTime
-      },
-      error: null
-    });
+    return results;
 
-  } catch (error: any) {
-    return NextResponse.json({
-      success: false,
-      data: null,
-      metadata: {
-        timestamp: new Date().toISOString(),
-        execution_time_ms: Date.now() - startTime
-      },
-      error: error.message
-    }, { status: 400 });
-  }
-}
+
+
+});

@@ -1,17 +1,17 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
-import { gotScraping } from 'got-scraping';
 import * as cheerio from 'cheerio';
 
 // 4.4 Telegram Downloader - Message & Media
-export async function POST(req: Request) {
-  const startTime = Date.now();
-  try {
+
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const { channel_url, limit = 20 } = await req.json();
     if (!channel_url) throw new Error('channel_url is required');
 
     // Change t.me to t.me/s/ for web preview without app prompt
     const webUrl = channel_url.replace('t.me/', 't.me/s/');
-    const response = await gotScraping.get(webUrl, { headerGeneratorOptions: { browsers: ['chrome'] } });
+    const response = await stealthGet(webUrl, { headerGeneratorOptions: { browsers: ['chrome'] } });
     const $ = cheerio.load(response.body);
 
     const history: any[] = [];
@@ -33,13 +33,7 @@ export async function POST(req: Request) {
        });
     });
 
-    return NextResponse.json({
-      success: true,
-      data: { channel: $('.tgme_channel_info_header_title').text().trim(), limit, total_extracted: history.length, history },
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: null
-    });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, data: null, metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime }, error: error.message }, { status: 400 });
-  }
-}
+    return { channel: $('.tgme_channel_info_header_title').text().trim(), limit, total_extracted: history.length, history };
+
+
+});

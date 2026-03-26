@@ -1,11 +1,11 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
-import { gotScraping } from 'got-scraping';
 import * as cheerio from 'cheerio';
 
 // 2.10 Telegram Video Metadata
-export async function POST(req: Request) {
-  const startTime = Date.now();
-  try {
+
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const { post_urls } = await req.json();
     if (!post_urls || !Array.isArray(post_urls)) throw new Error('post_urls array is required');
 
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     for (const url of post_urls) {
         // Change t.me to t.me/s/ for web preview without app prompt
         const webUrl = url.replace('t.me/', 't.me/s/');
-        const response = await gotScraping.get(webUrl, { headerGeneratorOptions: { browsers: ['chrome'] } });
+        const response = await stealthGet(webUrl, { headerGeneratorOptions: { browsers: ['chrome'] } });
         const $ = cheerio.load(response.body);
 
         // Find the specific post by id (e.g., /s/channel/123)
@@ -42,13 +42,7 @@ export async function POST(req: Request) {
         });
     }
 
-    return NextResponse.json({
-      success: true,
-      data: results,
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: null
-    });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, data: null, metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime }, error: error.message }, { status: 400 });
-  }
-}
+    return results;
+
+
+});

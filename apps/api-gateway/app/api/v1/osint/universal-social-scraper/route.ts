@@ -1,18 +1,17 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
-import { gotScraping } from 'got-scraping';
 import * as cheerio from 'cheerio';
 
 // 6.7 ALL Social Media/WebScraper
-export async function POST(req: Request) {
-  const startTime = Date.now();
 
-  try {
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const body = await req.json();
     const { url } = body;
 
     if (!url) throw new Error('url is required');
 
-    const response = await gotScraping.get(url, {
+    const response = await stealthGet(url, {
        headerGeneratorOptions: { browsers: ['chrome'] }
     });
 
@@ -39,28 +38,14 @@ export async function POST(req: Request) {
         profileData.handle = handleMatch ? handleMatch[1] : null;
     }
 
-    return NextResponse.json({
-      success: true,
-      data: {
+    return {
         platform,
         url,
         title,
         profile_data: profileData,
         avatar_url: image
-      },
-      metadata: {
-        timestamp: new Date().toISOString(),
-        execution_time_ms: Date.now() - startTime
-      },
-      error: null
-    });
+      };
 
-  } catch (error: any) {
-    return NextResponse.json({
-      success: false,
-      data: null,
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: error.message || 'Internal Server Error'
-    }, { status: 500 });
-  }
-}
+
+
+});

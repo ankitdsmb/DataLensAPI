@@ -1,9 +1,10 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
 
 // 5.8 Power Data Transformer
-export async function POST(req: Request) {
-  const startTime = Date.now();
-  try {
+
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const { dataset, operations = [] } = await req.json();
     if (!dataset || !Array.isArray(dataset)) throw new Error('Valid dataset array is required');
 
@@ -32,17 +33,11 @@ export async function POST(req: Request) {
         }
     }
 
-    return NextResponse.json({
-      success: true,
-      data: {
+    return {
         original_count: dataset.length,
         processed_count: processedData.length,
         processed_dataset: processedData
-      },
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: null
-    });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, data: null, metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime }, error: error.message }, { status: 400 });
-  }
-}
+      };
+
+
+});

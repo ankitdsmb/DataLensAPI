@@ -1,19 +1,18 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
-import { gotScraping } from 'got-scraping';
 import * as cheerio from 'cheerio';
 
 // 4.8 TikTok Frame Extractor
-export async function POST(req: Request) {
-  const startTime = Date.now();
 
-  try {
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const body = await req.json();
     const { video_url } = body;
 
     if (!video_url) throw new Error('video_url is required');
 
     // Make an HTTP request spoofing a desktop browser
-    const response = await gotScraping.get(video_url, {
+    const response = await stealthGet(video_url, {
       headerGeneratorOptions: {
          browsers: ['chrome'],
          os: ['windows']
@@ -58,23 +57,12 @@ export async function POST(req: Request) {
         animated: videoData.dynamicCover
     } : { default: ogImage, original: null, animated: null };
 
-    return NextResponse.json({
-      success: true,
-      data: {
+    return {
         video_url,
         title,
         thumbnails
-      },
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: null
-    });
+      };
 
-  } catch (error: any) {
-    return NextResponse.json({
-      success: false,
-      data: null,
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: error.message || 'Internal Server Error'
-    }, { status: 500 });
-  }
-}
+
+
+});

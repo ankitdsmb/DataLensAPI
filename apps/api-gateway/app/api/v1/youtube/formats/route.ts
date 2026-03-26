@@ -1,14 +1,13 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
-import { gotScraping } from 'got-scraping';
-
 // 3.2 YouTube Video Formats Scraper
-export async function POST(req: Request) {
-  const startTime = Date.now();
-  try {
+
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const { url } = await req.json();
     if (!url) throw new Error('url is required');
 
-    const response = await gotScraping.get(url, { headerGeneratorOptions: { browsers: ['chrome'] } });
+    const response = await stealthGet(url, { headerGeneratorOptions: { browsers: ['chrome'] } });
 
     // YouTube embeds video formats inside the streamingData object
     const match = response.body.match(/"streamingData":(\{.*?\})/);
@@ -38,17 +37,11 @@ export async function POST(req: Request) {
        }));
     };
 
-    return NextResponse.json({
-      success: true,
-      data: {
+    return {
         video_url: url,
         combined_formats: extractFormatInfo(formats),
         adaptive_formats: extractFormatInfo(adaptiveFormats)
-      },
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: null
-    });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, data: null, metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime }, error: error.message }, { status: 400 });
-  }
-}
+      };
+
+
+});

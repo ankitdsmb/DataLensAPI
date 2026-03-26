@@ -1,11 +1,10 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
-import { gotScraping } from 'got-scraping';
 import * as cheerio from 'cheerio';
 
-export async function POST(req: Request) {
-  const startTime = Date.now();
 
-  try {
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const body = await req.json();
     const { urls } = body;
 
@@ -15,7 +14,7 @@ export async function POST(req: Request) {
 
     for (const url of urls) {
       try {
-        const response = await gotScraping.get(url);
+        const response = await stealthGet(url);
         const $ = cheerio.load(response.body);
 
         // Try finding JSON-LD first
@@ -47,19 +46,8 @@ export async function POST(req: Request) {
       }
     }
 
-    return NextResponse.json({
-      success: true,
-      data: results,
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: null
-    });
+    return results;
 
-  } catch (error: any) {
-    return NextResponse.json({
-      success: false,
-      data: null,
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: error.message || 'Internal Server Error'
-    }, { status: 500 });
-  }
-}
+
+
+});

@@ -1,11 +1,9 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
-import { gotScraping } from 'got-scraping';
-
 // 4.5 Extract Emails, Contacts, & Socials from Any Website
-export async function POST(req: Request) {
-  const startTime = Date.now();
 
-  try {
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const body = await req.json();
     const { url } = body;
 
@@ -13,7 +11,7 @@ export async function POST(req: Request) {
       throw new Error('url is required in the payload.');
     }
 
-    const response = await gotScraping.get(url);
+    const response = await stealthGet(url);
     const html = response.body;
 
     // Regex patterns for extraction
@@ -21,40 +19,23 @@ export async function POST(req: Request) {
     const phoneRegex = /(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g;
     const socialRegex = /href="(https?:\/\/(?:www\.)?(?:linkedin|twitter|facebook|instagram|youtube)\.com\/[^"]+)"/gi;
 
-    const emails = [...new Set(html.match(emailRegex) || [])];
-    const phones = [...new Set(html.match(phoneRegex) || [])];
+    const emails = Array.from(new Set(html.match(emailRegex) || []));
+    const phones = Array.from(new Set(html.match(phoneRegex) || []));
 
     const socials: string[] = [];
     let match;
     while ((match = socialRegex.exec(html)) !== null) {
       socials.push(match[1]);
     }
-    const uniqueSocials = [...new Set(socials)];
+    const uniqueSocials = Array.from(new Set(socials));
 
-    return NextResponse.json({
-      success: true,
-      data: {
+    return {
         url,
         emails,
         phones,
         socials: uniqueSocials
-      },
-      metadata: {
-        timestamp: new Date().toISOString(),
-        execution_time_ms: Date.now() - startTime
-      },
-      error: null
-    });
+      };
 
-  } catch (error: any) {
-    return NextResponse.json({
-      success: false,
-      data: null,
-      metadata: {
-        timestamp: new Date().toISOString(),
-        execution_time_ms: Date.now() - startTime
-      },
-      error: error.message || 'Internal Server Error'
-    }, { status: 400 });
-  }
-}
+
+
+});

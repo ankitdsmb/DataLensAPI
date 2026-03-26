@@ -8,6 +8,7 @@
     "start": "next start -p 3001"
   },
   "dependencies": {
+    "@forensic/scraping-core": "^1.0.0",
     "@types/turndown": "^5.0.6",
     "cheerio": "^1.0.0-rc.12",
     "got-scraping": "^4.0.0",

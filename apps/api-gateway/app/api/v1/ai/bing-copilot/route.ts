@@ -1,10 +1,9 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
-import { gotScraping } from 'got-scraping';
-
 // 4.9 Bing Copilot API
-export async function POST(req: Request) {
-  const startTime = Date.now();
-  try {
+
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const { prompt, conversation_style = "precise" } = await req.json();
     if (!prompt) throw new Error('prompt is required');
 
@@ -15,7 +14,7 @@ export async function POST(req: Request) {
 
     // Simulate the initial HTTP GET to grab tokens before opening a WS connection
     const url = `https://www.bing.com/turing/conversation/create`;
-    const response = await gotScraping.get(url, {
+    const response = await stealthGet(url, {
       headers: {
          'Sec-CH-UA': '"Microsoft Edge";v="119", "Chromium";v="119"',
          'Accept': 'application/json',
@@ -28,9 +27,7 @@ export async function POST(req: Request) {
        throw new Error('Failed to create Bing conversation session.');
     }
 
-    return NextResponse.json({
-      success: true,
-      data: {
+    return {
         prompt,
         style: conversation_style,
         session: {
@@ -39,11 +36,7 @@ export async function POST(req: Request) {
             conversationSignature: tokenData.conversationSignature
         },
         message: "Session created. The actual websocket messaging requires a long-running Edge-GPT client implementation."
-      },
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: null
-    });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, data: null, metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime }, error: error.message }, { status: 400 });
-  }
-}
+      };
+
+
+});

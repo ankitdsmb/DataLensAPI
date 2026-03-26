@@ -1,14 +1,13 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
-import { gotScraping } from 'got-scraping';
-
 // 3.3 YouTube Captions Scraper
-export async function POST(req: Request) {
-  const startTime = Date.now();
-  try {
+
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const { video_url } = await req.json();
     if (!video_url) throw new Error('video_url is required');
 
-    const response = await gotScraping.get(video_url, { headerGeneratorOptions: { browsers: ['chrome'] } });
+    const response = await stealthGet(video_url, { headerGeneratorOptions: { browsers: ['chrome'] } });
 
     // YouTube embeds captions data in player_response
     const match = response.body.match(/"captionTracks":\[(.*?)\]/);
@@ -30,13 +29,7 @@ export async function POST(req: Request) {
 
     if (captions.length === 0) throw new Error("No captions found for this video");
 
-    return NextResponse.json({
-      success: true,
-      data: { video_url, available_captions: captions },
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: null
-    });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, data: null, metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime }, error: error.message }, { status: 400 });
-  }
-}
+    return { video_url, available_captions: captions };
+
+
+});

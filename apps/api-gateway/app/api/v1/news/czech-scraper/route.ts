@@ -1,12 +1,11 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
-import { gotScraping } from 'got-scraping';
 import * as cheerio from 'cheerio';
 
 // 5.10 Czech News Scraper
-export async function POST(req: Request) {
-  const startTime = Date.now();
 
-  try {
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const body = await req.json();
     const { site, limit_articles = 10 } = body;
 
@@ -16,7 +15,7 @@ export async function POST(req: Request) {
     let targetUrl = `https://www.novinky.cz/rss`;
     if (site.includes('idnes')) targetUrl = `https://servis.idnes.cz/rss.aspx`;
 
-    const response = await gotScraping.get(targetUrl);
+    const response = await stealthGet(targetUrl);
 
     // Parse XML using Cheerio with xmlMode
     const $ = cheerio.load(response.body, { xmlMode: true });
@@ -37,26 +36,12 @@ export async function POST(req: Request) {
       });
     });
 
-    return NextResponse.json({
-      success: true,
-      data: {
+    return {
         site,
         total_extracted: articles.length,
         articles
-      },
-      metadata: {
-        timestamp: new Date().toISOString(),
-        execution_time_ms: Date.now() - startTime
-      },
-      error: null
-    });
+      };
 
-  } catch (error: any) {
-    return NextResponse.json({
-      success: false,
-      data: null,
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: error.message || 'Internal Server Error'
-    }, { status: 500 });
-  }
-}
+
+
+});

@@ -1,14 +1,13 @@
+import { withScrapingHandler, stealthGet, stealthMobileGet } from '@forensic/scraping-core';
 import { NextResponse } from 'next/server';
-import { gotScraping } from 'got-scraping';
-
 // 2.9 YouTube Transcript Downloader
-export async function POST(req: Request) {
-  const startTime = Date.now();
-  try {
+
+export const POST = withScrapingHandler(async (req: Request) => {
+
     const { video_url, language = "en" } = await req.json();
     if (!video_url) throw new Error('video_url is required');
 
-    const response = await gotScraping.get(video_url, { headerGeneratorOptions: { browsers: ['chrome'] } });
+    const response = await stealthGet(video_url, { headerGeneratorOptions: { browsers: ['chrome'] } });
 
     // YouTube embeds captions data in player_response
     const match = response.body.match(/"captionTracks":\[(.*?)\]/);
@@ -25,18 +24,12 @@ export async function POST(req: Request) {
     let transcript = "Not available or requires JS hydration";
     if (captionsUrl) {
         // Fetch the raw XML transcript
-        const xmlResponse = await gotScraping.get(captionsUrl);
+        const xmlResponse = await stealthGet(captionsUrl);
         // Extremely simple parsing. A real implementation uses cheerio to parse XML and output VTT/SRT.
         transcript = xmlResponse.body.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
     }
 
-    return NextResponse.json({
-      success: true,
-      data: { video_url, transcript_preview: transcript.substring(0, 500) + "..." },
-      metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime },
-      error: null
-    });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, data: null, metadata: { timestamp: new Date().toISOString(), execution_time_ms: Date.now() - startTime }, error: error.message }, { status: 400 });
-  }
-}
+    return { video_url, transcript_preview: transcript.substring(0, 500) + "..." };
+
+
+});
