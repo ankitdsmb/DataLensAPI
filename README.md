@@ -1,49 +1,83 @@
-# OpenIntel / OmniScrape / NexusAPI
+# Forensic Scraping API Gateway
 
-Welcome to the central repository for your Forensic Analysis & Data Extraction API Suite.
+This project is a high-performance, modular API gateway built with **Next.js App Router** and **Turborepo**. It hosts 50 distinct scraping and data-extraction APIs designed using **DRY** and **SOLID** principles.
 
-## Project Name Suggestions
-Choosing a strong name helps build trust with users of your free tool website. Here are some options based on the "forensic analysis" and "open-source scraping" nature of the suite:
+## 🚀 Quick Start (Local Setup)
 
-1. **OpenIntel (or OpenIntel API):** Professional, implies Open-Source Intelligence (OSINT).
-2. **OmniScrape:** Focuses on the "all-in-one" nature of the 50 tools.
-3. **NexusAPI:** Sounds like a central hub or gateway for multiple data sources.
-4. **ForensicX:** Sharp, edgy, focuses heavily on the "deep analysis" aspect.
-5. **DataLens API:** Implies focusing in and analyzing raw data from the web.
+Follow these steps to configure and run the repository locally on your machine.
 
-*For the purpose of this architecture, we will refer to it as the "OmniScrape Monorepo".*
+### Prerequisites
 
-## Why One Git Repository is 100% Sufficient (and Recommended)
+1. **Node.js**: Ensure you have Node.js version 18+ installed. You can check your version by running:
+   `node -v`
+2. **Git**: Ensure Git is installed to clone the repository.
 
-Yes, **one single Git repository is absolutely sufficient** and is the industry standard for this type of architecture. This is called a **Monorepo** (Monolithic Repository).
+### Step 1: Clone the Repository
 
-### Why a Monorepo is the Best Choice for 50 APIs:
-If you created 50 different Git repositories for 50 APIs, maintaining them would be a nightmare. Updating a single shared utility (like a proxy rotation script) would require 50 separate commits.
+Clone the project to your local machine and navigate into the root directory:
 
-By using one Git repository managed by **Turborepo** or **npm workspaces**, you gain massive advantages:
+`git clone https://github.com/your-username/your-repo-name.git`
+`cd your-repo-name`
 
-1. **Shared Code:** You can write your `fetchHTML()`, `rotateProxy()`, and `handleErrors()` functions once in a `packages/shared` folder, and all 50 APIs can import and use them instantly.
-2. **Unified Deployments:** 
-   * When you push to the `main` branch, Vercel automatically detects changes in the `apps/api-gateway` folder and deploys your lightweight serverless APIs.
-   * Render automatically detects changes in the `apps/scraper-service` folder and deploys your heavyweight headless browser API.
-3. **Single Dependency Tree:** You only need to install heavy libraries like `puppeteer` or `cheerio` once.
-4. **Unified Frontend:** You can build your frontend website (`apps/web-frontend`) right next to your APIs. The frontend can instantly import TypeScript types from the backend, ensuring your UI always knows exactly what the API responses look like.
 
-### Monorepo Structure Example
+### Step 2: Install Dependencies
 
-```text
-/omni-scrape-monorepo (Your single Git Repo)
-├── apps/
-│   ├── web-frontend/       (The UI for your free tools)
-│   ├── api-serverless/     (40 lightweight APIs hosted on Vercel)
-│   └── api-heavyweight/    (10 Playwright APIs hosted on Render)
-└── packages/
-    ├── types/              (TypeScript interfaces)
-    └── scraper-core/       (Your stealth and proxy logic)
+This project uses `npm` workspaces via Turborepo. Install all root and sub-package dependencies by running:
+
+`npm install`
+
+
+### Step 3: Build Core Libraries
+
+Before running the API Gateway, you need to build the shared libraries (such as `packages/scraping-core`). Turborepo handles this automatically:
+
+`npm run build`
+
+
+### Step 4: Run the Development Server
+
+Start the local development server for the Next.js API Gateway:
+
+`npm run dev`
+
+
+Alternatively, to start the production-optimized build:
+`npm run start --workspace=apps/api-gateway`
+
+The server will start on `http://localhost:3000`.
+
+### Step 5: Test an API Endpoint
+
+Once the server is running, you can test one of the endpoints using `curl`, Postman, or your browser.
+
+Example using `curl` to test the 9GAG downloader API:
+
+```bash
+curl -X POST http://localhost:3000/api/v1/9gag/downloader \
+  -H "Content-Type: application/json" \
+  -d '{"post_url": "https://9gag.com/gag/aOQQp12"}'
 ```
 
-## Documentation References
-For full technical details on how these APIs are structured and deployed for free, please review:
-* [TECHNICAL_DESIGN.md](./TECHNICAL_DESIGN.md) - Payload, request, and response schemas for the APIs.
-* [STRATEGY.md](./STRATEGY.md) - The free-tier deployment and hosting architecture.
+You should receive a standardized JSON response:
+```json
+{
+  "success": true,
+  "data": {
+    "title": "Example Post",
+    "media_type": "image",
+    "image_url": "...",
+    "upvotes": 1234
+  }
+}
+```
+
+---
+
+## 🏗️ Architecture Overview
+
+Please refer to the [FORENSIC_ARCHITECTURE_REPORT.md](./FORENSIC_ARCHITECTURE_REPORT.md) for a deep dive into:
+- The Monorepo Structure (`apps/`, `packages/`).
+- The DRY/SOLID core (`withScrapingHandler`, `stealthGet`).
+- Deployment strategies for Vercel (Free) and Render.com Docker (Free).
+- CI/CD Configurations using GitHub Actions.
 
