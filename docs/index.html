@@ -474,5 +474,94 @@
         <div class="section-title">Coding Recall Notes</div>
         <p>Utilized Apple's public <code>itunes.apple.com/lookup</code> JSON API directly.</p>
     </div>
+    <!-- Task 21: arXiv Article Metadata Scraper -->
+    <div class="api-card">
+        <h2>21. arXiv Article Metadata Scraper</h2>
+        <div class="endpoint">POST /api/v1/academic/arxiv-scraper</div>
+        <p><strong>Use Case:</strong> Extract paper title, authors, abstract, and PDF link from an arXiv ID URL.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Basic DOM parsing targeting <code>.title</code>, <code>.authors</code>, and <code>.abstract</code>. Transformed <code>/abs/</code> URL to <code>/pdf/</code>.</p>
+    </div>
+
+    <!-- Task 22: Extract Emails, Socials and Contacts (Fastest version) -->
+    <div class="api-card">
+        <h2>22. Website Contact Extractor (Fast)</h2>
+        <div class="endpoint">POST /api/v1/osint/website-contact-extractor-fast</div>
+        <p><strong>Use Case:</strong> High-speed extraction of emails and phones bypassing Cheerio.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Utilized standard Edge/Node <code>fetch()</code> instead of got-scraping and directly applied Regex to <code>response.text()</code>.</p>
+    </div>
+
+    <!-- Task 23: Google Play Api -->
+    <div class="api-card">
+        <h2>23. Google Play Api</h2>
+        <div class="endpoint">POST /api/v1/apps/google-play-scraper</div>
+        <p><strong>Use Case:</strong> Scrape basic app metadata (title, dev, icon) given an Android package name.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Extracted <code>AF_initDataCallback</code> JSON arrays using Regex to parse the heavily obfuscated description data.</p>
+    </div>
+
+    <!-- Task 24: Youtube Transcript Scraper - Advanced -->
+    <div class="api-card">
+        <h2>24. Youtube Transcript Scraper - Advanced</h2>
+        <div class="endpoint">POST /api/v1/youtube/transcript-advanced</div>
+        <p><strong>Use Case:</strong> Fetch YouTube subtitles, auto-translate via `tlang`, and output as SRT formatted strings.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Modified <code>captionTracks</code> baseUrl. Parsed XML nodes using Regex and mapped <code>dur</code>/<code>start</code> attributes to SRT timestamps.</p>
+    </div>
+
+    <!-- Task 25: LinkedIn Job Scraper (Lightweight) -->
+    <div class="api-card">
+        <h2>25. LinkedIn Job Scraper (Lightweight)</h2>
+        <div class="endpoint">POST /api/v1/jobs/linkedin-lite</div>
+        <p><strong>Use Case:</strong> Search the public LinkedIn jobs directory without a session cookie.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Parsed the public <code>/jobs/search</code> HTML directory using Cheerio selectors targeting <code>.base-search-card</code>.</p>
+    </div>
+
+    <!-- Task 26: YouTube Video Heatmap Scraper -->
+    <div class="api-card">
+        <h2>26. YouTube Video Heatmap Scraper</h2>
+        <div class="endpoint">POST /api/v1/youtube/heatmap</div>
+        <p><strong>Use Case:</strong> Extract engagement heatmap (retention) curves from YouTube videos.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Extracted the <code>MARKER_TYPE_HEATMAP</code> JSON list embedded in the <code>markerMap</code> response string.</p>
+    </div>
+
+    <!-- Task 27: Adobe Stock Search Results Scraper -->
+    <div class="api-card">
+        <h2>27. Adobe Stock Search Results Scraper</h2>
+        <div class="endpoint">POST /api/v1/stock/adobe-scraper</div>
+        <p><strong>Use Case:</strong> Scrape Adobe Stock search results (images/videos) and metadata.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Iterated over <code>.search-result-item-card</code> parsing image <code>src</code> and <code>data-id</code> attributes.</p>
+    </div>
+
+    <!-- Task 28: Vimeo Video Scraper -->
+    <div class="api-card">
+        <h2>28. Vimeo Video Scraper</h2>
+        <div class="endpoint">POST /api/v1/vimeo/video-scraper</div>
+        <p><strong>Use Case:</strong> Extract Vimeo metadata including stats (likes, plays) and author profile info.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Parsed the <code>window.vimeo.clip_page_config</code> JSON object directly from the page source.</p>
+    </div>
+
+    <!-- Task 29: FireScrape AI Markdown Scraper -->
+    <div class="api-card">
+        <h2>29. FireScrape AI Markdown Scraper</h2>
+        <div class="endpoint">POST /api/v1/ai/firescrape-markdown</div>
+        <p><strong>Use Case:</strong> Clean a webpage and convert its core article content into LLM-ready Markdown.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Stripped noisy tags via Cheerio, extracted <code>&lt;article&gt;</code> HTML, and processed it using the <code>turndown</code> npm package.</p>
+    </div>
+
+    <!-- Task 30: Power Data Transformer -->
+    <div class="api-card">
+        <h2>30. Power Data Transformer</h2>
+        <div class="endpoint">POST /api/v1/data/transformer</div>
+        <p><strong>Use Case:</strong> Cleanse JSON arrays via trimming and JSON-stringify deduplication.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Used vanilla JavaScript arrays/sets to perform in-memory data manipulation pipeline.</p>
+    </div>
 </body>
 </html>
