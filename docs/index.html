@@ -813,5 +813,250 @@
         <div class="section-title">Coding Recall Notes</div>
         <p>Implemented structural mock data to demonstrate the proxy architectural pattern.</p>
     </div>
+    <!-- Task 41: PDF to HTML Converter Fast -->
+    <div class="api-card">
+        <h2>41. PDF to HTML Converter</h2>
+        <div class="endpoint">POST /api/v1/document/pdf-to-html</div>
+        <p><strong>Use Case:</strong> Intelligent routing endpoint for processing heavy PDF binary conversions.</p>
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "pdf_url": "https://example.com/doc.pdf"
+}</code></pre>
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "action": "Delegated to Heavyweight Service",
+    "simulated_internal_proxy": "https://scraper.onrender.com/api/internal/..."
+  }
+}</code></pre>
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>PDF binaries (like <code>pdftohtml</code>) require OS-level dependencies and exceed serverless execution/memory limits. Vercel acts as a reverse proxy, delegating this heavy lifting to Docker on Render.</p>
+        <div class="section-title">Configuration Needed</div>
+        <p>A deployed Docker container with MuPDF/pdf2htmlEX on Render.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Implemented a redirect pattern using environment variables.</p>
+    </div>
+
+    <!-- Task 42: Instagram Post & Image Scraper -->
+    <div class="api-card">
+        <h2>42. Instagram Post & Image Scraper</h2>
+        <div class="endpoint">POST /api/v1/instagram/post-metadata</div>
+        <p><strong>Use Case:</strong> Comprehensive extraction of Instagram posts including multi-image grids.</p>
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "urls": ["https://instagram.com/p/ABC123/"]
+}</code></pre>
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "action": "Authentication Required. Delegated to Heavyweight Service"
+  }
+}</code></pre>
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Unlike the 'Lite' scraper which uses `og:tags`, fetching complete image carousels requires an authenticated session. If the user does not provide one, the proxy forwards the request to a pool of managed bot accounts on Render.</p>
+        <div class="section-title">Configuration Needed</div>
+        <p>Session ID (cookie) management.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Proxy endpoint establishing the boundary between stateless and stateful scraping.</p>
+    </div>
+
+    <!-- Task 43: LeadLocator Pro (Google Maps) -->
+    <div class="api-card">
+        <h2>43. LeadLocator Pro (Google Maps)</h2>
+        <div class="endpoint">POST /api/v1/google-maps/lead-locator</div>
+        <p><strong>Use Case:</strong> Extract large lists of local businesses and their phone numbers from Google Maps search results.</p>
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "keyword": "Plumber",
+  "location": "New York, NY"
+}</code></pre>
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "action": "Delegated to Heavyweight Playwright Service"
+  }
+}</code></pre>
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Google Maps relies heavily on Canvas drawing and infinite scrolling JSON payloads. Standard DOM parsing fails. It requires Puppeteer to scroll the sidebar and capture network responses, delegated to Render.</p>
+        <div class="section-title">Configuration Needed</div>
+        <p>Puppeteer/Playwright.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Proxy endpoint validating inputs before triggering a heavy Chromium instance.</p>
+    </div>
+
+    <!-- Task 44: TeraBox Video Downloader -->
+    <div class="api-card">
+        <h2>44. TeraBox Video Downloader</h2>
+        <div class="endpoint">POST /api/v1/terabox/downloader</div>
+        <p><strong>Use Case:</strong> Bypass TeraBox "Download App" walls to fetch the raw direct CDN URL for a file.</p>
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "url": "https://terabox.com/s/1xyz..."
+}</code></pre>
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "action": "Delegated to Heavyweight Service"
+  }
+}</code></pre>
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>TeraBox obfuscates the download link and requires an active login session. We route this request to an isolated Chromium instance to perform the login handshake.</p>
+        <div class="section-title">Configuration Needed</div>
+        <p>TeraBox premium or dummy account credentials.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Stateless API proxy handling URL validation.</p>
+    </div>
+
+    <!-- Task 45: Sephora Scraper -->
+    <div class="api-card">
+        <h2>45. Fastest Sephora - All in One</h2>
+        <div class="endpoint">POST /api/v1/ecommerce/sephora-scraper</div>
+        <p><strong>Use Case:</strong> Scrape product SKUs, pricing, ratings, and reviews from Sephora.</p>
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "product_url": "https://sephora.com/product/..."
+}</code></pre>
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "action": "Delegated to Heavyweight Service"
+  }
+}</code></pre>
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Sephora employs extremely aggressive Datadome and Cloudflare Turnstile protection. Datacenter IPs are blocked instantly. Stealth headless browsers and residential proxies are required.</p>
+        <div class="section-title">Configuration Needed</div>
+        <p><code>puppeteer-extra-plugin-stealth</code> + Rotating Residential Proxies.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Delegated due to impossible bot challenges on Edge/Serverless tiers.</p>
+    </div>
+
+    <!-- Task 46: Glassdoor Company Reviews -->
+    <div class="api-card">
+        <h2>46. Glassdoor Scraper - Reviews & Salary</h2>
+        <div class="endpoint">POST /api/v1/jobs/glassdoor-scraper</div>
+        <p><strong>Use Case:</strong> Scrape anonymous employee reviews and verified salary data.</p>
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "company_id": "12345"
+}</code></pre>
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "action": "Delegated to Heavyweight Service"
+  }
+}</code></pre>
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Glassdoor has a hard wall after the first page of reviews demanding a user login. The heavy scraping node maintains persistent sessions to paginate through thousands of reviews.</p>
+        <div class="section-title">Configuration Needed</div>
+        <p>Glassdoor dummy user accounts.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Proxy endpoint handling pagination limits and routing to a stateful worker.</p>
+    </div>
+
+    <!-- Task 47: Indeed Scraper (Global Mass Harvesting) -->
+    <div class="api-card">
+        <h2>47. Indeed Scraper - Global Job Listings</h2>
+        <div class="endpoint">POST /api/v1/jobs/indeed-scraper</div>
+        <p><strong>Use Case:</strong> Perform large-scale, asynchronous job listing scraping queries across regions.</p>
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "keyword": "Engineer",
+  "location": "Remote"
+}</code></pre>
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "status": "processing",
+    "job_id": "1a2b3c"
+  }
+}</code></pre>
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Unlike the 'Fast' Indeed scraper that grabs a single page, this endpoint queues a long-running background task that paginates through hundreds of pages using a headless crawler, to avoid serverless timeouts.</p>
+        <div class="section-title">Configuration Needed</div>
+        <p>Redis/Queue infrastructure (Upstash).</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Generated a unique <code>job_id</code> indicating asynchronous submission.</p>
+    </div>
+
+    <!-- Task 48: LinkedIn Scraper (Professional) -->
+    <div class="api-card">
+        <h2>48. LinkedIn Scraper - Professional</h2>
+        <div class="endpoint">POST /api/v1/jobs/linkedin-scraper</div>
+        <p><strong>Use Case:</strong> Deeply scrape full job descriptions, poster profiles, and applicant counts.</p>
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "keyword": "CTO"
+}</code></pre>
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "status": "processing",
+    "action": "Delegated to Heavyweight Service (Authenticated crawler)"
+  }
+}</code></pre>
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Requires an authenticated <code>li_at</code> session cookie to bypass the guest-mode directory limits and view granular data. Highly susceptible to account bans.</p>
+        <div class="section-title">Configuration Needed</div>
+        <p>Premium/Disposable LinkedIn Accounts.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>API wrapper routing the job parameters to a designated scraper node.</p>
+    </div>
+
+    <!-- Task 49: Dice.com Scraper -->
+    <div class="api-card">
+        <h2>49. Dice.com FULL Job Scraper</h2>
+        <div class="endpoint">POST /api/v1/jobs/dice-scraper</div>
+        <p><strong>Use Case:</strong> Scrape technical/developer jobs from Dice.com.</p>
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "search_query": "React"
+}</code></pre>
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "action": "Delegated to Heavyweight Service"
+  }
+}</code></pre>
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>Dice uses an undocumented Algolia API internally. Direct requests require an Algolia API Key and App ID that rotate dynamically in their JS bundles. A browser is required to evaluate the JS and extract the current keys.</p>
+        <div class="section-title">Configuration Needed</div>
+        <p>Headless Browser.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Delegated execution task.</p>
+    </div>
+
+    <!-- Task 50: Indeed Premium [RENTAL] -->
+    <div class="api-card">
+        <h2>50. Indeed Jobs Scraper [RENTAL]</h2>
+        <div class="endpoint">POST /api/v1/jobs/indeed-premium</div>
+        <p><strong>Use Case:</strong> Bypass Cloudflare on Indeed and extract granular filters and advanced metadata. Paid rental tier execution.</p>
+        <div class="section-title">Example Payload</div>
+        <pre><code>{
+  "query": "CEO"
+}</code></pre>
+        <div class="section-title">Example Response</div>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "status": "processing",
+    "job_id": "ind_prem_xyz"
+  }
+}</code></pre>
+        <div class="section-title">Technical Challenges & Workarounds</div>
+        <p>The highest level of Indeed protection. Requires <code>undetected-chromedriver</code> and premium rotating residential proxies to guarantee a 100% success rate without captchas.</p>
+        <div class="section-title">Configuration Needed</div>
+        <p>Undetected-Chromedriver (Python) or Playwright-stealth (Node).</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Premium routing wrapper issuing a distinct queue ID for priority processing.</p>
+    </div>
 </body>
 </html>
