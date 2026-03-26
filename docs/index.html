@@ -385,5 +385,94 @@
         <div class="section-title">Coding Recall Notes</div>
         <p>Iterated over <code>$('script[type="application/ld+json"]')</code>. Parsed each JSON block looking for an object where <code>@type === 'Recipe'</code>. Mapped the structured schema properties (like <code>recipeIngredient</code> and <code>recipeInstructions</code>) directly to the API response.</p>
     </div>
+    <!-- Task 11: Free Youtube Playlist Scraper -->
+    <div class="api-card">
+        <h2>11. Free Youtube Playlist Scraper</h2>
+        <div class="endpoint">POST /api/v1/youtube/playlist</div>
+        <p><strong>Use Case:</strong> Extract basic playlist data (title, basic video list) from YouTube.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Regex matching <code>/var ytInitialData = ({.*?});/</code> to extract the hydrated JSON state.</p>
+    </div>
+
+    <!-- Task 12: Instagram Post Downloader -->
+    <div class="api-card">
+        <h2>12. Instagram Post Downloader</h2>
+        <div class="endpoint">POST /api/v1/instagram/media-downloader</div>
+        <p><strong>Use Case:</strong> Retrieve media URLs (images/videos) from a public Instagram post.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Extracted <code>og:video</code> or <code>og:image</code> tags via Regex on the raw HTML response.</p>
+    </div>
+
+    <!-- Task 13: YouTube Transcript Downloader -->
+    <div class="api-card">
+        <h2>13. YouTube Transcript Downloader</h2>
+        <div class="endpoint">POST /api/v1/youtube/transcript</div>
+        <p><strong>Use Case:</strong> Fetch raw auto-generated subtitle data (XML) from a YouTube video.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Extracted <code>captionTracks</code> JSON array from YouTube HTML body via Regex and fetched the <code>baseUrl</code>.</p>
+    </div>
+
+    <!-- Task 14: Telegram Video Metadata -->
+    <div class="api-card">
+        <h2>14. Telegram Video Metadata</h2>
+        <div class="endpoint">POST /api/v1/telegram/media-metadata</div>
+        <p><strong>Use Case:</strong> Extract video URLs and message text from public Telegram channels.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Converted <code>t.me</code> to <code>t.me/s/</code> for web preview. Parsed DOM using Cheerio for <code>.tgme_widget_message_text</code> and <code>&lt;video&gt; src</code>.</p>
+    </div>
+
+    <!-- Task 15: YouTube Video Formats Scraper -->
+    <div class="api-card">
+        <h2>15. YouTube Video Formats Scraper</h2>
+        <div class="endpoint">POST /api/v1/youtube/formats</div>
+        <p><strong>Use Case:</strong> List available audio/video streaming formats (DASH/progressive) for a video.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Extracted <code>streamingData</code> JSON from YouTube HTML body to expose format arrays.</p>
+    </div>
+
+    <!-- Task 16: YouTube Captions Scraper -->
+    <div class="api-card">
+        <h2>16. YouTube Captions Scraper</h2>
+        <div class="endpoint">POST /api/v1/youtube/captions</div>
+        <p><strong>Use Case:</strong> List available subtitle languages and types for a video.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Parsed <code>captionTracks</code> JSON array from the player response object embedded in HTML.</p>
+    </div>
+
+    <!-- Task 17: Vimeo Video Downloader -->
+    <div class="api-card">
+        <h2>17. Vimeo Video Downloader</h2>
+        <div class="endpoint">POST /api/v1/vimeo/video-downloader</div>
+        <p><strong>Use Case:</strong> Extract direct <code>.mp4</code> URLs and metadata from Vimeo videos.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Extracted <code>window.vimeo.clip_page_config</code> JSON. Fetched the internal <code>config_url</code> to retrieve progressive MP4 files.</p>
+    </div>
+
+    <!-- Task 18: Bank Routing Number Lookup -->
+    <div class="api-card">
+        <h2>18. Bank Routing Number Lookup</h2>
+        <div class="endpoint">POST /api/v1/finance/routing-lookup</div>
+        <p><strong>Use Case:</strong> Validate and retrieve US bank details given a 9-digit routing number.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Scraped a public directory HTML table using Cheerio matching cell text.</p>
+    </div>
+
+    <!-- Task 19: Bing Copilot API -->
+    <div class="api-card">
+        <h2>19. Bing Copilot API</h2>
+        <div class="endpoint">POST /api/v1/ai/bing-copilot</div>
+        <p><strong>Use Case:</strong> Initiate a conversation session with Bing Copilot (Edge-GPT).</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Spoofed Edge headers to fetch conversation tokens from the internal <code>/turing/conversation/create</code> endpoint.</p>
+    </div>
+
+    <!-- Task 20: Apple Store API -->
+    <div class="api-card">
+        <h2>20. Apple Store API</h2>
+        <div class="endpoint">POST /api/v1/apps/app-store-scraper</div>
+        <p><strong>Use Case:</strong> Fetch comprehensive iOS app metadata via App ID.</p>
+        <div class="section-title">Coding Recall Notes</div>
+        <p>Utilized Apple's public <code>itunes.apple.com/lookup</code> JSON API directly.</p>
+    </div>
 </body>
 </html>
