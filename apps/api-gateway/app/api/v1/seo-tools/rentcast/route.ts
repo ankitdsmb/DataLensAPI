@@ -1,0 +1,31 @@
+import {
+  createToolPolicy,
+  readJsonBody,
+  RequestValidationError,
+  withScrapingHandler
+} from '@forensic/scraping-core';
+
+const rentcastPolicy = createToolPolicy({
+  timeoutMs: 10000,
+  maxPayloadBytes: 64 * 1024,
+  maxUrlCount: 1,
+  anonymous: true,
+  cacheTtlSeconds: 60
+});
+
+export const POST = withScrapingHandler({ policy: rentcastPolicy }, async (req: Request) => {
+  const body = await readJsonBody<Record<string, unknown>>(req, rentcastPolicy);
+  const address = typeof body.address === 'string' ? body.address.trim() : '';
+
+  if (!address) {
+    throw new RequestValidationError('address is required', { field: 'address' });
+  }
+
+  const lookupUrl = `https://www.rentcast.io/?address=${encodeURIComponent(address)}`;
+
+  return {
+    address,
+    lookupUrl,
+    status: 'pending_api_key'
+  };
+});

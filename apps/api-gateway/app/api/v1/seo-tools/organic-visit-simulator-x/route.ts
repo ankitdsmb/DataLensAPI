@@ -1,0 +1,24 @@
+import {
+  collectUrlInputs,
+  createToolPolicy,
+  readJsonBody,
+  withScrapingHandler
+} from '@forensic/scraping-core';
+
+const organicVisitPolicy = createToolPolicy({
+  timeoutMs: 10000,
+  maxPayloadBytes: 64 * 1024,
+  maxUrlCount: 10,
+  anonymous: true,
+  cacheTtlSeconds: 60
+});
+
+export const POST = withScrapingHandler({ policy: organicVisitPolicy }, async (req: Request) => {
+  const body = await readJsonBody<Record<string, unknown>>(req, organicVisitPolicy);
+  const urls = collectUrlInputs(body, organicVisitPolicy);
+
+  return {
+    status: 'queued',
+    urls
+  };
+});

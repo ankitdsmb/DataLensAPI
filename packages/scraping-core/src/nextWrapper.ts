@@ -3,14 +3,6 @@ import { createErrorResponse, createRequestId, createResponse } from './apiWrapp
 import { DEFAULT_TOOL_POLICY } from './policy';
 import type { ToolExecutionPolicy } from '../../shared-types/src';
 import { RequestValidationError } from './validation';
-
-/**
- * Higher Order Function to wrap Next.js API Route handlers.
- * It enforces the try/catch logic, timing, and standardized NextResponse formatting.
- *
- * SOLID: Open-Closed Principle - we can extend the wrapper's logging/tracking
- * without modifying the actual scraping route logic.
- */
 type ScrapingHandlerOptions = {
   policy?: Partial<ToolExecutionPolicy>;
 };
@@ -28,14 +20,31 @@ function resolveScrapingOptions(options?: ScrapingHandlerOptions): ResolvedScrap
   };
 }
 
-export function withScrapingHandler(handler: (req: Request) => Promise<any>): (req: Request) => Promise<NextResponse>;
-export function withScrapingHandler(
-  options: ScrapingHandlerOptions,
-  handler: (req: Request) => Promise<any>
+function resolveErrorStatus(error: unknown): number {
+  if (error instanceof RequestValidationError) {
+    return error.status;
+  }
+
+  if (error instanceof Error) {
+    const status = (error as Error & { status?: unknown }).status;
+    if (typeof status === 'number' && Number.isInteger(status)) {
+      return status;
+    }
+  }
+
+  return 500;
+}
+
+export function withScrapingHandler<T>(
+  handler: (req: Request) => Promise<T>
 ): (req: Request) => Promise<NextResponse>;
 export function withScrapingHandler(
-  optionsOrHandler: ScrapingHandlerOptions | ((req: Request) => Promise<any>),
-  maybeHandler?: (req: Request) => Promise<any>
+  options: ScrapingHandlerOptions,
+  handler: (req: Request) => Promise<unknown>
+): (req: Request) => Promise<NextResponse>;
+export function withScrapingHandler<T>(
+  optionsOrHandler: ScrapingHandlerOptions | ((req: Request) => Promise<T>),
+  maybeHandler?: (req: Request) => Promise<T>
 ) {
   const handler = typeof optionsOrHandler === 'function' ? optionsOrHandler : maybeHandler;
   const options = typeof optionsOrHandler === 'function' ? resolveScrapingOptions() : resolveScrapingOptions(optionsOrHandler);
@@ -66,10 +75,14 @@ export function withScrapingHandler(
           'x-request-id': requestId
         }
       });
-    } catch (error: any) {
-      const stdErr = createErrorResponse(error, startTime, { requestId });
+    } catch (error) {
+      const normalizedError =
+        typeof error === 'string' || error instanceof Error
+          ? error
+          : new Error('Internal Server Error');
+      const stdErr = createErrorResponse(normalizedError, startTime, { requestId });
       return NextResponse.json(stdErr, {
-        status: error.status || 400,
+        status: resolveErrorStatus(error),
         headers: {
           'x-request-id': requestId
         }

@@ -28,8 +28,8 @@
 - Repo positioning: `README.md`, `docs/FORENSIC_ARCHITECTURE_REPORT.md`
 - Shared timeout and HTTP wrapper: `packages/scraping-core/src/httpClient.ts`
 - Standard response envelope: `packages/scraping-core/src/apiWrapper.ts`
-- Example lightweight implementation: `apps/api-gateway/app/api/v1/seo/keyword-density/route.ts`
-- Example placeholder heavy delegation: `apps/api-gateway/app/api/v1/jobs/linkedin-scraper/route.ts`
+- Example lightweight implementation: `apps/api-gateway/app/api/v1/seo-tools/keyword-density-checker/route.ts`
+- Example placeholder heavy delegation: `apps/api-gateway/app/api/v1/seo-tools/quick-lh/route.ts`
 - Current heavy worker placeholder: `apps/scraper-service/index.js`
 
 ### Findings Table
@@ -574,4 +574,3 @@ Do **not** implement the raw ticket list directly. Convert it into canonical fam
 - `docs/reports/2026-03-26-toolnexus-integration-contract.csv`
 - `docs/reports/2026-03-26-api-family-implementation-plan.csv`
 - `docs/reports/2026-03-26-api-forensic-implementation-plan.md`
-

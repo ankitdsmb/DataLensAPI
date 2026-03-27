@@ -248,7 +248,7 @@ Build reusable internals so canonical families share infrastructure instead of d
 - `packages/scraping-core/src/providers`
 - `packages/scraping-core/src/services`
 - `apps/scraper-service`
-- `apps/api-gateway/app/api/v1/jobs`
+- `apps/api-gateway/app/api/v1/seo-tools`
 
 ### Exit Criteria
 
