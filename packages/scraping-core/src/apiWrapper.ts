@@ -1,49 +1,98 @@
-// SOLID Principle: Single Responsibility Principle
-// This wrapper's only responsibility is standardizing the HTTP response format
-// and execution timing, removing boilerplate try/catch from controllers.
+import type {
+  ApiErrorShape,
+  ApiHandlerError,
+  ApiJob,
+  ApiPagination,
+  ApiResponseMetadata,
+  ApiWarning,
+  StandardResponse
+} from '../../shared-types/src';
 
-// We simulate NextResponse for the core library so it works inside Next.js
-// without strictly coupling the core library to the Next.js runtime.
-// The actual implementation will use Next.js native NextResponse in the route.ts wrapper.
+const DEFAULT_TOOL_VERSION = '1.0.0';
 
-export type StandardResponse<T> = {
-  success: boolean;
-  data: T | null;
-  metadata: {
-    timestamp: string;
-    execution_time_ms: number;
-    job_id?: string;
-  };
-  error: string | null;
+export type ResponseEnvelopeOptions = {
+  requestId?: string;
+  toolVersion?: string;
+  warnings?: ApiWarning[];
+  job?: ApiJob | null;
+  pagination?: ApiPagination | null;
 };
+
+function buildMetadata(startTime: number, options: ResponseEnvelopeOptions): ApiResponseMetadata {
+  return {
+    request_id: options.requestId ?? createRequestId(),
+    timestamp: new Date().toISOString(),
+    execution_time_ms: Date.now() - startTime,
+    tool_version: options.toolVersion ?? DEFAULT_TOOL_VERSION,
+    source: 'datalens',
+    warnings: options.warnings ?? []
+  };
+}
+
+function toErrorShape(error: Error | string): ApiErrorShape {
+  if (typeof error === 'string') {
+    return {
+      code: 'bad_request',
+      message: error,
+      details: null
+    };
+  }
+
+  const shapedError = error as ApiHandlerError;
+
+  return {
+    code: shapedError.code ?? inferErrorCode(shapedError.status),
+    message: shapedError.message || 'Internal Server Error',
+    details: shapedError.details ?? null
+  };
+}
+
+function inferErrorCode(status?: number) {
+  if (status === 401) return 'unauthorized';
+  if (status === 403) return 'forbidden';
+  if (status === 404) return 'not_found';
+  if (status === 408) return 'timeout';
+  if (status === 429) return 'rate_limited';
+  if (status && status >= 500) return 'internal_error';
+  return 'bad_request';
+}
+
+export function createRequestId() {
+  return `req_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+}
 
 /**
  * Creates the standard JSON envelope required by the architecture.
  */
-export function createResponse<T>(data: T, startTime: number): StandardResponse<T> {
+export function createResponse<T>(
+  data: T,
+  startTime: number,
+  options: ResponseEnvelopeOptions = {}
+): StandardResponse<T> {
   return {
     success: true,
     data,
-    metadata: {
-      timestamp: new Date().toISOString(),
-      execution_time_ms: Date.now() - startTime
-    },
-    error: null
+    metadata: buildMetadata(startTime, options),
+    error: null,
+    job: options.job ?? null,
+    pagination: options.pagination ?? null
   };
 }
 
 /**
  * Creates the standard error JSON envelope.
  */
-export function createErrorResponse(error: Error | string, startTime: number): StandardResponse<null> {
-  const message = error instanceof Error ? error.message : String(error);
+export function createErrorResponse(
+  error: Error | string,
+  startTime: number,
+  options: ResponseEnvelopeOptions = {}
+): StandardResponse<null> {
   return {
     success: false,
     data: null,
-    metadata: {
-      timestamp: new Date().toISOString(),
-      execution_time_ms: Date.now() - startTime
-    },
-    error: message || 'Internal Server Error'
+    metadata: buildMetadata(startTime, options),
+    error: toErrorShape(error),
+    job: null,
+    pagination: null
   };
 }
