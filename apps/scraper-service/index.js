@@ -34,6 +34,11 @@ async function executeJob(tool, payload) {
 
     const rank = pseudoRank(keyword, videoUrl);
     return {
+      execution: {
+        mode: 'simulated',
+        readyForPublicLaunch: false,
+        notes: 'Returns deterministic simulated rank output; no provider-grade rank collection is performed.'
+      },
       result: {
         keyword,
         videoUrl,
@@ -70,6 +75,11 @@ async function executeJob(tool, payload) {
     }));
 
     return {
+      execution: {
+        mode: 'simulated',
+        readyForPublicLaunch: false,
+        notes: 'Returns synthetic capture artifact records; no rendered screenshot or PDF binaries are produced.'
+      },
       result: {
         captureCount: captures.length,
         captures
@@ -105,6 +115,11 @@ async function executeJob(tool, payload) {
     }));
 
     return {
+      execution: {
+        mode: 'projection',
+        readyForPublicLaunch: false,
+        notes: 'Returns projection-style planning output only and should remain disabled for public launch.'
+      },
       result: {
         runId: `traffic_${Date.now().toString(36)}`,
         projections

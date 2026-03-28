@@ -9,6 +9,7 @@
    - `POST /jobs/execute`
 4. scraper-service executes tool-specific work and returns:
    - `result`
+   - `execution` metadata (`provider`, `browser`, `simulated`, `projection`, or `template`)
    - optional generated `artifacts`
 5. API Gateway persists artifact payloads under `.data/jobs/artifacts`, updates job to `succeeded` (or `failed`), and sets completion timestamps.
 6. Client polls `GET /api/v1/jobs/:jobId` until `status` is terminal:

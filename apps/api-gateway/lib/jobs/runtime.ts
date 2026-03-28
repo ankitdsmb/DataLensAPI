@@ -1,6 +1,12 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import type { JobArtifactRef, JobContract, JobError, JobState } from '@forensic/shared-types';
+import type {
+  JobArtifactRef,
+  JobContract,
+  JobError,
+  JobExecutionMetadata,
+  JobState
+} from '@forensic/shared-types';
 
 const DATA_ROOT = path.join(process.cwd(), '.data', 'jobs');
 const JOBS_FILE = path.join(DATA_ROOT, 'jobs.json');
@@ -12,6 +18,7 @@ type JobsDb = { jobs: Record<string, JobContract> };
 
 type ExecuteResponse = {
   result: Record<string, unknown>;
+  execution?: JobExecutionMetadata;
   artifacts?: Array<{
     id?: string;
     type?: JobArtifactRef['type'];
@@ -92,6 +99,11 @@ export async function submitJob(tool: string, payload: Record<string, unknown>) 
       queuedAt,
       updatedAt: queuedAt,
       expiresAt: new Date(Date.now() + DEFAULT_TTL_MS).toISOString()
+    },
+    execution: {
+      mode: 'template',
+      readyForPublicLaunch: false,
+      notes: 'Job queued; execution metadata will be finalized by the worker.'
     },
     artifacts: []
   };
@@ -222,6 +234,7 @@ async function processJob(jobId: string) {
       ...current,
       state: 'succeeded',
       progress: 100,
+      execution: body.execution ?? current.execution,
       result: body.result,
       artifacts: artifactRefs,
       timestamps: {
@@ -252,6 +265,7 @@ export function jobToEnvelope(job: JobContract) {
     status: job.state,
     progress: job.progress,
     timestamps: job.timestamps,
+    execution: job.execution ?? null,
     error: job.error ?? null,
     artifacts: job.artifacts,
     result: job.result ?? null,

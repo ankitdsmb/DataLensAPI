@@ -1,5 +1,13 @@
 export type JobState = 'queued' | 'running' | 'succeeded' | 'failed' | 'expired';
 
+export type JobExecutionMode = 'provider' | 'browser' | 'simulated' | 'projection' | 'template';
+
+export type JobExecutionMetadata = {
+  mode: JobExecutionMode;
+  readyForPublicLaunch: boolean;
+  notes?: string | null;
+};
+
 export type JobError = {
   code: string;
   message: string;
@@ -31,6 +39,7 @@ export type JobContract<TPayload = Record<string, unknown>, TResult = Record<str
   payload: TPayload;
   progress: number;
   timestamps: JobTimestamps;
+  execution?: JobExecutionMetadata;
   result?: TResult;
   error?: JobError;
   artifacts: JobArtifactRef[];
