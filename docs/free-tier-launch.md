@@ -37,9 +37,9 @@ The launch guard rejects routes that are:
 These routes exist in code but should not be presented as part of the free-tier public launch:
 
 - `POST /api/v1/seo-tools/openpagerank-bulk-checker`
-  - Provider template only; returns `pending_api_key` until real credentialed integration exists.
+  - Provider template only; returns `internal_provider_template` with `provider_credentials_required` results until real credentialed integration exists.
 - `POST /api/v1/seo-tools/rentcast`
-  - Provider template only; returns a lookup helper plus `pending_api_key`.
+  - Provider template only; returns a normalized lookup helper plus `internal_provider_template` until real credentialed integration exists.
 - `POST /api/v1/seo-tools/snapify-capture-screenshot-save-pdf`
   - Real async job contract exists and now captures live page HTML evidence, but still does not render screenshot/PDF binaries.
 - `POST /api/v1/seo-tools/youtube-rank-checker`

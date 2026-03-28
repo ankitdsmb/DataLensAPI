@@ -38,10 +38,9 @@
 | `crawler-tool` | 5 |
 | `network-wrapper` | 22 |
 | `html-scraper` | 41 |
-| `local-utility` | 37 |
-| `link-builder` | 27 |
+| `local-utility` | 38 |
+| `link-builder` | 28 |
 | `template-link-builder` | 1 |
-| `api-key-stub` | 2 |
 | `queued-placeholder` | 9 |
 
 ### Functional Families
@@ -353,6 +352,7 @@ The appendix below covers each live local route one by one. The assessments are 
 | `/api/v1/seo-tools/markdown-table-generator` | Convert data to markdown table. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/moz-da-pa-spam-checker` | DA/PA spam checks. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/new-web-traffic-generator-youtube-vimeo-twitch` | Realistic traffic simulation for web + video. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/openpagerank-bulk-checker` | Bulk OpenPageRank scores. | 1/5 | ~5% | Normalizes domains and returns an explicit internal provider-template contract with non-executed provider state. | No live provider data exists yet. | Either integrate the provider or keep it internal-only as a provider template. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/organic-visit-simulator-x` | Organic traffic triggered by viral posts. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/plagiarism-checker` | Plagiarism detection with report. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/pro-seo-audit-tool-get-your-website-data-for-search-engines` | Pro SEO audit tool. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
@@ -384,6 +384,7 @@ The appendix below covers each live local route one by one. The assessments are 
 | `/api/v1/seo-tools/car-hire-rental` | Car rental prices by location. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/car-hire-rental-bulk` | Car rental prices in bulk. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/opentable` | OpenTable search + availability. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/rentcast` | Rent estimates for US properties. | 1/5 | ~10% | Builds a normalized lookup URL and returns an explicit internal provider-template contract. | No live provider data. | Either integrate the provider or keep it internal-only as a provider template. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/shopify-product-search` | Search products with metadata. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/showtimes` | Showtimes data extraction. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/similarweb` | Website analytics (public data). | 1/5 | ~10% | Returns a Similarweb report URL only. | No analytics extraction or normalization. | Rebuild as real traffic intelligence or relabel honestly. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
@@ -412,13 +413,6 @@ The appendix below covers each live local route one by one. The assessments are 
 | Endpoint | Promise | Strength | Coverage | Current Logic | Biggest Gap | Best-Ever Upgrade | Free-Tier Fit | GitHub Note |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `/api/v1/seo-tools/open-graph-image-generator` | Dynamic OG image generation. | 1/5 | ~10% | Builds a dummyimage.com URL instead of rendering assets in DataLens. | No first-party rendering pipeline or artifact storage. | Move into a real image-generation suite with templates and storage. | Cheap to host, but incomplete. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
-
-## API-Key Stub Routes
-
-| Endpoint | Promise | Strength | Coverage | Current Logic | Biggest Gap | Best-Ever Upgrade | Free-Tier Fit | GitHub Note |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `/api/v1/seo-tools/openpagerank-bulk-checker` | Bulk OpenPageRank scores. | 1/5 | ~5% | Normalizes input and returns pending/null provider output only. | No live provider data exists. | Implement a real provider adapter or remove from the live catalog. | Not ready until credentials and provider integration exist. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
-| `/api/v1/seo-tools/rentcast` | Rent estimates for US properties. | 1/5 | ~10% | Builds a lookup URL and returns pending_api_key. | No live provider data. | Either integrate the provider or move it to template-only. | Not ready until credentials and provider integration exist. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 
 ## Queued Placeholder Routes
 

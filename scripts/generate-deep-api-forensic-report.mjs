@@ -109,6 +109,13 @@ const routeOverrides = {
     gap: 'No first-party rendering pipeline or artifact storage.',
     upgrade: 'Move into a real image-generation suite with templates and storage.'
   },
+  'openpagerank-bulk-checker': {
+    strength: '1/5',
+    coverage: '~5%',
+    current: 'Normalizes domains and returns an explicit internal provider-template contract with non-executed provider state.',
+    gap: 'No live provider data exists yet.',
+    upgrade: 'Either integrate the provider or keep it internal-only as a provider template.'
+  },
   'moz-domain-authority-checker': {
     strength: '1/5',
     coverage: '~5%',
@@ -119,9 +126,9 @@ const routeOverrides = {
   'rentcast': {
     strength: '1/5',
     coverage: '~10%',
-    current: 'Builds a lookup URL and returns pending_api_key.',
+    current: 'Builds a normalized lookup URL and returns an explicit internal provider-template contract.',
     gap: 'No live provider data.',
-    upgrade: 'Either integrate the provider or move it to template-only.'
+    upgrade: 'Either integrate the provider or keep it internal-only as a provider template.'
   },
   'similarweb': {
     strength: '1/5',

@@ -23,8 +23,8 @@
 | `/api/v1/seo-tools/spotify` | `link-builder` | Relabeled honestly | Public lite/helper | Explicitly labeled Spotify query URL helper only. |
 | `/api/v1/seo-tools/trustpilot-plus` | `link-builder` | Relabeled honestly | Public lite/helper | Explicitly labeled company lookup helper only. |
 | `/api/v1/seo-tools/youtube-region-restriction-checker` | `link-builder` | Relabeled honestly | Public lite/helper | Explicitly labeled watch URL helper, no restriction telemetry claim. |
-| `/api/v1/seo-tools/openpagerank-bulk-checker` | `api-key-stub` | Relabeled honestly | Deferred from public launch | Explicit provider-template labeling and pending API key caveat. |
-| `/api/v1/seo-tools/rentcast` | `api-key-stub` | Relabeled honestly | Deferred from public launch | Explicit provider-template labeling and pending API key caveat. |
+| `/api/v1/seo-tools/openpagerank-bulk-checker` | `api-key-stub` | Relabeled honestly | Internal-only until provider integration | Explicit internal provider-template contract with `provider_credentials_required` results and `not_executed` provider state. |
+| `/api/v1/seo-tools/rentcast` | `api-key-stub` | Relabeled honestly | Internal-only until provider integration | Explicit internal provider-template contract with normalized lookup helper and `not_executed` provider state. |
 | `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | `queued-simulated` | Strengthened, but still deferred | Deferred from public launch | Real async job contract now captures live page HTML evidence and metadata, but still does not render screenshot/PDF binaries. |
 | `/api/v1/seo-tools/youtube-rank-checker` | `queued-simulated` | Strengthened, but still deferred | Deferred from public launch | Real async job contract now attempts lightweight YouTube search evidence collection, with deterministic fallback if parsing/search access fails. |
 | `/api/v1/seo-tools/traffic-booster` | `queued-simulated` | Deferred/de-scoped | Disabled from public launch | Real async job contract exists, but current worker only returns projection-style planning output. |
