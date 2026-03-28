@@ -26,15 +26,20 @@ export const POST = withScrapingHandler({ policy: rentcastPolicy }, async (req: 
   const lookupUrl = `https://www.rentcast.io/?address=${encodeURIComponent(address)}`;
 
   return {
+    status: 'internal_provider_template',
     address,
     lookupUrl,
-    status: 'pending_api_key',
+    provider: {
+      name: 'RentCast',
+      credentialsRequired: true,
+      executionState: 'not_executed'
+    },
     contract: {
       productLabel: 'RentCast Address Lookup Template',
       forensicCategory: 'api-key-stub',
       implementationDepth: 'template',
-      launchRecommendation: 'defer_from_public_launch',
-      notes: 'Generates a lookup URL and signals required provider credentials; no RentCast API request is executed.'
+      launchRecommendation: 'internal_only_until_provider_integration',
+      notes: 'Generates a normalized lookup URL and returns a provider-template contract only. No RentCast API request is executed until real credentialed provider integration is added.'
     }
   };
 });
