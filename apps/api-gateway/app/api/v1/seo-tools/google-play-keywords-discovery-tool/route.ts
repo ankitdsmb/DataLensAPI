@@ -8,7 +8,9 @@ import {
   RequestValidationError
 ,
   normalizeKeywordInputs,
-  safeJsonParse} from '@forensic/scraping-core';
+  safeJsonParse,
+  requireAllowedFields,
+  optionalStringField} from '@forensic/scraping-core';
 
 const googlePlayKeywordsPolicy = createToolPolicy({
   timeoutMs: 8000,
@@ -22,10 +24,11 @@ const googlePlayKeywordsPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: googlePlayKeywordsPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, googlePlayKeywordsPolicy);
+  requireAllowedFields(body, ['keyword', 'keywords', 'limit', 'language', 'country']);
   const keywords = normalizeKeywordInputs(body);
   const limit = optionalIntegerField(body, 'limit', { defaultValue: 10, min: 1, max: 25 });
-  const language = typeof body.language === 'string' && body.language.trim() ? body.language.trim() : 'en';
-  const country = typeof body.country === 'string' && body.country.trim() ? body.country.trim() : 'us';
+  const language = optionalStringField(body, 'language', 'en');
+  const country = optionalStringField(body, 'country', 'us');
 
   const results = [];
 

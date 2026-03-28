@@ -198,6 +198,35 @@ export function assertHttpUrl(value: string): string {
   return parsed.toString();
 }
 
+export function requireAllowedFields(body: Record<string, unknown>, allowedFields: string[]): void {
+  const allowedSet = new Set(allowedFields);
+  const unknownFields = Object.keys(body).filter((key) => !allowedSet.has(key));
+
+  if (unknownFields.length > 0) {
+    throw new RequestValidationError('request contains unknown fields', {
+      allowedFields,
+      unknownFields
+    });
+  }
+}
+
+export function optionalStringField(
+  body: Record<string, unknown>,
+  field: string,
+  defaultValue = ''
+): string {
+  const value = body[field];
+  if (value === undefined) {
+    return defaultValue;
+  }
+
+  if (typeof value !== 'string') {
+    throw new RequestValidationError(`${field} must be a string`, { field });
+  }
+
+  return value.trim();
+}
+
 export function normalizeKeywordInputs(body: Record<string, unknown>): string[] {
   const keywords = optionalStringArrayField(body, 'keywords', { maxItems: 20, fieldLabel: 'keywords' });
   const singleKeyword = typeof body.keyword === 'string' ? body.keyword.trim() : '';

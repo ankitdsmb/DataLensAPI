@@ -2,7 +2,9 @@ import {
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields,
+  optionalStringField
 } from '@forensic/scraping-core';
 
 const seobilityRankingPolicy = createToolPolicy({
@@ -15,7 +17,8 @@ const seobilityRankingPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: seobilityRankingPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, seobilityRankingPolicy);
-  const domain = typeof body.domain === 'string' ? body.domain.trim() : '';
+  requireAllowedFields(body, ['domain']);
+  const domain = optionalStringField(body, 'domain');
 
   if (!domain) {
     throw new RequestValidationError('domain is required', { field: 'domain' });

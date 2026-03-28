@@ -2,7 +2,9 @@ import {
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields,
+  optionalStringField
 } from '@forensic/scraping-core';
 
 const similarAppsPolicy = createToolPolicy({
@@ -15,7 +17,8 @@ const similarAppsPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: similarAppsPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, similarAppsPolicy);
-  const appId = typeof body.appId === 'string' ? body.appId.trim() : '';
+  requireAllowedFields(body, ['appId']);
+  const appId = optionalStringField(body, 'appId');
 
   if (!appId) {
     throw new RequestValidationError('appId is required', { field: 'appId' });
