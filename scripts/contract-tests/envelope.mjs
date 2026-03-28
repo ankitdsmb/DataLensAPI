@@ -29,4 +29,10 @@ assertEnvelopeShape(errorResponse);
 assert.equal(errorResponse.success, false);
 assert.equal(errorResponse.error.code, 'validation_error');
 
+const upstreamError = new Error('timeout from provider');
+upstreamError.status = 408;
+const timeoutResponse = createErrorResponse(upstreamError, startTime);
+assertEnvelopeShape(timeoutResponse);
+assert.equal(timeoutResponse.error.code, 'timeout');
+
 console.log('contract-tests: envelope ok');

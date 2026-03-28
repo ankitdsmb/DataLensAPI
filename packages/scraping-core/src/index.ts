@@ -10,3 +10,5 @@ export * from './seoAudit';
 export * from './validation';
 
 export * from './families';
+
+export * from './observability';
