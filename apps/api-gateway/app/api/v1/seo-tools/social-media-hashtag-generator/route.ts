@@ -3,7 +3,8 @@ import {
   optionalStringArrayField,
   readJsonBody,
   withScrapingHandler,
-  RequestValidationError
+  RequestValidationError,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const hashtagPolicy = createToolPolicy({
@@ -24,6 +25,7 @@ function normalizeKeywords(body: Record<string, unknown>) {
 
 export const POST = withScrapingHandler({ policy: hashtagPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, hashtagPolicy);
+  requireAllowedFields(body, ['keywords']);
   const keywords = normalizeKeywords(body);
 
   const hashtags = Array.from(new Set(

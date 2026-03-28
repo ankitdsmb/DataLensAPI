@@ -5,7 +5,9 @@ import {
   RequestValidationError,
   stealthGet
 ,
-  safeJsonParse} from '@forensic/scraping-core';
+  safeJsonParse,
+  requireAllowedFields
+} from '@forensic/scraping-core';
 
 const clearbitCombinedPolicy = createToolPolicy({
   timeoutMs: 8000,
@@ -17,6 +19,7 @@ const clearbitCombinedPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: clearbitCombinedPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, clearbitCombinedPolicy);
+  requireAllowedFields(body, ['query']);
   const query = typeof body.query === 'string' ? body.query.trim() : '';
   if (!query) {
     throw new RequestValidationError('query is required', { field: 'query' });

@@ -5,7 +5,9 @@ import {
   RequestValidationError,
   stealthGet
 ,
-  safeJsonParse} from '@forensic/scraping-core';
+  safeJsonParse,
+  requireAllowedFields
+} from '@forensic/scraping-core';
 
 const clearbitCompanyPolicy = createToolPolicy({
   timeoutMs: 8000,
@@ -17,6 +19,7 @@ const clearbitCompanyPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: clearbitCompanyPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, clearbitCompanyPolicy);
+  requireAllowedFields(body, ['domain']);
   const domain = typeof body.domain === 'string' ? body.domain.trim() : '';
   if (!domain) {
     throw new RequestValidationError('domain is required', { field: 'domain' });

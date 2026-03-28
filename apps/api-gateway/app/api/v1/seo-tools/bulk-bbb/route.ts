@@ -3,7 +3,8 @@ import {
   optionalStringArrayField,
   readJsonBody,
   withScrapingHandler,
-  RequestValidationError
+  RequestValidationError,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const bulkBbbPolicy = createToolPolicy({
@@ -16,6 +17,7 @@ const bulkBbbPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: bulkBbbPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, bulkBbbPolicy);
+  requireAllowedFields(body, ['companies']);
   const companies = optionalStringArrayField(body, 'companies', { maxItems: 50, fieldLabel: 'companies' });
   if (companies.length === 0) {
     throw new RequestValidationError('companies is required', { field: 'companies' });

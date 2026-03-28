@@ -3,7 +3,8 @@ import {
   optionalStringArrayField,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const plagiarismPolicy = createToolPolicy({
@@ -50,6 +51,7 @@ function analyzeText(content: string) {
 
 export const POST = withScrapingHandler({ policy: plagiarismPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, plagiarismPolicy);
+  requireAllowedFields(body, ['text', 'texts']);
   const texts = normalizeTexts(body);
 
   const results = texts.map((text) => {

@@ -3,11 +3,12 @@ import {
   createToolPolicy,
   readJsonBody,
   stealthGet,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const pagespeedCheckerPolicy = createToolPolicy({
-  timeoutMs: 12000,
+  timeoutMs: 10000,
   maxPayloadBytes: 96 * 1024,
   maxUrlCount: 5,
   anonymous: true,
@@ -22,6 +23,7 @@ function parseHeader(headers: Record<string, string | string[] | undefined> | un
 
 export const POST = withScrapingHandler({ policy: pagespeedCheckerPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, pagespeedCheckerPolicy);
+  requireAllowedFields(body, ['url', 'urls']);
   const urls = collectUrlInputs(body, pagespeedCheckerPolicy);
 
   const results = [];

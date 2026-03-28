@@ -2,7 +2,8 @@ import {
   createToolPolicy,
   readJsonBody,
   withScrapingHandler,
-  RequestValidationError
+  RequestValidationError,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const carHirePolicy = createToolPolicy({
@@ -15,6 +16,7 @@ const carHirePolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: carHirePolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, carHirePolicy);
+  requireAllowedFields(body, ['location']);
   const location = typeof body.location === 'string' ? body.location.trim() : '';
   if (!location) {
     throw new RequestValidationError('location is required', { field: 'location' });

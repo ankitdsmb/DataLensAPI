@@ -2,7 +2,8 @@ import {
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const tripadvisorCruisesPolicy = createToolPolicy({
@@ -15,6 +16,7 @@ const tripadvisorCruisesPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: tripadvisorCruisesPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, tripadvisorCruisesPolicy);
+  requireAllowedFields(body, ['location']);
   const location = typeof body.location === 'string' ? body.location.trim() : '';
 
   if (!location) {

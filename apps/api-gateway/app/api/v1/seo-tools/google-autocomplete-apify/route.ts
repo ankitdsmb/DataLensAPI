@@ -8,7 +8,9 @@ import {
   RequestValidationError
 ,
   normalizeKeywordInputs,
-  safeJsonParse} from '@forensic/scraping-core';
+  safeJsonParse,
+  requireAllowedFields
+} from '@forensic/scraping-core';
 
 const googleAutocompletePolicy = createToolPolicy({
   timeoutMs: 8000,
@@ -22,6 +24,7 @@ const googleAutocompletePolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: googleAutocompletePolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, googleAutocompletePolicy);
+  requireAllowedFields(body, ['country', 'keyword', 'keywords', 'language', 'limit']);
   const keywords = normalizeKeywordInputs(body);
   const limit = optionalIntegerField(body, 'limit', { defaultValue: 10, min: 1, max: 25 });
   const language = typeof body.language === 'string' && body.language.trim() ? body.language.trim() : 'en';

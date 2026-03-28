@@ -4,7 +4,8 @@ import {
   fetchHtmlDocument,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const blueskyPolicy = createToolPolicy({
@@ -32,6 +33,7 @@ function normalizeProfileUrls(body: Record<string, unknown>) {
 
 export const POST = withScrapingHandler({ policy: blueskyPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, blueskyPolicy);
+  requireAllowedFields(body, ['handle', 'url', 'urls']);
   const urls = normalizeProfileUrls(body);
 
   const results = [];

@@ -3,7 +3,8 @@ import {
   createToolPolicy,
   fetchHtmlDocument,
   readJsonBody,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const mastodonPolicy = createToolPolicy({
@@ -16,6 +17,7 @@ const mastodonPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: mastodonPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, mastodonPolicy);
+  requireAllowedFields(body, ['url', 'urls']);
   const urls = collectUrlInputs(body, mastodonPolicy);
 
   const results = [];

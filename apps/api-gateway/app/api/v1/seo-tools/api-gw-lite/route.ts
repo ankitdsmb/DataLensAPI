@@ -4,7 +4,8 @@ import {
   readJsonBody,
   stealthGet,
   withScrapingHandler,
-  RequestValidationError
+  RequestValidationError,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const apiGatewayPolicy = createToolPolicy({
@@ -31,6 +32,7 @@ function normalizeHeaders(value: unknown) {
 
 export const POST = withScrapingHandler({ policy: apiGatewayPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, apiGatewayPolicy);
+  requireAllowedFields(body, ['headers', 'url']);
   const url = typeof body.url === 'string' ? assertHttpUrl(body.url.trim()) : '';
   if (!url) {
     throw new RequestValidationError('url is required', { field: 'url' });

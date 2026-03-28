@@ -2,7 +2,8 @@ import {
   createToolPolicy,
   readJsonBody,
   withScrapingHandler,
-  RequestValidationError
+  RequestValidationError,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const spellCheckerPolicy = createToolPolicy({
@@ -20,6 +21,7 @@ const COMMON_WORDS = new Set([
 
 export const POST = withScrapingHandler({ policy: spellCheckerPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, spellCheckerPolicy);
+  requireAllowedFields(body, ['text']);
   const text = typeof body.text === 'string' ? body.text : '';
   if (!text) {
     throw new RequestValidationError('text is required', { field: 'text' });

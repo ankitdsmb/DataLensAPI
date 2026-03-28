@@ -2,7 +2,8 @@ import {
   collectUrlInputs,
   createToolPolicy,
   readJsonBody,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const snapifyPolicy = createToolPolicy({
@@ -15,6 +16,7 @@ const snapifyPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: snapifyPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, snapifyPolicy);
+  requireAllowedFields(body, ['url', 'urls']);
   const urls = collectUrlInputs(body, snapifyPolicy);
 
   return {

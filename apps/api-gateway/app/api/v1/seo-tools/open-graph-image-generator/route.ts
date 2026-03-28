@@ -2,7 +2,8 @@ import {
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const openGraphPolicy = createToolPolicy({
@@ -15,6 +16,7 @@ const openGraphPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: openGraphPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, openGraphPolicy);
+  requireAllowedFields(body, ['height', 'subtitle', 'title', 'width']);
   const title = typeof body.title === 'string' ? body.title.trim() : '';
   const subtitle = typeof body.subtitle === 'string' ? body.subtitle.trim() : '';
   const width = typeof body.width === 'number' && body.width > 200 ? Math.round(body.width) : 1200;

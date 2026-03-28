@@ -3,7 +3,8 @@ import {
   createToolPolicy,
   fetchHtmlDocument,
   readJsonBody,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const pricingAnalyzerPolicy = createToolPolicy({
@@ -16,6 +17,7 @@ const pricingAnalyzerPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: pricingAnalyzerPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, pricingAnalyzerPolicy);
+  requireAllowedFields(body, ['url', 'urls']);
   const urls = collectUrlInputs(body, pricingAnalyzerPolicy);
 
   const results = [];

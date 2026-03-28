@@ -2,7 +2,8 @@ import {
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const regionPolicy = createToolPolicy({
@@ -15,6 +16,7 @@ const regionPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: regionPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, regionPolicy);
+  requireAllowedFields(body, ['videoId']);
   const videoId = typeof body.videoId === 'string' ? body.videoId.trim() : '';
 
   if (!videoId) {

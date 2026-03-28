@@ -1,7 +1,8 @@
 import {
   createToolPolicy,
   readJsonBody,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const topSitesPolicy = createToolPolicy({
@@ -14,6 +15,7 @@ const topSitesPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: topSitesPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, topSitesPolicy);
+  requireAllowedFields(body, ['country']);
   const country = typeof body.country === 'string' ? body.country.trim() : '';
 
   return {

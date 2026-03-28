@@ -4,7 +4,8 @@ import {
   readJsonBody,
   withScrapingHandler,
   RequestValidationError,
-  stealthGet
+  stealthGet,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const tumblrAvailabilityPolicy = createToolPolicy({
@@ -25,6 +26,7 @@ function normalizeNames(body: Record<string, unknown>) {
 
 export const POST = withScrapingHandler({ policy: tumblrAvailabilityPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, tumblrAvailabilityPolicy);
+  requireAllowedFields(body, ['names']);
   const names = normalizeNames(body);
 
   const results = [];

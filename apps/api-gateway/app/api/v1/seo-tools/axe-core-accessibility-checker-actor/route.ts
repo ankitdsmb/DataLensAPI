@@ -4,7 +4,8 @@ import {
   createToolPolicy,
   fetchHtmlDocument,
   readJsonBody,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const axeCorePolicy = createToolPolicy({
@@ -17,6 +18,7 @@ const axeCorePolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: axeCorePolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, axeCorePolicy);
+  requireAllowedFields(body, ['url', 'urls']);
   const urls = collectUrlInputs(body, axeCorePolicy);
 
   const results = [];

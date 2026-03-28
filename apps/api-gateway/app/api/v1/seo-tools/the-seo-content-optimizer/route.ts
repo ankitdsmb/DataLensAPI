@@ -7,7 +7,8 @@ import {
   optionalStringArrayField,
   readJsonBody,
   withScrapingHandler,
-  RequestValidationError
+  RequestValidationError,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const seoContentOptimizerPolicy = createToolPolicy({
@@ -28,6 +29,7 @@ function normalizeKeywords(body: Record<string, unknown>) {
 
 export const POST = withScrapingHandler({ policy: seoContentOptimizerPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, seoContentOptimizerPolicy);
+  requireAllowedFields(body, ['keywords', 'url', 'urls']);
   const urls = collectUrlInputs(body, seoContentOptimizerPolicy);
   const keywords = normalizeKeywords(body);
 

@@ -2,7 +2,8 @@ import {
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const skyscannerHotelsPolicy = createToolPolicy({
@@ -15,6 +16,7 @@ const skyscannerHotelsPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: skyscannerHotelsPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, skyscannerHotelsPolicy);
+  requireAllowedFields(body, ['location']);
   const location = typeof body.location === 'string' ? body.location.trim() : '';
 
   if (!location) {

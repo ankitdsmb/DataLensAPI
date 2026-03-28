@@ -68,7 +68,21 @@ export function withScrapingHandler<T>(
         }
       }
 
-      const data = await handler(req);
+      let timeoutId: ReturnType<typeof setTimeout> | undefined;
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => {
+          reject(
+            new UpstreamApiError('request exceeded route timeout', 408, {
+              timeoutMs: options.policy.timeoutMs
+            })
+          );
+        }, options.policy.timeoutMs);
+      });
+
+      const data = await Promise.race([handler(req), timeoutPromise]);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
       const stdRes = createResponse(data, startTime, { requestId });
       return NextResponse.json(stdRes, {
         headers: {

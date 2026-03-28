@@ -2,7 +2,8 @@ import {
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const xTwitterPolicy = createToolPolicy({
@@ -15,6 +16,7 @@ const xTwitterPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: xTwitterPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, xTwitterPolicy);
+  requireAllowedFields(body, ['query', 'username']);
   const query = typeof body.query === 'string' ? body.query.trim() : '';
   const username = typeof body.username === 'string' ? body.username.trim() : '';
 

@@ -5,7 +5,9 @@ import {
   RequestValidationError,
   stealthGet
 ,
-  safeJsonParse} from '@forensic/scraping-core';
+  safeJsonParse,
+  requireAllowedFields
+} from '@forensic/scraping-core';
 
 const arcgisPolicy = createToolPolicy({
   timeoutMs: 10000,
@@ -17,6 +19,7 @@ const arcgisPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: arcgisPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, arcgisPolicy);
+  requireAllowedFields(body, ['address']);
   const address = typeof body.address === 'string' ? body.address.trim() : '';
   if (!address) {
     throw new RequestValidationError('address is required', { field: 'address' });

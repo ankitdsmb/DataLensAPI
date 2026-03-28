@@ -5,10 +5,12 @@ import {
   RequestValidationError,
   stealthGet
 ,
-  safeJsonParse} from '@forensic/scraping-core';
+  safeJsonParse,
+  requireAllowedFields
+} from '@forensic/scraping-core';
 
 const subdomainFinderPolicy = createToolPolicy({
-  timeoutMs: 12000,
+  timeoutMs: 10000,
   maxPayloadBytes: 96 * 1024,
   maxUrlCount: 1,
   anonymous: true,
@@ -43,6 +45,7 @@ async function lookupSubdomains(domain: string, timeoutMs: number) {
 
 export const POST = withScrapingHandler({ policy: subdomainFinderPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, subdomainFinderPolicy);
+  requireAllowedFields(body, ['domain', 'ip']);
   const { domain, ip } = normalizeInputs(body);
 
   const subdomains = domain ? await lookupSubdomains(domain, subdomainFinderPolicy.timeoutMs) : [];

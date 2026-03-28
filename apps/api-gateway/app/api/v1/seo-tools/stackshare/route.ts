@@ -2,7 +2,8 @@ import {
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const stacksharePolicy = createToolPolicy({
@@ -15,6 +16,7 @@ const stacksharePolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: stacksharePolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, stacksharePolicy);
+  requireAllowedFields(body, ['query']);
   const query = typeof body.query === 'string' ? body.query.trim() : '';
 
   if (!query) {

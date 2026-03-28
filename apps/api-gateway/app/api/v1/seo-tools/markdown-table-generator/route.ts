@@ -3,7 +3,8 @@ import {
   optionalStringArrayField,
   readJsonBody,
   withScrapingHandler,
-  RequestValidationError
+  RequestValidationError,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const markdownTablePolicy = createToolPolicy({
@@ -23,6 +24,7 @@ function toMarkdownTable(headers: string[], rows: string[][]) {
 
 export const POST = withScrapingHandler({ policy: markdownTablePolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, markdownTablePolicy);
+  requireAllowedFields(body, ['headers', 'rows']);
   const headers = optionalStringArrayField(body, 'headers', { maxItems: 20, fieldLabel: 'headers' });
   const rows = Array.isArray(body.rows) ? body.rows : [];
 

@@ -2,7 +2,8 @@ import {
   createToolPolicy,
   readJsonBody,
   withScrapingHandler,
-  RequestValidationError
+  RequestValidationError,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const mozSpamPolicy = createToolPolicy({
@@ -15,6 +16,7 @@ const mozSpamPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: mozSpamPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, mozSpamPolicy);
+  requireAllowedFields(body, ['domain']);
   const domain = typeof body.domain === 'string' ? body.domain.trim() : '';
   if (!domain) {
     throw new RequestValidationError('domain is required', { field: 'domain' });

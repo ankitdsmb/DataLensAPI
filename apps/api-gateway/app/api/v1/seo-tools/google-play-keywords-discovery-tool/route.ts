@@ -24,7 +24,7 @@ const googlePlayKeywordsPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: googlePlayKeywordsPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, googlePlayKeywordsPolicy);
-  requireAllowedFields(body, ['keyword', 'keywords', 'limit', 'language', 'country']);
+  requireAllowedFields(body, ['country', 'keyword', 'keywords', 'language', 'limit']);
   const keywords = normalizeKeywordInputs(body);
   const limit = optionalIntegerField(body, 'limit', { defaultValue: 10, min: 1, max: 25 });
   const language = optionalStringField(body, 'language', 'en');

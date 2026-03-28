@@ -2,7 +2,8 @@ import {
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const showtimesPolicy = createToolPolicy({
@@ -15,6 +16,7 @@ const showtimesPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: showtimesPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, showtimesPolicy);
+  requireAllowedFields(body, ['location', 'movie']);
   const location = typeof body.location === 'string' ? body.location.trim() : '';
   const movie = typeof body.movie === 'string' ? body.movie.trim() : '';
 

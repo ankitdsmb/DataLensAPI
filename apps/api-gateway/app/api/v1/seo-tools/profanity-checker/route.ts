@@ -2,7 +2,8 @@ import {
   createToolPolicy,
   readJsonBody,
   withScrapingHandler,
-  RequestValidationError
+  RequestValidationError,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const profanityPolicy = createToolPolicy({
@@ -17,6 +18,7 @@ const BLOCKLIST = ['badword', 'offensive', 'obscene'];
 
 export const POST = withScrapingHandler({ policy: profanityPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, profanityPolicy);
+  requireAllowedFields(body, ['text']);
   const text = typeof body.text === 'string' ? body.text : '';
   if (!text) {
     throw new RequestValidationError('text is required', { field: 'text' });

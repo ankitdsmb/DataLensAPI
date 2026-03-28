@@ -8,7 +8,9 @@ import {
   RequestValidationError
 ,
   normalizeKeywordInputs,
-  safeJsonParse} from '@forensic/scraping-core';
+  safeJsonParse,
+  requireAllowedFields
+} from '@forensic/scraping-core';
 
 const appStoreSuggestPolicy = createToolPolicy({
   timeoutMs: 8000,
@@ -22,6 +24,7 @@ const appStoreSuggestPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: appStoreSuggestPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, appStoreSuggestPolicy);
+  requireAllowedFields(body, ['country', 'keyword', 'keywords', 'limit']);
   const keywords = normalizeKeywordInputs(body);
   const limit = optionalIntegerField(body, 'limit', { defaultValue: 10, min: 1, max: 25 });
   const country = typeof body.country === 'string' && body.country.trim() ? body.country.trim() : 'us';

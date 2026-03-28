@@ -3,7 +3,8 @@ import {
   createToolPolicy,
   fetchHtmlDocument,
   readJsonBody,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const myAnimeListPolicy = createToolPolicy({
@@ -16,6 +17,7 @@ const myAnimeListPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: myAnimeListPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, myAnimeListPolicy);
+  requireAllowedFields(body, ['url', 'urls']);
   const urls = collectUrlInputs(body, myAnimeListPolicy);
 
   const results = [];

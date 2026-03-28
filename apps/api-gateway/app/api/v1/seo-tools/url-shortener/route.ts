@@ -4,7 +4,8 @@ import {
   readJsonBody,
   withScrapingHandler,
   RequestValidationError,
-  stealthGet
+  stealthGet,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const urlShortenerPolicy = createToolPolicy({
@@ -35,6 +36,7 @@ function normalizeUrls(body: Record<string, unknown>) {
 
 export const POST = withScrapingHandler({ policy: urlShortenerPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, urlShortenerPolicy);
+  requireAllowedFields(body, ['url', 'urls']);
   const urls = normalizeUrls(body);
 
   const results = [];
