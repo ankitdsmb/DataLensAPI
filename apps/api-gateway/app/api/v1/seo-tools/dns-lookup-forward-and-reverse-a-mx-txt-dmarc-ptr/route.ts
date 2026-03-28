@@ -4,7 +4,8 @@ import {
   withScrapingHandler,
   RequestValidationError,
   stealthGet
-} from '@forensic/scraping-core';
+,
+  safeJsonParse} from '@forensic/scraping-core';
 
 const dnsLookupPolicy = createToolPolicy({
   timeoutMs: 8000,
@@ -33,7 +34,7 @@ function normalizeTarget(body: Record<string, unknown>) {
 async function queryDns(name: string, type: string, timeoutMs: number) {
   const url = `https://dns.google/resolve?name=${encodeURIComponent(name)}&type=${encodeURIComponent(type)}`;
   const response = await stealthGet(url, { timeoutMs, throwHttpErrors: false });
-  return response.body ? JSON.parse(response.body) : {};
+  return response.body ? safeJsonParse<Record<string, unknown>>(response.body) : {};
 }
 
 export const POST = withScrapingHandler({ policy: dnsLookupPolicy }, async (req: Request) => {

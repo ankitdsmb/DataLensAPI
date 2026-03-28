@@ -5,7 +5,8 @@ import {
   RequestValidationError,
   stealthGet,
   withScrapingHandler
-} from '@forensic/scraping-core';
+,
+  safeJsonParse} from '@forensic/scraping-core';
 
 const translatorPolicy = createToolPolicy({
   timeoutMs: 10000,
@@ -47,8 +48,8 @@ export const POST = withScrapingHandler({ policy: translatorPolicy }, async (req
       timeoutMs: translatorPolicy.timeoutMs,
       throwHttpErrors: false
     });
-    const payload = response.body ? JSON.parse(response.body) : null;
-    const translatedText = payload?.responseData?.translatedText ?? null;
+    const payload = response.body ? safeJsonParse<Record<string, unknown>>(response.body) : null;
+    const translatedText = ((payload?.responseData as Record<string, unknown>)?.translatedText as string) ?? null;
 
     results.push({
       input,

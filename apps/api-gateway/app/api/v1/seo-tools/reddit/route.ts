@@ -4,7 +4,8 @@ import {
   RequestValidationError,
   stealthGet,
   withScrapingHandler
-} from '@forensic/scraping-core';
+,
+  safeJsonParse} from '@forensic/scraping-core';
 
 const redditPolicy = createToolPolicy({
   timeoutMs: 10000,
@@ -35,11 +36,12 @@ export const POST = withScrapingHandler({ policy: redditPolicy }, async (req: Re
     timeoutMs: redditPolicy.timeoutMs,
     throwHttpErrors: false
   });
-  const payload = response.body ? JSON.parse(response.body) : null;
-  const children = payload?.data?.children ?? [];
+  const payload = response.body ? safeJsonParse<Record<string, unknown>>(response.body) : null;
+  const children = ((payload?.data as Record<string, unknown>)?.children as Array<Record<string, unknown>>) ?? [];
   const items = Array.isArray(children)
-    ? children.map((child: { data?: Record<string, unknown> }) => {
-      const data = child.data ?? {};
+    ? children.map((child: unknown) => {
+      const c = child as { data?: Record<string, unknown> };
+      const data = c.data ?? {};
       return {
         id: data.id ?? null,
         title: data.title ?? null,

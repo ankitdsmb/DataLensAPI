@@ -197,3 +197,44 @@ export function assertHttpUrl(value: string): string {
 
   return parsed.toString();
 }
+
+export function normalizeKeywordInputs(body: Record<string, unknown>): string[] {
+  const keywords = optionalStringArrayField(body, 'keywords', { maxItems: 20, fieldLabel: 'keywords' });
+  const singleKeyword = typeof body.keyword === 'string' ? body.keyword.trim() : '';
+  const combined = [
+    ...(singleKeyword ? [singleKeyword] : []),
+    ...keywords
+  ];
+
+  if (combined.length === 0) {
+    throw new RequestValidationError('keyword or keywords is required', {
+      field: 'keyword',
+      alternateField: 'keywords'
+    });
+  }
+
+  return Array.from(new Set(combined));
+}
+
+export class UpstreamApiError extends Error implements ApiHandlerError {
+  code: string;
+  status: number;
+  details?: Record<string, unknown>;
+
+  constructor(message: string, status: number = 500, details?: Record<string, unknown>) {
+    super(message);
+    this.name = 'UpstreamApiError';
+    this.code = 'upstream_api_error';
+    this.status = status;
+    this.details = details;
+  }
+}
+
+export function safeJsonParse<T = unknown>(jsonString: string | null | undefined, fallback: T | null = null): T | null {
+  if (!jsonString) return fallback;
+  try {
+    return JSON.parse(jsonString) as T;
+  } catch (error) {
+    throw new UpstreamApiError('Failed to parse upstream JSON response', 500, { originalText: jsonString.substring(0, 100) });
+  }
+}

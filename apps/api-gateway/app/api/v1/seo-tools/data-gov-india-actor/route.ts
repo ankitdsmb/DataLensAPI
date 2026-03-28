@@ -4,7 +4,8 @@ import {
   withScrapingHandler,
   RequestValidationError,
   stealthGet
-} from '@forensic/scraping-core';
+,
+  safeJsonParse} from '@forensic/scraping-core';
 
 const dataGovPolicy = createToolPolicy({
   timeoutMs: 10000,
@@ -30,6 +31,6 @@ export const POST = withScrapingHandler({ policy: dataGovPolicy }, async (req: R
 
   return {
     query,
-    data: response.body ? JSON.parse(response.body) : null
+    data: response.body ? safeJsonParse<Record<string, unknown>>(response.body) : null
   };
 });

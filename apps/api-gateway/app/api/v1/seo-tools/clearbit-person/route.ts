@@ -4,7 +4,8 @@ import {
   withScrapingHandler,
   RequestValidationError,
   stealthGet
-} from '@forensic/scraping-core';
+,
+  safeJsonParse} from '@forensic/scraping-core';
 
 const clearbitPersonPolicy = createToolPolicy({
   timeoutMs: 8000,
@@ -23,7 +24,7 @@ export const POST = withScrapingHandler({ policy: clearbitPersonPolicy }, async 
 
   const url = `https://autocomplete.clearbit.com/v1/companies/suggest?query=${encodeURIComponent(name)}`;
   const response = await stealthGet(url, { timeoutMs: clearbitPersonPolicy.timeoutMs, throwHttpErrors: false });
-  const data = response.body ? JSON.parse(response.body) : [];
+  const data = response.body ? safeJsonParse<Record<string, unknown>>(response.body) : [];
 
   return {
     name,

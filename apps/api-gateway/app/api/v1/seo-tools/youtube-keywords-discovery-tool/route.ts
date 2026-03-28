@@ -6,7 +6,9 @@ import {
   stealthGet,
   withScrapingHandler,
   RequestValidationError
-} from '@forensic/scraping-core';
+,
+  normalizeKeywordInputs,
+  safeJsonParse} from '@forensic/scraping-core';
 
 const youtubeKeywordsPolicy = createToolPolicy({
   timeoutMs: 8000,
@@ -16,23 +18,7 @@ const youtubeKeywordsPolicy = createToolPolicy({
   cacheTtlSeconds: 120
 });
 
-function normalizeKeywordInputs(body: Record<string, unknown>) {
-  const keywords = optionalStringArrayField(body, 'keywords', { maxItems: 20, fieldLabel: 'keywords' });
-  const singleKeyword = typeof body.keyword === 'string' ? body.keyword.trim() : '';
-  const combined = [
-    ...(singleKeyword ? [singleKeyword] : []),
-    ...keywords
-  ];
 
-  if (combined.length === 0) {
-    throw new RequestValidationError('keyword or keywords is required', {
-      field: 'keyword',
-      alternateField: 'keywords'
-    });
-  }
-
-  return Array.from(new Set(combined));
-}
 
 export const POST = withScrapingHandler({ policy: youtubeKeywordsPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, youtubeKeywordsPolicy);
@@ -46,12 +32,12 @@ export const POST = withScrapingHandler({ policy: youtubeKeywordsPolicy }, async
   for (const keyword of keywords) {
     const url = `https://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q=${encodeURIComponent(keyword)}&hl=${encodeURIComponent(language)}&gl=${encodeURIComponent(country)}`;
     const response = await stealthGet(url, { timeoutMs: youtubeKeywordsPolicy.timeoutMs, throwHttpErrors: false });
-    const parsed = response.body ? JSON.parse(response.body) : [];
-    const suggestions = Array.isArray(parsed) && Array.isArray(parsed[1]) ? parsed[1] : [];
+    const parsed = response.body ? safeJsonParse<unknown[]>(response.body) : [];
+    const suggestions = Array.isArray(parsed) && Array.isArray((parsed as unknown[])[1]) ? (parsed as unknown[])[1] : [];
 
     results.push({
       keyword,
-      suggestions: suggestions.filter((item) => typeof item === 'string').slice(0, limit)
+      suggestions: (suggestions as unknown[]).filter((item) => typeof item === 'string').slice(0, limit)
     });
   }
 
