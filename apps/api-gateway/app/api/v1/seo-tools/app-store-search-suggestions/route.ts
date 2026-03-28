@@ -1,15 +1,12 @@
 import {
   createToolPolicy,
-  optionalIntegerField,
-  optionalStringArrayField,
-  readJsonBody,
-  stealthGet,
-  withScrapingHandler,
-  RequestValidationError
-,
+  discoverKeywordSuggestions,
   normalizeKeywordInputs,
-  safeJsonParse,
-  requireAllowedFields
+  optionalIntegerField,
+  optionalStringField,
+  readJsonBody,
+  requireAllowedFields,
+  withScrapingHandler
 } from '@forensic/scraping-core';
 
 const appStoreSuggestPolicy = createToolPolicy({
@@ -20,30 +17,17 @@ const appStoreSuggestPolicy = createToolPolicy({
   cacheTtlSeconds: 120
 });
 
-
-
 export const POST = withScrapingHandler({ policy: appStoreSuggestPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, appStoreSuggestPolicy);
   requireAllowedFields(body, ['country', 'keyword', 'keywords', 'limit']);
-  const keywords = normalizeKeywordInputs(body);
-  const limit = optionalIntegerField(body, 'limit', { defaultValue: 10, min: 1, max: 25 });
-  const country = typeof body.country === 'string' && body.country.trim() ? body.country.trim() : 'us';
 
-  const results = [];
-
-  for (const keyword of keywords) {
-    const url = `https://itunes.apple.com/search?term=${encodeURIComponent(keyword)}&entity=software&country=${encodeURIComponent(country)}`;
-    const response = await stealthGet(url, { timeoutMs: appStoreSuggestPolicy.timeoutMs, throwHttpErrors: false });
-    const parsed = response.body ? safeJsonParse<Record<string, unknown>>(response.body) : {};
-    const suggestions = Array.isArray(((parsed as Record<string, unknown>)?.results as Array<Record<string, unknown>>))
-      ? ((parsed as Record<string, unknown>)?.results as Array<Record<string, unknown>>).map((item: { trackName?: string }) => item.trackName).filter(Boolean)
-      : [];
-
-    results.push({
-      keyword,
-      suggestions: suggestions.slice(0, limit)
-    });
-  }
+  const country = optionalStringField(body, 'country', 'us');
+  const results = await discoverKeywordSuggestions('app-store', {
+    keywords: normalizeKeywordInputs(body),
+    limit: optionalIntegerField(body, 'limit', { defaultValue: 10, min: 1, max: 25 }),
+    country,
+    timeoutMs: appStoreSuggestPolicy.timeoutMs
+  });
 
   return { country, results };
 });
