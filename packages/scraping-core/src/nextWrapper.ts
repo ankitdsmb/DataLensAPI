@@ -4,6 +4,7 @@ import { DEFAULT_TOOL_POLICY } from './policy';
 import type { ToolExecutionPolicy } from '../../shared-types/src';
 import { RequestValidationError, UpstreamApiError } from './validation';
 import { acquireConcurrencyLease, enforceLaunchPolicy, resolveLaunchPolicy } from './launchGuard';
+import { logEvent, logTiming, withRequestContext } from './observability';
 type ScrapingHandlerOptions = {
   policy?: Partial<ToolExecutionPolicy>;
 };
@@ -58,79 +59,112 @@ export function withScrapingHandler<T>(
     const startTime = Date.now();
     const requestId = createRequestId();
     let releaseConcurrency: (() => void) | undefined;
-    try {
-      const routePolicy = resolveLaunchPolicy(req, options.policy);
-      enforceLaunchPolicy(req, routePolicy);
-      releaseConcurrency = acquireConcurrencyLease(req, routePolicy);
 
-      const contentLengthHeader = req.headers.get('content-length');
-      if (contentLengthHeader) {
-        const contentLength = Number(contentLengthHeader);
-        if (Number.isFinite(contentLength) && contentLength > routePolicy.maxPayloadBytes) {
-          throw new RequestValidationError('request body exceeds maximum payload size', {
-            maxPayloadBytes: routePolicy.maxPayloadBytes,
-            contentLength
+    return withRequestContext(
+      {
+        requestId,
+        route: new URL(req.url).pathname
+      },
+      async () => {
+        logEvent('info', 'api.request.started', {
+          method: req.method,
+          user_agent: req.headers.get('user-agent') ?? null
+        });
+
+        try {
+          const routePolicy = resolveLaunchPolicy(req, options.policy);
+          enforceLaunchPolicy(req, routePolicy);
+          releaseConcurrency = acquireConcurrencyLease(req, routePolicy);
+
+          const contentLengthHeader = req.headers.get('content-length');
+          if (contentLengthHeader) {
+            const contentLength = Number(contentLengthHeader);
+            if (Number.isFinite(contentLength) && contentLength > routePolicy.maxPayloadBytes) {
+              throw new RequestValidationError('request body exceeds maximum payload size', {
+                maxPayloadBytes: routePolicy.maxPayloadBytes,
+                contentLength
+              });
+            }
+          }
+
+          let timeoutId: ReturnType<typeof setTimeout> | undefined;
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            timeoutId = setTimeout(() => {
+              reject(
+                new UpstreamApiError('request exceeded route timeout', 408, {
+                  timeoutMs: routePolicy.timeoutMs
+                })
+              );
+            }, routePolicy.timeoutMs);
           });
+
+          const data = await Promise.race([handler(req), timeoutPromise]);
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
+
+          logTiming('api.request.completed', startTime, {
+            status_code: 200
+          });
+
+          const stdRes = createResponse(data, startTime, { requestId });
+          return NextResponse.json(stdRes, {
+            headers: {
+              'x-request-id': requestId
+            }
+          });
+        } catch (error: unknown) {
+          let normalizedError =
+            typeof error === 'string'
+              ? new Error(error)
+              : error instanceof Error
+              ? error
+              : new Error('Internal Server Error');
+
+          if (
+            normalizedError &&
+            typeof normalizedError === 'object' &&
+            'name' in normalizedError &&
+            normalizedError.name === 'HTTPError' &&
+            'response' in normalizedError &&
+            typeof normalizedError.response === 'object' &&
+            normalizedError.response !== null &&
+            'statusCode' in normalizedError.response
+          ) {
+            const status = Number(normalizedError.response.statusCode);
+            const optionsUrl =
+              'options' in normalizedError &&
+              typeof normalizedError.options === 'object' &&
+              normalizedError.options !== null &&
+              'url' in normalizedError.options
+                ? String(normalizedError.options.url)
+                : undefined;
+            normalizedError = new UpstreamApiError(`Upstream API failed with status ${status}`, status, { url: optionsUrl });
+          }
+
+          const resolvedStatus = resolveErrorStatus(normalizedError);
+          logEvent('error', 'api.request.failed', {
+            status_code: resolvedStatus,
+            duration_ms: Date.now() - startTime,
+            error_code:
+              normalizedError instanceof RequestValidationError || normalizedError instanceof UpstreamApiError
+                ? normalizedError.code
+                : undefined,
+            error_message: normalizedError.message
+          });
+
+          const stdErr = createErrorResponse(normalizedError, startTime, { requestId });
+          return NextResponse.json(stdErr, {
+            status: resolvedStatus,
+            headers: {
+              'x-request-id': requestId
+            }
+          });
+        } finally {
+          releaseConcurrency?.();
         }
       }
-
-      let timeoutId: ReturnType<typeof setTimeout> | undefined;
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        timeoutId = setTimeout(() => {
-          reject(
-            new UpstreamApiError('request exceeded route timeout', 408, {
-              timeoutMs: routePolicy.timeoutMs
-            })
-          );
-        }, routePolicy.timeoutMs);
-      });
-
-      const data = await Promise.race([handler(req), timeoutPromise]);
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      const stdRes = createResponse(data, startTime, { requestId });
-      return NextResponse.json(stdRes, {
-        headers: {
-          'x-request-id': requestId
-        }
-      });
-    } catch (error: unknown) {
-      let normalizedError =
-        typeof error === 'string'
-          ? new Error(error)
-          : error instanceof Error
-          ? error
-          : new Error('Internal Server Error');
-
-      if (
-        normalizedError &&
-        typeof normalizedError === 'object' &&
-        'name' in normalizedError &&
-        normalizedError.name === 'HTTPError' &&
-        'response' in normalizedError &&
-        typeof normalizedError.response === 'object' &&
-        normalizedError.response !== null &&
-        'statusCode' in normalizedError.response
-      ) {
-         const status = Number(normalizedError.response.statusCode);
-         const optionsUrl = 'options' in normalizedError && typeof normalizedError.options === 'object' && normalizedError.options !== null && 'url' in normalizedError.options ? String(normalizedError.options.url) : undefined;
-         normalizedError = new UpstreamApiError(
-            `Upstream API failed with status ${status}`,
-            status,
-            { url: optionsUrl }
-         );
-      }
-
-      const stdErr = createErrorResponse(normalizedError, startTime, { requestId });
-      return NextResponse.json(stdErr, {
-        status: resolveErrorStatus(normalizedError),
-        headers: {
-          'x-request-id': requestId
-        }
-      });
-    } finally {
-      releaseConcurrency?.();
-    }
+    );
   };
+
 }

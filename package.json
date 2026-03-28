@@ -9,10 +9,12 @@
   ],
   "scripts": {
     "build": "turbo run build",
-    "contract-tests": "node scripts/contract-tests/envelope.mjs",
+    "contract-tests": "npm run build --workspace @forensic/scraping-core && node scripts/contract-tests/envelope.mjs && node scripts/contract-tests/validation.mjs",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "smoke-tests": "node scripts/smoke-tests/live-routes.mjs",
+    "regression-tests": "node scripts/regression-tests/canonical-families.mjs"
   },
   "devDependencies": {
     "turbo": "latest"
