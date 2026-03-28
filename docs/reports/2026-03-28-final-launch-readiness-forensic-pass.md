@@ -30,17 +30,17 @@ Classification summary:
 
 - **Strength**
   - Strong: **15**
-  - Medium: **76**
-  - Weak: **63**
+  - Medium: **78**
+  - Weak: **61**
 - **Launch readiness**
   - Ready: **89**
-  - Conditional: **63**
-  - Internal-only: **2**
-  - Blocked: **2**
+  - Conditional: **47**
+  - Internal-only: **4**
+  - Blocked: **14**
 - **Free-tier fit**
   - Fit (in explicit safe allowlist): **10**
-  - Blocked: **4** (2 async job routes + 2 api-key-stub routes)
-  - Not in free-tier allowlist: **140**
+  - Blocked: **18** (12 rejected traffic/fake-engagement routes + 4 internal-only routes + 2 api-key-stub routes)
+  - Not in free-tier allowlist: **126**
 
 ## Route tree vs allowlist verification
 
@@ -69,17 +69,27 @@ Compared live code routes against `docs/api-plans/route-allowlist.md`.
 
 **Required action:** either strengthen with real provider integration + credential flow, or keep internal-only/defer from public launch.
 
-### Blocker 2 — Simulation-limited async routes are not yet product-grade
+### Blocker 2 — Simulation-limited async routes are still internal-only, not public-grade
 
 - `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf`
 - `/api/v1/seo-tools/youtube-rank-checker`
-- `/api/v1/seo-tools/traffic-booster`
 
-These routes now have a real async submission and job-status surface, but at least part of the current worker logic is still limited, deterministic, projection-based, degraded-fallback driven, or missing final browser/PDF rendering.
+These routes now have a real async submission and job-status surface, and both have been strengthened beyond pure placeholders. Even so, at least part of the current worker logic is still limited, degraded-fallback driven, or missing final browser/PDF rendering, so they should remain internal-only or preview-only for now.
 
 **Required action:** either ship them as clearly internal/preview-only job surfaces or replace worker simulation with provider-grade execution before public launch.
 
-### Blocker 3 — Launch-facing narrative docs still need ongoing truth maintenance
+### Blocker 3 — Rejected traffic and fake-engagement routes must stay out of the public catalog
+
+The repo now enforces launch governance in code for the highest-risk traffic and fake-engagement class, including:
+
+- traffic simulation routes such as `traffic-booster`, `smart-website-traffic`, and `website-traffic-generator-pro`
+- fake-engagement routes such as `youtube-view-generator` and `youtube-view-generator-124-test-events-124-0001`
+
+These are now explicitly rejected from the public catalog in both route responses and launch guard enforcement.
+
+**Required action:** keep them blocked/internal-only and ensure all launch-facing product surfaces continue excluding them.
+
+### Blocker 4 — Launch-facing narrative docs still need ongoing truth maintenance
 
 The repo is past the original route-count drift problem, but launch-facing docs still need disciplined upkeep so they do not regress into stale statements about placeholder-only async behavior or missing runtime infrastructure.
 
@@ -107,15 +117,16 @@ Action policy for remaining weak routes:
 
 Rationale:
 
-1. Canonical allowlist drift is unresolved.
-2. Launch documentation is not fully truthful to current code state.
-3. Two routes are explicitly blocked stubs and need strengthen/internal-only enforcement.
+1. Two routes are still explicitly blocked provider stubs and need strengthen/internal-only enforcement.
+2. The strengthened async routes are useful but still internal-only because execution remains limited relative to the public product promise.
+3. The rejected traffic/fake-engagement class must remain excluded from the public catalog.
+4. Launch documentation still requires disciplined refresh to stay aligned with route posture.
 
 ## Go criteria for next pass
 
 Launch can move to **GO** when all are true:
 
-1. Allowlist regenerated and includes all 154 live routes (including jobs routes).
-2. Blocked stub routes are either strengthened or explicitly kept internal-only with matching docs.
-3. Simulation-limited async routes are either strengthened or explicitly kept internal/preview-only with matching docs.
-4. Weak-route relabeling is reflected consistently across route contracts and docs.
+1. Blocked provider-stub routes are either strengthened or explicitly kept internal-only with matching docs.
+2. Simulation-limited async routes are either strengthened to provider-grade execution or explicitly kept internal/preview-only with matching docs.
+3. Rejected traffic/fake-engagement routes remain excluded consistently across route contracts, launch guard policy, and launch docs.
+4. Weak-route relabeling and route posture are reflected consistently across route contracts and docs.
