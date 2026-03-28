@@ -4,7 +4,8 @@ import {
   withScrapingHandler,
   RequestValidationError,
   stealthGet
-} from '@forensic/scraping-core';
+,
+  safeJsonParse} from '@forensic/scraping-core';
 
 const domainAvailabilityPolicy = createToolPolicy({
   timeoutMs: 8000,
@@ -25,7 +26,7 @@ function normalizeDomain(body: Record<string, unknown>) {
 async function lookupA(domain: string, timeoutMs: number) {
   const url = `https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=A`;
   const response = await stealthGet(url, { timeoutMs, throwHttpErrors: false });
-  return response.body ? JSON.parse(response.body) : {};
+  return response.body ? safeJsonParse<Record<string, unknown>>(response.body) : {};
 }
 
 export const POST = withScrapingHandler({ policy: domainAvailabilityPolicy }, async (req: Request) => {
@@ -33,11 +34,11 @@ export const POST = withScrapingHandler({ policy: domainAvailabilityPolicy }, as
   const domain = normalizeDomain(body);
 
   const data = await lookupA(domain, domainAvailabilityPolicy.timeoutMs);
-  const available = data?.Status === 3;
+  const available = (data as Record<string, unknown>)?.Status === 3;
 
   return {
     domain,
     available,
-    dnsStatus: data?.Status ?? null
+    dnsStatus: (data as Record<string, unknown>)?.Status ?? null
   };
 });

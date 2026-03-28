@@ -5,7 +5,8 @@ import {
   stealthGet,
   withScrapingHandler,
   RequestValidationError
-} from '@forensic/scraping-core';
+,
+  safeJsonParse} from '@forensic/scraping-core';
 
 const apideckPolicy = createToolPolicy({
   timeoutMs: 10000,
@@ -38,6 +39,6 @@ export const POST = withScrapingHandler({ policy: apideckPolicy }, async (req: R
   return {
     apiUrl,
     status: response.statusCode ?? null,
-    data: response.body ? JSON.parse(response.body) : null
+    data: response.body ? safeJsonParse<Record<string, unknown>>(response.body) : null
   };
 });

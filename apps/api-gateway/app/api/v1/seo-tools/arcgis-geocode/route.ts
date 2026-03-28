@@ -4,7 +4,8 @@ import {
   withScrapingHandler,
   RequestValidationError,
   stealthGet
-} from '@forensic/scraping-core';
+,
+  safeJsonParse} from '@forensic/scraping-core';
 
 const arcgisPolicy = createToolPolicy({
   timeoutMs: 10000,
@@ -23,10 +24,10 @@ export const POST = withScrapingHandler({ policy: arcgisPolicy }, async (req: Re
 
   const url = `https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=pjson&maxLocations=5&singleLine=${encodeURIComponent(address)}`;
   const response = await stealthGet(url, { timeoutMs: arcgisPolicy.timeoutMs, throwHttpErrors: false });
-  const data = response.body ? JSON.parse(response.body) : {};
+  const data = response.body ? safeJsonParse<Record<string, unknown>>(response.body) : {};
 
   return {
     address,
-    candidates: data.candidates ?? []
+    candidates: ((data as Record<string, unknown>)?.candidates as unknown[]) ?? []
   };
 });

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createErrorResponse, createRequestId, createResponse } from './apiWrapper';
 import { DEFAULT_TOOL_POLICY } from './policy';
 import type { ToolExecutionPolicy } from '../../shared-types/src';
-import { RequestValidationError } from './validation';
+import { RequestValidationError, UpstreamApiError } from './validation';
 type ScrapingHandlerOptions = {
   policy?: Partial<ToolExecutionPolicy>;
 };
@@ -75,14 +75,36 @@ export function withScrapingHandler<T>(
           'x-request-id': requestId
         }
       });
-    } catch (error) {
-      const normalizedError =
-        typeof error === 'string' || error instanceof Error
+        } catch (error: unknown) {
+      let normalizedError =
+        typeof error === 'string'
+          ? new Error(error)
+          : error instanceof Error
           ? error
           : new Error('Internal Server Error');
+
+      if (
+        normalizedError &&
+        typeof normalizedError === 'object' &&
+        'name' in normalizedError &&
+        normalizedError.name === 'HTTPError' &&
+        'response' in normalizedError &&
+        typeof normalizedError.response === 'object' &&
+        normalizedError.response !== null &&
+        'statusCode' in normalizedError.response
+      ) {
+         const status = Number(normalizedError.response.statusCode);
+         const optionsUrl = 'options' in normalizedError && typeof normalizedError.options === 'object' && normalizedError.options !== null && 'url' in normalizedError.options ? String(normalizedError.options.url) : undefined;
+         normalizedError = new UpstreamApiError(
+            `Upstream API failed with status ${status}`,
+            status,
+            { url: optionsUrl }
+         );
+      }
+
       const stdErr = createErrorResponse(normalizedError, startTime, { requestId });
       return NextResponse.json(stdErr, {
-        status: resolveErrorStatus(error),
+        status: resolveErrorStatus(normalizedError),
         headers: {
           'x-request-id': requestId
         }

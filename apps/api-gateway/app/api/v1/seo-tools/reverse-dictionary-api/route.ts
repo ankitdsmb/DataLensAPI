@@ -5,7 +5,8 @@ import {
   withScrapingHandler,
   RequestValidationError,
   stealthGet
-} from '@forensic/scraping-core';
+,
+  safeJsonParse} from '@forensic/scraping-core';
 
 const reverseDictionaryPolicy = createToolPolicy({
   timeoutMs: 8000,
@@ -45,7 +46,7 @@ export const POST = withScrapingHandler({ policy: reverseDictionaryPolicy }, asy
       timeoutMs: reverseDictionaryPolicy.timeoutMs,
       throwHttpErrors: false
     });
-    const data = response.body ? JSON.parse(response.body) : [];
+    const data = response.body ? safeJsonParse<Record<string, unknown>>(response.body) : [];
     const words = Array.isArray(data) ? data.map((item: { word?: string }) => item.word).filter(Boolean) : [];
     results.push({ query, words });
   }

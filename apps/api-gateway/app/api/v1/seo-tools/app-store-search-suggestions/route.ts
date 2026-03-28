@@ -6,7 +6,9 @@ import {
   stealthGet,
   withScrapingHandler,
   RequestValidationError
-} from '@forensic/scraping-core';
+,
+  normalizeKeywordInputs,
+  safeJsonParse} from '@forensic/scraping-core';
 
 const appStoreSuggestPolicy = createToolPolicy({
   timeoutMs: 8000,
@@ -16,23 +18,7 @@ const appStoreSuggestPolicy = createToolPolicy({
   cacheTtlSeconds: 120
 });
 
-function normalizeKeywordInputs(body: Record<string, unknown>) {
-  const keywords = optionalStringArrayField(body, 'keywords', { maxItems: 20, fieldLabel: 'keywords' });
-  const singleKeyword = typeof body.keyword === 'string' ? body.keyword.trim() : '';
-  const combined = [
-    ...(singleKeyword ? [singleKeyword] : []),
-    ...keywords
-  ];
 
-  if (combined.length === 0) {
-    throw new RequestValidationError('keyword or keywords is required', {
-      field: 'keyword',
-      alternateField: 'keywords'
-    });
-  }
-
-  return Array.from(new Set(combined));
-}
 
 export const POST = withScrapingHandler({ policy: appStoreSuggestPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, appStoreSuggestPolicy);
@@ -45,9 +31,9 @@ export const POST = withScrapingHandler({ policy: appStoreSuggestPolicy }, async
   for (const keyword of keywords) {
     const url = `https://itunes.apple.com/search?term=${encodeURIComponent(keyword)}&entity=software&country=${encodeURIComponent(country)}`;
     const response = await stealthGet(url, { timeoutMs: appStoreSuggestPolicy.timeoutMs, throwHttpErrors: false });
-    const parsed = response.body ? JSON.parse(response.body) : {};
-    const suggestions = Array.isArray(parsed?.results)
-      ? parsed.results.map((item: { trackName?: string }) => item.trackName).filter(Boolean)
+    const parsed = response.body ? safeJsonParse<Record<string, unknown>>(response.body) : {};
+    const suggestions = Array.isArray(((parsed as Record<string, unknown>)?.results as Array<Record<string, unknown>>))
+      ? ((parsed as Record<string, unknown>)?.results as Array<Record<string, unknown>>).map((item: { trackName?: string }) => item.trackName).filter(Boolean)
       : [];
 
     results.push({

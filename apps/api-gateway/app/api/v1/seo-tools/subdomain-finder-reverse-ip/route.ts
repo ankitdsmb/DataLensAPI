@@ -4,7 +4,8 @@ import {
   withScrapingHandler,
   RequestValidationError,
   stealthGet
-} from '@forensic/scraping-core';
+,
+  safeJsonParse} from '@forensic/scraping-core';
 
 const subdomainFinderPolicy = createToolPolicy({
   timeoutMs: 12000,
@@ -27,13 +28,13 @@ async function lookupPtr(ip: string, timeoutMs: number) {
   const reversed = ip.split('.').reverse().join('.') + '.in-addr.arpa';
   const url = `https://dns.google/resolve?name=${encodeURIComponent(reversed)}&type=PTR`;
   const response = await stealthGet(url, { timeoutMs, throwHttpErrors: false });
-  return response.body ? JSON.parse(response.body) : {};
+  return response.body ? safeJsonParse<Record<string, unknown>>(response.body) : {};
 }
 
 async function lookupSubdomains(domain: string, timeoutMs: number) {
   const url = `https://crt.sh/?q=${encodeURIComponent(`%.${domain}`)}&output=json`;
   const response = await stealthGet(url, { timeoutMs, throwHttpErrors: false });
-  const data = response.body ? JSON.parse(response.body) : [];
+  const data = response.body ? safeJsonParse<Record<string, unknown>>(response.body) : [];
   const names = Array.isArray(data)
     ? data.flatMap((item: { name_value?: string }) => (item.name_value || '').split('\n'))
     : [];
