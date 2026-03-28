@@ -1,15 +1,12 @@
 import {
   createToolPolicy,
-  optionalIntegerField,
-  optionalStringArrayField,
-  readJsonBody,
-  stealthGet,
-  withScrapingHandler,
-  RequestValidationError
-,
+  discoverKeywordSuggestions,
   normalizeKeywordInputs,
-  safeJsonParse,
-  requireAllowedFields
+  optionalIntegerField,
+  optionalStringField,
+  readJsonBody,
+  requireAllowedFields,
+  withScrapingHandler
 } from '@forensic/scraping-core';
 
 const googleAutocompletePolicy = createToolPolicy({
@@ -20,32 +17,19 @@ const googleAutocompletePolicy = createToolPolicy({
   cacheTtlSeconds: 120
 });
 
-
-
 export const POST = withScrapingHandler({ policy: googleAutocompletePolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, googleAutocompletePolicy);
   requireAllowedFields(body, ['country', 'keyword', 'keywords', 'language', 'limit']);
-  const keywords = normalizeKeywordInputs(body);
-  const limit = optionalIntegerField(body, 'limit', { defaultValue: 10, min: 1, max: 25 });
-  const language = typeof body.language === 'string' && body.language.trim() ? body.language.trim() : 'en';
-  const country = typeof body.country === 'string' && body.country.trim() ? body.country.trim() : 'US';
 
-  const results = [];
+  const language = optionalStringField(body, 'language', 'en');
+  const country = optionalStringField(body, 'country', 'US');
+  const results = await discoverKeywordSuggestions('google', {
+    keywords: normalizeKeywordInputs(body),
+    limit: optionalIntegerField(body, 'limit', { defaultValue: 10, min: 1, max: 25 }),
+    language,
+    country,
+    timeoutMs: googleAutocompletePolicy.timeoutMs
+  });
 
-  for (const keyword of keywords) {
-    const url = `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(keyword)}&hl=${encodeURIComponent(language)}&gl=${encodeURIComponent(country)}`;
-    const response = await stealthGet(url, { timeoutMs: googleAutocompletePolicy.timeoutMs, throwHttpErrors: false });
-    const parsed = response.body ? safeJsonParse<unknown[]>(response.body) : [];
-    const suggestions = Array.isArray(parsed) && Array.isArray((parsed as unknown[])[1]) ? (parsed as unknown[])[1] : [];
-
-    results.push({
-      keyword,
-      suggestions: (suggestions as unknown[]).filter((item) => typeof item === 'string').slice(0, limit)
-    });
-  }
-
-  return {
-    locale: { language, country },
-    results
-  };
+  return { locale: { language, country }, results };
 });

@@ -6,10 +6,11 @@ import {
   readJsonBody,
   requireAllowedFields,
   runLightSiteAudit,
+  summarizeSiteAuditPages,
   withScrapingHandler
 } from '@forensic/scraping-core';
 
-const seoAuditPolicy = createToolPolicy({
+const siteAuditSuitePolicy = createToolPolicy({
   timeoutMs: 10000,
   maxPayloadBytes: 160 * 1024,
   maxUrlCount: 10,
@@ -17,19 +18,23 @@ const seoAuditPolicy = createToolPolicy({
   cacheTtlSeconds: 300
 });
 
-export const POST = withScrapingHandler({ policy: seoAuditPolicy }, async (req: Request) => {
-  const body = await readJsonBody<Record<string, unknown>>(req, seoAuditPolicy);
+export const POST = withScrapingHandler({ policy: siteAuditSuitePolicy }, async (req: Request) => {
+  const body = await readJsonBody<Record<string, unknown>>(req, siteAuditSuitePolicy);
   requireAllowedFields(body, ['keyword', 'keywords', 'topN', 'url', 'urls']);
 
   const pages = await runLightSiteAudit({
-    urls: collectUrlInputs(body, seoAuditPolicy),
+    urls: collectUrlInputs(body, siteAuditSuitePolicy),
     keywords: [
       ...(typeof body.keyword === 'string' && body.keyword.trim() ? [body.keyword.trim()] : []),
       ...optionalStringArrayField(body, 'keywords', { maxItems: 50 })
     ],
     topN: optionalIntegerField(body, 'topN', { defaultValue: 20, min: 5, max: 100 }),
-    timeoutMs: seoAuditPolicy.timeoutMs
+    timeoutMs: siteAuditSuitePolicy.timeoutMs
   });
 
-  return { results: pages };
+  return {
+    pages,
+    summary: summarizeSiteAuditPages(pages),
+    mode: 'single-page-light'
+  };
 });
