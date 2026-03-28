@@ -246,3 +246,17 @@ This list captures the APIs provided in the request for future creation.
 | TN-API-20381 | Seo Tools | YouTube View Generator &#124; Test Events &#124; 0.001 | Youtube View Generator &#124; Test Events &#124; 0.001 🔥🔥🔥 | Easy | Test-only variant of view generator. | `/api/v1/seo-tools/youtube-view-generator-124-test-events-124-0001` | P0 - God Tier (Highest Value & Feature Rich) | 2 | Use standard ToolShell wrapper. Validate inputs strictly. Ensure 10s timeout limit. | Yes |
 | TN-API-20383 | Seo Tools | Zapier | Zapier | Easy | Zapier integrations + templates list. | `/api/v1/seo-tools/zapier` | P1 - High Commercial Value | 2 | Use standard ToolShell wrapper. Validate inputs strictly. Ensure 10s timeout limit. | Yes |
 | TN-API-20384 | Seo Tools | Zoho Help Center Automation API | Zoho Help Center | Easy | Zoho Desk help center categories + articles. | `/api/v1/seo-tools/zoho-help-center` | P1 - High Commercial Value | 2 | Use standard ToolShell wrapper. Validate inputs strictly. Ensure 10s timeout limit. | Yes |
+
+## Post-Refactor Live SEO Suite Routes
+
+These routes exist in code after the latest upstream family refactor. They were not part of the original requested list, so they are tracked here explicitly as live plan-gap entries instead of being silently omitted.
+
+| Ticket ID | Category | API Name | Original Raw Name | Complexity | Objective / Summary | Endpoint | Priority | Est. Dev Hours | Implementation Notes | Created |
+|---|---|---|---|---|---|---|---|---:|---|---|
+| TN-API-PLAN01 | Seo Tools | Domain Intelligence Suite | Domain Intelligence Suite | Medium | Canonical light suite route for domain availability, DNS snapshot, and HTTP snapshot after upstream family consolidation. | `/api/v1/seo-tools/domain-intelligence-suite` | Platform Canonical Route | 0 | Added by upstream route-family refactor; not part of original intake list. | Yes |
+| TN-API-PLAN02 | Seo Tools | Search Suggestions Explorer | Search Suggestions Explorer | Medium | Canonical multi-provider keyword/search-suggestion exploration route added after upstream refactor. | `/api/v1/seo-tools/search-suggestions-explorer` | Platform Canonical Route | 0 | Added by upstream route-family refactor; not part of original intake list. | Yes |
+| TN-API-PLAN03 | Seo Tools | Site Audit Suite | Site Audit Suite | Medium | Canonical light site-audit suite route added after upstream family consolidation. | `/api/v1/seo-tools/site-audit-suite` | Platform Canonical Route | 0 | Added by upstream route-family refactor; not part of original intake list. | Yes |
+
+## Scope note
+
+This file tracks Developer Tools and SEO Tools requested or later surfaced as live SEO plan-gap routes. Generic operational routes such as `/api/v1/jobs/[jobId]` are intentionally governed by `docs/api-plans/route-allowlist.md`, not this intake list.

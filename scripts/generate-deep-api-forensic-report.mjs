@@ -341,7 +341,7 @@ function buildGithubNote(slug, src) {
 
 function buildEntry(slug, src, planMeta) {
   const endpoint = `/api/v1/seo-tools/${slug}`;
-  const summary = [...planMeta.summaries][0];
+  const summary = planMeta ? [...planMeta.summaries][0] : 'Live route present in code but missing from dev-and-seo-tooling-list.md.';
   const cls = classify(slug, src);
   const family = inferFamily(slug, summary);
   const defaults = classDefaults[cls];
@@ -364,8 +364,8 @@ function buildEntry(slug, src, planMeta) {
     fit,
     github: buildGithubNote(slug, src),
     summary,
-    tickets: planMeta.tickets.join(', '),
-    priority: [...planMeta.priorities].join(' / ')
+    tickets: planMeta ? planMeta.tickets.join(', ') : 'missing-from-plan',
+    priority: planMeta ? [...planMeta.priorities].join(' / ') : 'unplanned-live-route'
   };
 }
 
@@ -398,6 +398,8 @@ const entries = slugs.map((slug) => {
   return buildEntry(slug, src, planMeta);
 });
 
+const liveRoutesMissingFromPlan = entries.filter((entry) => entry.tickets === 'missing-from-plan');
+
 const createdNoRows = rows.filter((row) => row[10] === 'No');
 const notBuiltByCategory = new Map();
 for (const row of createdNoRows) {
@@ -411,6 +413,11 @@ const rawJsonCount = entries.filter((entry) => {
   const src = fs.readFileSync(path.join(ROUTES_DIR, slug, 'route.ts'), 'utf8');
   return /JSON\.parse\(/.test(src);
 }).length;
+const strictAllowlistCount = entries.filter((entry) => {
+  const slug = entry.endpoint.split('/').pop();
+  const src = fs.readFileSync(path.join(ROUTES_DIR, slug, 'route.ts'), 'utf8');
+  return /requireAllowedFields\(/.test(src);
+}).length;
 
 const classCounts = new Map();
 const familyCounts = new Map();
@@ -423,20 +430,20 @@ let report = '';
 
 report += '# 2026-03-28 Deep API Forensic Analysis\n\n';
 report += '## Scope\n\n';
-report += '- Audit basis: local repo at `14c14b98a5574c3d614ef8ccc815b8aec9afe3fc` plus GitHub-first reconciliation against `ankitdsmb/DataLensAPI` `main`.\n';
-report += '- GitHub delta: local is behind `main` by 4 commits. The most relevant merged PRs are PR #4 (repo hardening) and PR #5 (strict request validation on 20 routes).\n';
+report += '- Audit basis: current local repository on the post-integration branch, after safe fast-forward to the latest `origin/main` and replay of preserved forensic artifacts.\n';
+report += '- GitHub posture: this audit reflects the integrated latest upstream platform state rather than the earlier pre-integration snapshot.\n';
 report += `- Planned rows reviewed from the allowlist: ${rows.length}. Rows marked \`Created: Yes\`: ${rows.filter((row) => row[10] === 'Yes').length}. Rows marked \`Created: No\`: ${createdNoRows.length}.\n`;
 report += `- Live local route directories reviewed one by one: ${entries.length}.\n`;
-report += '- Important drift note: the local allowlist and local route tree are internally consistent, but GitHub `main` appears to be missing a subset of local routes.\n\n';
+report += '- Important drift note: live SEO routes are now represented in the plan file, while generic operational job routes remain governed by the canonical route allowlist.\n\n';
 
 report += '## Executive Findings\n\n';
 report += '1. The repo currently has more API breadth than logic depth.\n';
 report += '2. The strongest implementation area is the shared SEO audit analyzer layer in `packages/scraping-core/src/seoAudit.ts`.\n';
-report += '3. The biggest missing capability is the async-heavy runtime: jobs, worker execution, artifact storage, and status endpoints do not really exist yet.\n';
-report += '4. Documentation is stale and still describes a 50-tool mixed architecture that no longer matches the live repo.\n';
-report += '5. The canonical backlog registry is directionally correct: the repo should move toward canonical families instead of one route per ticket.\n';
-report += '6. Free hosting is realistic only for the lightweight subset. Browser, PDF, screenshot, and heavy crawl features are not truly implemented yet.\n';
-report += '7. Traffic and fake-engagement families are still present locally even though the backlog registry marks them as do-not-add for public launch.\n\n';
+report += '3. The async runtime now exists, but it is still minimal and some worker outputs remain synthetic or preview-grade.\n';
+report += '4. The primary blocker is now truth and governance sync across code, plan docs, allowlists, and forensic reports.\n';
+report += '5. Canonical route families are present and are the right long-term direction for maintainability.\n';
+report += '6. Free hosting is realistic only for a narrow allowlisted subset with launch-guard enforcement.\n';
+report += '7. Traffic and fake-engagement families still require quarantine or internal-only treatment for honest public launch.\n\n';
 
 report += '## Inventory Snapshot\n\n';
 report += '| Metric | Value |\n| --- | ---: |\n';
@@ -446,7 +453,7 @@ report += `| Rows marked Created = No | ${createdNoRows.length} |\n`;
 report += `| Live local route directories | ${entries.length} |\n`;
 report += `| Routes using \`readJsonBody\` | ${entries.length} |\n`;
 report += `| Routes still using raw \`JSON.parse\` locally | ${rawJsonCount} |\n`;
-report += '| Routes with local strict allowed-field checks | 0 |\n\n';
+report += `| Routes with local strict allowed-field checks | ${strictAllowlistCount} |\n\n`;
 
 report += '### Implementation Classes\n\n';
 report += '| Class | Count |\n| --- | ---: |\n';
@@ -488,35 +495,46 @@ for (const [category, count] of [...notBuiltByCategory.entries()].sort((a, b) =>
 }
 report += '\n';
 
+report += '### Live Routes Missing From Plan File\n\n';
+if (liveRoutesMissingFromPlan.length === 0) {
+  report += '- None.\n\n';
+} else {
+  for (const entry of liveRoutesMissingFromPlan) {
+    report += `- \`${entry.endpoint}\`\n`;
+  }
+  report += '\n';
+}
+
 report += '## GitHub-First Reconciliation\n\n';
-report += '- PR #4 extracted shared helpers and performed cleanup, but the local checkout does not contain that merged state.\n';
-report += '- PR #5 adds strict allowed-field validation to 20 routes on GitHub `main`, while the local checkout still has zero routes using `requireAllowedFields`.\n';
-report += '- GitHub `main` appears to be missing several local routes that are still present in this workspace, so route inventory and docs are drifting.\n\n';
+report += '- The local working branch has now been safely rebased operationally onto the latest upstream state via fast-forwarded `main` plus a clean integration branch.\n';
+report += `- Strict allowed-field validation is now present on ${strictAllowlistCount} live SEO routes.\n`;
+report += '- Remaining GitHub-first concerns are now about document truth and launch governance, not missing upstream platform work.\n\n';
 
 report += '## Architecture Gaps\n\n';
 report += '### 1. Source of Truth Drift\n\n';
-report += '- README, `docs/FORENSIC_ARCHITECTURE_REPORT.md`, `docs/PLAN.md`, `docs/STRATEGY.md`, and `docs/TECHNICAL_DESIGN.md` are materially stale.\n';
-report += '- The local route tree matches the local allowlist, but GitHub `main` is ahead and appears to have inventory drift.\n';
-report += '- The backlog registry should become the single route-family source of truth.\n\n';
+report += '- The main remaining drift is between route-executable reality and downstream planning/forensic documents that still reference older snapshots.\n';
+report += '- Developer/SEO intake planning and canonical route allowlisting now need explicit separation from generic operational routes such as jobs.\n';
+report += '- The route allowlist should remain the executable source of truth, with the intake list serving as request/backlog truth.\n\n';
 
 report += '### 2. Async Runtime Gap\n\n';
-report += '- `apps/scraper-service/index.js` is still just a placeholder Express app.\n';
-report += '- No real `Job` model, `/jobs/{id}` endpoint, artifact URLs, or worker callbacks exist.\n';
-report += '- Every queued/pending route is therefore unfinished product surface.\n\n';
+report += '- A real job contract, job status endpoint, artifact endpoint, and worker entrypoint now exist.\n';
+report += '- The gap is no longer absence of runtime; the gap is that some worker implementations still produce simulated or preview-grade outputs.\n';
+report += '- Queued routes should be graded individually as real, preview, internal-only, or blocked.\n\n';
 
 report += '### 3. Shared Provider Gap\n\n';
-report += '- The wrapper/envelope layer is decent, but most provider logic still lives directly inside route files.\n';
-report += '- The audit engine is reusable; the keyword, connector, domain, review, and performance families still need true shared provider modules.\n\n';
+report += '- Shared family modules now exist for site audit, keyword discovery, and domain intelligence.\n';
+report += '- The remaining gap is uneven migration: many older routes still carry shallow or inline provider logic instead of using stronger family-level abstractions.\n\n';
 
 report += '### 4. Contract / Validation Gap\n\n';
 report += '- All live routes use `readJsonBody`, which is a good baseline.\n';
-report += `- But ${rawJsonCount} routes still use raw \`JSON.parse\` locally, and no local route currently uses strict allowed-field validation.\n`;
-report += '- GitHub `main` is already slightly safer on this dimension than the local checkout.\n\n';
+report += `- Raw \`JSON.parse\` usage across live SEO routes is now down to ${rawJsonCount}.\n`;
+report += `- Strict allowed-field validation is present on ${strictAllowlistCount} live SEO routes.\n`;
+report += '- The next contract task is to keep route metadata and route promises aligned with those stronger contracts.\n\n';
 
 report += '### 5. Public Launch / Abuse Control Gap\n\n';
-report += '- No live auth middleware, API-key middleware, rate limiting, or per-tool concurrency controls were found.\n';
-report += '- No durable cache, queue, object storage, or artifact bucket is implemented despite repeated planning assumptions in docs.\n';
-report += '- That is acceptable for prototyping, not for public anonymous launch.\n\n';
+report += '- Launch guard, API-key boundary, in-memory rate limiting, and concurrency caps now exist.\n';
+report += '- The gap is that those controls still need final truth-sync with docs, plus stronger durability if multi-instance or longer-lived public launch is expected.\n';
+report += '- Public launch should remain narrow until blocked and simulated routes are explicitly quarantined or strengthened.\n\n';
 
 report += '## Current Architecture Readout\n\n';
 report += '### Workspace Shape\n\n';
@@ -533,10 +551,10 @@ report += '- `packages/scraping-core/src/seoAudit.ts` is the best reusable logic
 report += '- The allowlist file gives the team a practical inventory boundary for cleanup and prioritization.\n\n';
 
 report += '### What Is Weak Today\n\n';
-report += '- Route handlers are still doing too much provider work inline.\n';
-report += '- There is no durable platform layer for jobs, artifacts, caching, or rate limiting.\n';
-report += '- Several routes are marketed as rich products but behave as links, stubs, or queued placeholders.\n';
-report += '- Documentation describes a broader historical architecture instead of the current repo reality.\n\n';
+report += '- Route handlers are still uneven: some use strong family/platform helpers, while many weaker routes still expose shallow behavior.\n';
+report += '- Durability is still lightweight: jobs and artifacts are not yet backed by a stronger shared persistence model suitable for scale.\n';
+report += '- Several routes are still marketed more richly than their current implementation depth justifies.\n';
+report += '- Documentation still contains older snapshot assumptions that need one more truth pass.\n\n';
 
 report += '## Target Architecture to Max Level\n\n';
 report += '### 1. Thin Gateway Layer\n\n';

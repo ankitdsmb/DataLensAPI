@@ -46,46 +46,44 @@ Classification summary:
 
 Compared live code routes against `docs/api-plans/route-allowlist.md`.
 
-- Routes in code but missing from allowlist: **5**
+- Routes in code but missing from allowlist: **0**
 - Routes in allowlist but missing from code: **0**
-
-Missing-from-allowlist live routes:
-
-1. `/api/v1/jobs/[jobId]`
-2. `/api/v1/jobs/[jobId]/artifacts/[artifactId]`
-3. `/api/v1/seo-tools/domain-intelligence-suite`
-4. `/api/v1/seo-tools/search-suggestions-explorer`
-5. `/api/v1/seo-tools/site-audit-suite`
 
 ## Docs vs actual code verification
 
 ### Confirmed doc drift
 
-1. `docs/api-plans/route-allowlist.md` still reports 149 routes and only `seo-tools`, but code now has 154 routes including `jobs/*` and 3 additional SEO suite routes.
-2. `docs/reports/2026-03-28-deep-api-forensic-analysis.md` still states 149 local routes.
-3. `docs/seo-tools-contract-hardening-report.md` states 149 routes upgraded.
-4. `docs/api-plans/route-allowlist.md` still carries a recommendation row for `/api/v1/seo-tools/quick-lh`, which is not a live route.
+1. The major allowlist count drift has been corrected: the canonical route allowlist now reflects all 154 live routes.
+2. Some narrative reports still require refresh whenever route posture changes, especially around blocked stubs and simulation-limited async routes.
+3. Launch-facing docs must keep distinguishing between:
+   - template/provider-stub routes,
+   - real async orchestration surfaces,
+   - and fully implemented worker outputs.
 
 ## Launch blockers (explicit)
 
-### Blocker 1 — Canonical allowlist drift
-
-The canonical allowlist is stale relative to executable code (+5 live routes not listed). This breaks product-surface governance and release auditability.
-
-**Required action:** regenerate and publish `docs/api-plans/route-allowlist.md` directly from route files before launch.
-
-### Blocker 2 — Route-documentation truth drift
-
-Multiple operational documents still anchor to the old 149-route snapshot. This creates a mismatch between launch docs and deployable reality.
-
-**Required action:** update route-count-dependent docs in the same PR as allowlist refresh.
-
-### Blocker 3 — Two blocked endpoints remain non-launchable
+### Blocker 1 — Two blocked provider-template endpoints remain non-launchable
 
 - `/api/v1/seo-tools/openpagerank-bulk-checker` (`api-key-stub`)
 - `/api/v1/seo-tools/rentcast` (`api-key-stub`)
 
 **Required action:** either strengthen with real provider integration + credential flow, or keep internal-only/defer from public launch.
+
+### Blocker 2 — Simulation-limited async routes are not yet product-grade
+
+- `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf`
+- `/api/v1/seo-tools/youtube-rank-checker`
+- `/api/v1/seo-tools/traffic-booster`
+
+These routes now have a real async submission and job-status surface, but the current worker logic is still synthetic, deterministic, or projection-based.
+
+**Required action:** either ship them as clearly internal/preview-only job surfaces or replace worker simulation with provider-grade execution before public launch.
+
+### Blocker 3 — Launch-facing narrative docs still need ongoing truth maintenance
+
+The repo is past the original route-count drift problem, but launch-facing docs still need disciplined upkeep so they do not regress into stale statements about placeholder-only async behavior or missing runtime infrastructure.
+
+**Required action:** rerun the forensic report and keep launch docs aligned whenever route posture changes.
 
 ## Weak-route action plan (concrete)
 
@@ -118,6 +116,6 @@ Rationale:
 Launch can move to **GO** when all are true:
 
 1. Allowlist regenerated and includes all 154 live routes (including jobs routes).
-2. Route-count-dependent docs are synced to code.
-3. Blocked stub routes are either strengthened or explicitly kept internal-only with matching docs.
+2. Blocked stub routes are either strengthened or explicitly kept internal-only with matching docs.
+3. Simulation-limited async routes are either strengthened or explicitly kept internal/preview-only with matching docs.
 4. Weak-route relabeling is reflected consistently across route contracts and docs.

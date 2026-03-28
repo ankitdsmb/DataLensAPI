@@ -9,6 +9,7 @@
 - `link-builder`: validates input and builds canonical external links only.
 - `api-key-stub`: contract is a provider template that requires credentials not wired in the route.
 - `queued-placeholder`: route accepts payload but does not execute the underlying heavy workflow.
+- `queued-simulated`: route submits into the real job runtime, but current worker output is synthetic, deterministic, or projection-based rather than provider-grade execution.
 - `shallow network-wrapper`: route proxies a thin upstream call without meaningful product logic.
 - `shallow local-utility`: route only performs minimal local transformation/validation.
 
@@ -23,16 +24,21 @@
 | `/api/v1/seo-tools/youtube-region-restriction-checker` | `link-builder` | Relabeled honestly | Public lite/helper | Explicitly labeled watch URL helper, no restriction telemetry claim. |
 | `/api/v1/seo-tools/openpagerank-bulk-checker` | `api-key-stub` | Relabeled honestly | Deferred from public launch | Explicit provider-template labeling and pending API key caveat. |
 | `/api/v1/seo-tools/rentcast` | `api-key-stub` | Relabeled honestly | Deferred from public launch | Explicit provider-template labeling and pending API key caveat. |
-| `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | `queued-placeholder` | Deferred/de-scoped | Deferred from public launch | Explicit queue-stub labeling; no screenshot/PDF artifact claim. |
-| `/api/v1/seo-tools/youtube-rank-checker` | `queued-placeholder` | Deferred/de-scoped | Deferred from public launch | Explicit queue-stub labeling; no rank-results claim. |
+| `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | `queued-simulated` | Deferred/de-scoped | Deferred from public launch | Real async job contract exists, but current worker emits synthetic capture artifact records rather than rendered files. |
+| `/api/v1/seo-tools/youtube-rank-checker` | `queued-simulated` | Deferred/de-scoped | Deferred from public launch | Real async job contract exists, but current worker returns deterministic simulated rank output rather than collected search evidence. |
+| `/api/v1/seo-tools/traffic-booster` | `queued-simulated` | Deferred/de-scoped | Disabled from public launch | Real async job contract exists, but current worker only returns projection-style planning output. |
 | `/api/v1/seo-tools/quick-lh` | `queued-placeholder` | Deferred/de-scoped | Hidden from public launch | Route does not exist in current allowlist; keep out of launch surface. |
 
 ## Contract truthfulness checks
 
-1. Response payloads for prioritized live routes now include a `contract` object with:
+1. Response payloads for prioritized live routes now include a `contract` object or are policy-gated/job-gated with launch-facing documentation that distinguishes:
    - truthful product label,
    - forensic category,
    - implementation depth,
    - launch recommendation,
    - explicit non-implemented caveat where needed.
 2. Public launch guidance is encoded in route docs (`docs/api-plans/route-allowlist.md`) so release governance is machine-auditable by route slug.
+3. Async-route honesty now distinguishes between:
+   - no runtime at all,
+   - real job orchestration with synthetic execution,
+   - and future full worker-backed execution.

@@ -4,12 +4,17 @@ Date: 2026-03-28
 
 This document is the canonical allowlist for API route existence. A route exists **only** when a `route.ts` file exists under `apps/api-gateway/app/api/v1/**`.
 
-- Total routes: **149**
-- Categories: **seo-tools**
+- Total routes: **154**
+- Categories: **jobs**, **seo-tools**
 
 ## Route Tree
 
-### seo-tools (149)
+### jobs (2)
+
+- `/api/v1/jobs/[jobId]`
+- `/api/v1/jobs/[jobId]/artifacts/[artifactId]`
+
+### seo-tools (152)
 
 - `/api/v1/seo-tools/amazon-keywords-discovery-tool`
 - `/api/v1/seo-tools/api-gw-lite`
@@ -59,6 +64,7 @@ This document is the canonical allowlist for API route existence. A route exists
 - `/api/v1/seo-tools/domain-availability-expiry-whois-dns-ip-asn-70-tld`
 - `/api/v1/seo-tools/domain-checker`
 - `/api/v1/seo-tools/domain-inspector`
+- `/api/v1/seo-tools/domain-intelligence-suite`
 - `/api/v1/seo-tools/ebay-keywords-discovery-tool`
 - `/api/v1/seo-tools/ebay-smart-shopper`
 - `/api/v1/seo-tools/etsy-product-description`
@@ -96,6 +102,7 @@ This document is the canonical allowlist for API route existence. A route exists
 - `/api/v1/seo-tools/reverse-dictionary-api`
 - `/api/v1/seo-tools/rivalflowai`
 - `/api/v1/seo-tools/search-keyword-research`
+- `/api/v1/seo-tools/search-suggestions-explorer`
 - `/api/v1/seo-tools/seo-audit-tool`
 - `/api/v1/seo-tools/seo-h1-h6-headings-checker`
 - `/api/v1/seo-tools/seo-report-generator`
@@ -107,6 +114,7 @@ This document is the canonical allowlist for API route existence. A route exists
 - `/api/v1/seo-tools/similar-app-store-applications-finder`
 - `/api/v1/seo-tools/similarweb`
 - `/api/v1/seo-tools/simple-bbb`
+- `/api/v1/seo-tools/site-audit-suite`
 - `/api/v1/seo-tools/sitemap-detector`
 - `/api/v1/seo-tools/skyscanner-cars`
 - `/api/v1/seo-tools/skyscanner-hotels`
@@ -178,4 +186,3 @@ If a route appears in planning docs but is not listed here, it is considered **n
 | `/api/v1/seo-tools/rentcast` | `api-key-stub` | Defer/hide from public launch until provider integration is implemented. |
 | `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | `queued-placeholder` | Defer/hide from public launch until screenshot+PDF worker and artifact storage exist. |
 | `/api/v1/seo-tools/youtube-rank-checker` | `queued-placeholder` | Defer/hide from public launch until async rank worker/status pipeline exists. |
-| `/api/v1/seo-tools/quick-lh` | `queued-placeholder` | Already not implemented in allowlist; keep hidden from public launch. |
