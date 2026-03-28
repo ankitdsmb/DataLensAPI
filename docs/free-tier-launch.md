@@ -41,9 +41,9 @@ These routes exist in code but should not be presented as part of the free-tier 
 - `POST /api/v1/seo-tools/rentcast`
   - Provider template only; returns a lookup helper plus `pending_api_key`.
 - `POST /api/v1/seo-tools/snapify-capture-screenshot-save-pdf`
-  - Real async job contract exists, but current worker artifacts are synthetic capture records rather than rendered screenshots/PDF binaries.
+  - Real async job contract exists and now captures live page HTML evidence, but still does not render screenshot/PDF binaries.
 - `POST /api/v1/seo-tools/youtube-rank-checker`
-  - Real async job contract exists, but current worker returns deterministic simulated rank output rather than collected ranking evidence.
+  - Real async job contract exists and now attempts lightweight YouTube search evidence collection, but still falls back when live evidence cannot be collected.
 - `POST /api/v1/seo-tools/traffic-booster`
   - Real async job contract exists, but current worker returns projection-style planning output and the route is quarantined by policy.
 - `GET /api/v1/jobs/:jobId`

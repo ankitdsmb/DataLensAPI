@@ -184,5 +184,5 @@ If a route appears in planning docs but is not listed here, it is considered **n
 | `/api/v1/seo-tools/youtube-region-restriction-checker` | `link-builder` | Keep public only as a **lite helper** until restriction telemetry exists. |
 | `/api/v1/seo-tools/openpagerank-bulk-checker` | `api-key-stub` | Defer/hide from public launch until provider integration is implemented. |
 | `/api/v1/seo-tools/rentcast` | `api-key-stub` | Defer/hide from public launch until provider integration is implemented. |
-| `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | `queued-placeholder` | Defer/hide from public launch until screenshot+PDF worker and artifact storage exist. |
-| `/api/v1/seo-tools/youtube-rank-checker` | `queued-placeholder` | Defer/hide from public launch until async rank worker/status pipeline exists. |
+| `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | `queued-placeholder` | Keep deferred from public launch until browser/PDF rendering exists; current worker captures live HTML evidence only. |
+| `/api/v1/seo-tools/youtube-rank-checker` | `queued-placeholder` | Keep deferred from public launch until lightweight search evidence parsing is hardened into a reliable rank pipeline. |

@@ -97,6 +97,47 @@ async function fetchYouTubeSearchEvidence(keyword) {
   return { searchUrl, results };
 }
 
+function extractTitle(html) {
+  const match = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  return match ? decodeHtmlEntities(match[1].replace(/\s+/g, ' ').trim()) : '';
+}
+
+function extractDescription(html) {
+  const match = html.match(
+    /<meta[^>]+(?:name|property)=["']description["'][^>]+content=["']([^"']+)["'][^>]*>/i
+  );
+  return match ? decodeHtmlEntities(match[1].trim()) : '';
+}
+
+async function fetchPageEvidence(url) {
+  const response = await fetch(url, {
+    redirect: 'follow',
+    headers: {
+      'user-agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+      'accept-language': 'en-US,en;q=0.9'
+    }
+  });
+
+  const html = await response.text();
+  const finalUrl = response.url || url;
+  const title = extractTitle(html);
+  const description = extractDescription(html);
+
+  return {
+    requestedUrl: url,
+    finalUrl,
+    ok: response.ok,
+    status: response.status,
+    title,
+    description,
+    contentType: response.headers.get('content-type') || '',
+    htmlBytes: Buffer.byteLength(html, 'utf8'),
+    htmlPreview: html.slice(0, 2000),
+    checkedAt: new Date().toISOString()
+  };
+}
+
 async function executeJob(tool, payload) {
   await delay(800);
 
@@ -199,37 +240,44 @@ async function executeJob(tool, payload) {
       throw new Error('snapify-capture-screenshot-save-pdf requires one or more urls');
     }
 
-    const captures = urls.map((url, index) => ({
-      url,
-      screenshotFile: `${toHostname(url)}-${index + 1}.png`,
-      pdfFile: `${toHostname(url)}-${index + 1}.pdf`,
-      capturedAt: new Date().toISOString()
-    }));
+    const captures = await Promise.all(
+      urls.map(async (url) => {
+        try {
+          const evidence = await fetchPageEvidence(url);
+          return {
+            url,
+            success: true,
+            evidence
+          };
+        } catch (error) {
+          return {
+            url,
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown capture failure'
+          };
+        }
+      })
+    );
 
     return {
       execution: {
-        mode: 'simulated',
+        mode: 'provider',
         readyForPublicLaunch: false,
-        notes: 'Returns synthetic capture artifact records; no rendered screenshot or PDF binaries are produced.'
+        notes:
+          'Fetches live page HTML evidence and metadata, but does not yet render screenshot or PDF binaries. Keep deferred from public launch until browser/PDF execution exists.'
       },
       result: {
         captureCount: captures.length,
+        renderedArtifactsAvailable: false,
+        captureMode: 'html-evidence-only',
         captures
       },
-      artifacts: captures.flatMap((capture, index) => [
-        {
-          id: `screenshot-${index + 1}`,
-          type: 'screenshot',
-          title: `Screenshot for ${capture.url}`,
-          content: capture
-        },
-        {
-          id: `pdf-${index + 1}`,
-          type: 'pdf',
-          title: `PDF for ${capture.url}`,
-          content: capture
-        }
-      ])
+      artifacts: captures.map((capture, index) => ({
+        id: `page-evidence-${index + 1}`,
+        type: 'report',
+        title: `Page evidence for ${capture.url}`,
+        content: capture
+      }))
     };
   }
 
