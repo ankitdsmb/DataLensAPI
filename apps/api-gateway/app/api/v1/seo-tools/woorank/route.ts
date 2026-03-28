@@ -3,6 +3,7 @@ import {
   createToolPolicy,
   readJsonBody,
   withScrapingHandler
+, enqueueJob
 } from '@forensic/scraping-core';
 
 const woorankPolicy = createToolPolicy({
@@ -17,8 +18,5 @@ export const POST = withScrapingHandler({ policy: woorankPolicy }, async (req: R
   const body = await readJsonBody<Record<string, unknown>>(req, woorankPolicy);
   const urls = collectUrlInputs(body, woorankPolicy);
 
-  return {
-    status: 'queued',
-    urls
-  };
+  return { job: enqueueJob('woorank', { urls }) };
 });

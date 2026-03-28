@@ -68,8 +68,20 @@ export function withScrapingHandler<T>(
         }
       }
 
-      const data = await handler(req);
-      const stdRes = createResponse(data, startTime, { requestId });
+      const rawData = await handler(req);
+      const isObject = rawData && typeof rawData === 'object' && !Array.isArray(rawData);
+      const hasJob = isObject && 'job' in rawData && rawData.job;
+
+      let data: unknown = rawData;
+      let job: unknown = null;
+
+      if (hasJob) {
+        const { job: extractedJob, ...rest } = rawData as Record<string, unknown>;
+        job = extractedJob;
+        data = Object.keys(rest).length > 0 ? rest : null;
+      }
+
+      const stdRes = createResponse(data as T, startTime, { requestId, job: job as import('@forensic/shared-types').ApiJob | null });
       return NextResponse.json(stdRes, {
         headers: {
           'x-request-id': requestId

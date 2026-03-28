@@ -5,6 +5,7 @@ import {
   withScrapingHandler,
   requireAllowedFields,
   optionalStringField
+, enqueueJob
 } from '@forensic/scraping-core';
 
 const seobilityRankingPolicy = createToolPolicy({
@@ -24,8 +25,5 @@ export const POST = withScrapingHandler({ policy: seobilityRankingPolicy }, asyn
     throw new RequestValidationError('domain is required', { field: 'domain' });
   }
 
-  return {
-    domain,
-    status: 'queued'
-  };
+  return { job: enqueueJob('seobility-ranking-seo', { domain }) };
 });

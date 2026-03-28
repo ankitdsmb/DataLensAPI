@@ -3,6 +3,7 @@ import {
   createToolPolicy,
   readJsonBody,
   withScrapingHandler
+, enqueueJob
 } from '@forensic/scraping-core';
 
 const trafficSpikePolicy = createToolPolicy({
@@ -17,8 +18,5 @@ export const POST = withScrapingHandler({ policy: trafficSpikePolicy }, async (r
   const body = await readJsonBody<Record<string, unknown>>(req, trafficSpikePolicy);
   const urls = collectUrlInputs(body, trafficSpikePolicy);
 
-  return {
-    status: 'queued',
-    urls
-  };
+  return { job: enqueueJob('web-traffic-spike-simulator-x', { urls }) };
 });

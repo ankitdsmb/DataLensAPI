@@ -3,6 +3,7 @@ import {
   createToolPolicy,
   readJsonBody,
   withScrapingHandler
+, enqueueJob
 } from '@forensic/scraping-core';
 
 const websiteTrafficMachinePolicy = createToolPolicy({
@@ -17,8 +18,5 @@ export const POST = withScrapingHandler({ policy: websiteTrafficMachinePolicy },
   const body = await readJsonBody<Record<string, unknown>>(req, websiteTrafficMachinePolicy);
   const urls = collectUrlInputs(body, websiteTrafficMachinePolicy);
 
-  return {
-    status: 'queued',
-    urls
-  };
+  return { job: enqueueJob('website-traffic-machine', { urls }) };
 });

@@ -5,6 +5,7 @@ import {
   withScrapingHandler,
   requireAllowedFields,
   optionalStringField
+, enqueueJob
 } from '@forensic/scraping-core';
 
 const similarAppsPolicy = createToolPolicy({
@@ -26,9 +27,5 @@ export const POST = withScrapingHandler({ policy: similarAppsPolicy }, async (re
 
   const appUrl = `https://apps.apple.com/app/id${appId}`;
 
-  return {
-    appId,
-    appUrl,
-    status: 'queued'
-  };
+  return { job: enqueueJob('similar-app-store-applications-finder', { appId, appUrl }) };
 });

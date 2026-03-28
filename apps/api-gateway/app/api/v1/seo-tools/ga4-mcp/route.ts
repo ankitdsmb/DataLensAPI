@@ -3,6 +3,7 @@ import {
   readJsonBody,
   withScrapingHandler,
   RequestValidationError
+, enqueueJob
 } from '@forensic/scraping-core';
 
 const ga4Policy = createToolPolicy({
@@ -20,9 +21,5 @@ export const POST = withScrapingHandler({ policy: ga4Policy }, async (req: Reque
     throw new RequestValidationError('propertyId is required', { field: 'propertyId' });
   }
 
-  return {
-    propertyId,
-    status: 'queued',
-    message: 'GA4 analysis request accepted. Provide credentials to enable live reporting.'
-  };
+  return { job: enqueueJob('ga4-mcp', { propertyId, message: 'GA4 analysis request accepted. Provide credentials to enable live reporting.' }) };
 });

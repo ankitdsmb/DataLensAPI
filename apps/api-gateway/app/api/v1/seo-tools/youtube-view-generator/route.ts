@@ -5,6 +5,7 @@ import {
   withScrapingHandler,
   requireAllowedFields,
   optionalStringField
+, enqueueJob
 } from '@forensic/scraping-core';
 
 const youtubeViewPolicy = createToolPolicy({
@@ -24,8 +25,5 @@ export const POST = withScrapingHandler({ policy: youtubeViewPolicy }, async (re
     throw new RequestValidationError('videoUrl is required', { field: 'videoUrl' });
   }
 
-  return {
-    videoUrl,
-    status: 'queued'
-  };
+  return { job: enqueueJob('youtube-view-generator', { videoUrl }) };
 });

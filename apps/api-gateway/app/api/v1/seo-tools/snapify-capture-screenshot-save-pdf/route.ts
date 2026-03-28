@@ -3,6 +3,7 @@ import {
   createToolPolicy,
   readJsonBody,
   withScrapingHandler
+, enqueueJob
 } from '@forensic/scraping-core';
 
 const snapifyPolicy = createToolPolicy({
@@ -17,8 +18,5 @@ export const POST = withScrapingHandler({ policy: snapifyPolicy }, async (req: R
   const body = await readJsonBody<Record<string, unknown>>(req, snapifyPolicy);
   const urls = collectUrlInputs(body, snapifyPolicy);
 
-  return {
-    status: 'queued',
-    urls
-  };
+  return { job: enqueueJob('snapify-capture-screenshot-save-pdf', { urls }) };
 });

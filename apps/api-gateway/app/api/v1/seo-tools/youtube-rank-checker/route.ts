@@ -3,6 +3,7 @@ import {
   readJsonBody,
   RequestValidationError,
   withScrapingHandler
+, enqueueJob
 } from '@forensic/scraping-core';
 
 const youtubeRankPolicy = createToolPolicy({
@@ -25,9 +26,5 @@ export const POST = withScrapingHandler({ policy: youtubeRankPolicy }, async (re
     });
   }
 
-  return {
-    keyword,
-    videoUrl,
-    status: 'queued'
-  };
+  return { job: enqueueJob('youtube-rank-checker', { keyword, videoUrl }) };
 });

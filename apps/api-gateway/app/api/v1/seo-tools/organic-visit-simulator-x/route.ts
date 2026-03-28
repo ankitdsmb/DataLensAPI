@@ -4,6 +4,7 @@ import {
   readJsonBody,
   withScrapingHandler,
   requireAllowedFields
+, enqueueJob
 } from '@forensic/scraping-core';
 
 const organicVisitPolicy = createToolPolicy({
@@ -19,8 +20,5 @@ export const POST = withScrapingHandler({ policy: organicVisitPolicy }, async (r
   requireAllowedFields(body, ['url', 'urls']);
   const urls = collectUrlInputs(body, organicVisitPolicy);
 
-  return {
-    status: 'queued',
-    urls
-  };
+  return { job: enqueueJob('organic-visit-simulator-x', { urls }) };
 });

@@ -2,6 +2,7 @@ import {
   createToolPolicy,
   readJsonBody,
   withScrapingHandler
+, enqueueJob
 } from '@forensic/scraping-core';
 
 const topSitesPolicy = createToolPolicy({
@@ -16,8 +17,5 @@ export const POST = withScrapingHandler({ policy: topSitesPolicy }, async (req: 
   const body = await readJsonBody<Record<string, unknown>>(req, topSitesPolicy);
   const country = typeof body.country === 'string' ? body.country.trim() : '';
 
-  return {
-    country: country || null,
-    status: 'queued'
-  };
+  return { job: enqueueJob('top-1000-websites-worldwide-country-level', { country: country || null }) };
 });

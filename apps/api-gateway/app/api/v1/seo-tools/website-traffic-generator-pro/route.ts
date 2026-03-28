@@ -4,6 +4,7 @@ import {
   readJsonBody,
   withScrapingHandler,
   requireAllowedFields
+, enqueueJob
 } from '@forensic/scraping-core';
 
 const websiteTrafficProPolicy = createToolPolicy({
@@ -19,8 +20,5 @@ export const POST = withScrapingHandler({ policy: websiteTrafficProPolicy }, asy
   requireAllowedFields(body, ['url', 'urls']);
   const urls = collectUrlInputs(body, websiteTrafficProPolicy);
 
-  return {
-    status: 'queued',
-    urls
-  };
+  return { job: enqueueJob('website-traffic-generator-pro', { urls }) };
 });

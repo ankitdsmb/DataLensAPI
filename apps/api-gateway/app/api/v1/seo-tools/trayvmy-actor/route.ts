@@ -2,6 +2,7 @@ import {
   createToolPolicy,
   readJsonBody,
   withScrapingHandler
+, enqueueJob
 } from '@forensic/scraping-core';
 
 const trayvmyPolicy = createToolPolicy({
@@ -15,7 +16,5 @@ const trayvmyPolicy = createToolPolicy({
 export const POST = withScrapingHandler({ policy: trayvmyPolicy }, async (req: Request) => {
   await readJsonBody<Record<string, unknown>>(req, trayvmyPolicy);
 
-  return {
-    status: 'queued'
-  };
+  return { job: enqueueJob('trayvmy-actor', {  }) };
 });

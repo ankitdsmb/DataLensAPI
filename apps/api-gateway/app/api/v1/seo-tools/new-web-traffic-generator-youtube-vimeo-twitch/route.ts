@@ -4,6 +4,7 @@ import {
   readJsonBody,
   withScrapingHandler,
   requireAllowedFields
+, enqueueJob
 } from '@forensic/scraping-core';
 
 const newWebTrafficPolicy = createToolPolicy({
@@ -19,8 +20,5 @@ export const POST = withScrapingHandler({ policy: newWebTrafficPolicy }, async (
   requireAllowedFields(body, ['url', 'urls']);
   const urls = collectUrlInputs(body, newWebTrafficPolicy);
 
-  return {
-    status: 'queued',
-    urls
-  };
+  return { job: enqueueJob('new-web-traffic-generator-youtube-vimeo-twitch', { urls }) };
 });
