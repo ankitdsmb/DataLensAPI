@@ -16,6 +16,8 @@ const keywordResearchPolicy = createToolPolicy({
   timeoutMs: 8000,
   maxPayloadBytes: 64 * 1024,
   maxUrlCount: 1,
+  maxKeywordCount: 12,
+  maxBulkItems: 12,
   anonymous: true,
   cacheTtlSeconds: 120
 });
@@ -25,7 +27,7 @@ const keywordResearchPolicy = createToolPolicy({
 export const POST = withScrapingHandler({ policy: keywordResearchPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, keywordResearchPolicy);
   requireAllowedFields(body, ['country', 'keyword', 'keywords', 'language', 'limit']);
-  const keywords = normalizeKeywordInputs(body);
+  const keywords = normalizeKeywordInputs(body, keywordResearchPolicy);
   const limit = optionalIntegerField(body, 'limit', { defaultValue: 10, min: 1, max: 25 });
   const language = optionalStringField(body, 'language', 'en');
   const country = optionalStringField(body, 'country', 'US');

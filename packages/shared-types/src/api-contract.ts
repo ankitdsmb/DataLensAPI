@@ -53,6 +53,14 @@ export type ToolExecutionPolicy = {
   timeoutMs: number;
   maxPayloadBytes: number;
   maxUrlCount: number;
+  maxKeywordCount: number;
+  maxCrawlPages: number;
+  maxBulkItems: number;
+  rateLimitPerMinute: number;
+  maxConcurrentRequests: number;
   anonymous: boolean;
+  authRequired: boolean;
+  freeTierEligible: boolean;
+  visibility: 'public' | 'internal' | 'disabled';
   cacheTtlSeconds: number;
 };

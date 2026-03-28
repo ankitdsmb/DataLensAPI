@@ -232,8 +232,14 @@ export function optionalStringField(
   return value.trim();
 }
 
-export function normalizeKeywordInputs(body: Record<string, unknown>): string[] {
-  const keywords = optionalStringArrayField(body, 'keywords', { maxItems: 20, fieldLabel: 'keywords' });
+export function normalizeKeywordInputs(
+  body: Record<string, unknown>,
+  policy: ToolExecutionPolicy = DEFAULT_TOOL_POLICY
+): string[] {
+  const keywords = optionalStringArrayField(body, 'keywords', {
+    maxItems: policy.maxKeywordCount,
+    fieldLabel: 'keywords'
+  });
   const singleKeyword = typeof body.keyword === 'string' ? body.keyword.trim() : '';
   const combined = [
     ...(singleKeyword ? [singleKeyword] : []),
@@ -247,7 +253,43 @@ export function normalizeKeywordInputs(body: Record<string, unknown>): string[] 
     });
   }
 
-  return Array.from(new Set(combined));
+  const normalized = Array.from(new Set(combined));
+  if (normalized.length > policy.maxKeywordCount) {
+    throw new RequestValidationError('too many keywords requested for this tool', {
+      field: 'keywords',
+      maxKeywordCount: policy.maxKeywordCount
+    });
+  }
+
+  return normalized;
+}
+
+export function enforceBulkItemsLimit(
+  values: unknown[],
+  policy: ToolExecutionPolicy = DEFAULT_TOOL_POLICY,
+  field = 'items'
+): void {
+  if (values.length > policy.maxBulkItems) {
+    throw new RequestValidationError(`${field} exceeds the allowed item limit`, {
+      field,
+      maxBulkItems: policy.maxBulkItems
+    });
+  }
+}
+
+export function enforceCrawlPagesLimit(
+  requestedPages: number,
+  policy: ToolExecutionPolicy = DEFAULT_TOOL_POLICY,
+  field = 'maxPages'
+): number {
+  if (requestedPages > policy.maxCrawlPages) {
+    throw new RequestValidationError(`${field} exceeds the free-tier crawl page limit`, {
+      field,
+      maxCrawlPages: policy.maxCrawlPages
+    });
+  }
+
+  return requestedPages;
 }
 
 function normalizeOptionalCodeField(
@@ -296,11 +338,19 @@ export function normalizeOptionalInteger(
   });
 }
 
-export function normalizePaginationInputs(body: Record<string, unknown>) {
+export function normalizePaginationInputs(
+  body: Record<string, unknown>,
+  policy: ToolExecutionPolicy = DEFAULT_TOOL_POLICY
+) {
+  const requestedMaxPages = normalizeOptionalInteger(body, 'maxPages', 1, {
+    min: 1,
+    max: policy.maxCrawlPages
+  });
+
   return {
     limit: normalizeOptionalInteger(body, 'limit', 10, { min: 1, max: 100 }),
     page: normalizeOptionalInteger(body, 'page', 1, { min: 1, max: 1000 }),
-    maxPages: normalizeOptionalInteger(body, 'maxPages', 1, { min: 1, max: 20 }),
+    maxPages: enforceCrawlPagesLimit(requestedMaxPages, policy),
     maxUrls: normalizeOptionalInteger(body, 'maxUrls', 1, { min: 1, max: 100 }),
     includeSubpages: optionalBooleanField(body, 'includeSubpages', false)
   };
