@@ -85,6 +85,12 @@ Why this matters:
 - but several job-backed routes still return synthetic or preview-grade execution artifacts
 - public launch language must distinguish between a real job runtime and fully real provider-backed results
 
+Status update after follow-up implementation:
+
+- `openpagerank-bulk-checker` now returns an explicit `internal_provider_template` contract
+- `rentcast` now returns an explicit `internal_provider_template` contract
+- both are now documented as internal-only provider templates until real provider integrations exist
+
 ## Priority 2 — Keep the forensic generator and reports current
 
 Keep `scripts/generate-deep-api-forensic-report.mjs` aligned with the integrated latest platform, including:
