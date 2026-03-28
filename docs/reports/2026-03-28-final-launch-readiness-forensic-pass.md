@@ -75,7 +75,7 @@ Compared live code routes against `docs/api-plans/route-allowlist.md`.
 - `/api/v1/seo-tools/youtube-rank-checker`
 - `/api/v1/seo-tools/traffic-booster`
 
-These routes now have a real async submission and job-status surface, but the current worker logic is still synthetic, deterministic, or projection-based.
+These routes now have a real async submission and job-status surface, but at least part of the current worker logic is still synthetic, deterministic, projection-based, or degraded-fallback driven.
 
 **Required action:** either ship them as clearly internal/preview-only job surfaces or replace worker simulation with provider-grade execution before public launch.
 
