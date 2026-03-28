@@ -8,7 +8,8 @@ import {
   RequestValidationError
 ,
   normalizeKeywordInputs,
-  safeJsonParse} from '@forensic/scraping-core';
+  safeJsonParse,
+  requireAllowedFields} from '@forensic/scraping-core';
 
 const amazonKeywordsPolicy = createToolPolicy({
   timeoutMs: 8000,
@@ -22,6 +23,7 @@ const amazonKeywordsPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: amazonKeywordsPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, amazonKeywordsPolicy);
+  requireAllowedFields(body, ['keyword', 'keywords', 'limit']);
   const keywords = normalizeKeywordInputs(body);
   const limit = optionalIntegerField(body, 'limit', { defaultValue: 10, min: 1, max: 25 });
 

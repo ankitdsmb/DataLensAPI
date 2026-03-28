@@ -5,7 +5,8 @@ import {
   RequestValidationError,
   stealthGet
 ,
-  safeJsonParse} from '@forensic/scraping-core';
+  safeJsonParse,
+  requireAllowedFields} from '@forensic/scraping-core';
 
 const domainAvailabilityPolicy = createToolPolicy({
   timeoutMs: 8000,
@@ -31,6 +32,7 @@ async function lookupA(domain: string, timeoutMs: number) {
 
 export const POST = withScrapingHandler({ policy: domainAvailabilityPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, domainAvailabilityPolicy);
+  requireAllowedFields(body, ['domain']);
   const domain = normalizeDomain(body);
 
   const data = await lookupA(domain, domainAvailabilityPolicy.timeoutMs);

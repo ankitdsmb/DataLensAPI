@@ -2,7 +2,8 @@ import {
   collectUrlInputs,
   createToolPolicy,
   readJsonBody,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const websiteTrafficProPolicy = createToolPolicy({
@@ -15,6 +16,7 @@ const websiteTrafficProPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: websiteTrafficProPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, websiteTrafficProPolicy);
+  requireAllowedFields(body, ['url', 'urls']);
   const urls = collectUrlInputs(body, websiteTrafficProPolicy);
 
   return {

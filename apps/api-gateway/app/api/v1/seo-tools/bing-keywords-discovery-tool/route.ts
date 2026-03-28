@@ -8,7 +8,9 @@ import {
   RequestValidationError
 ,
   normalizeKeywordInputs,
-  safeJsonParse} from '@forensic/scraping-core';
+  safeJsonParse,
+  requireAllowedFields,
+  optionalStringField} from '@forensic/scraping-core';
 
 const bingKeywordsPolicy = createToolPolicy({
   timeoutMs: 8000,
@@ -22,9 +24,10 @@ const bingKeywordsPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: bingKeywordsPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, bingKeywordsPolicy);
+  requireAllowedFields(body, ['keyword', 'keywords', 'limit', 'market']);
   const keywords = normalizeKeywordInputs(body);
   const limit = optionalIntegerField(body, 'limit', { defaultValue: 10, min: 1, max: 25 });
-  const market = typeof body.market === 'string' && body.market.trim() ? body.market.trim() : 'en-US';
+  const market = optionalStringField(body, 'market', 'en-US');
 
   const results = [];
 

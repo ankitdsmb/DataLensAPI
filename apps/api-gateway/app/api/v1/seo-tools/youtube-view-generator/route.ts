@@ -2,7 +2,9 @@ import {
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields,
+  optionalStringField
 } from '@forensic/scraping-core';
 
 const youtubeViewPolicy = createToolPolicy({
@@ -15,7 +17,8 @@ const youtubeViewPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: youtubeViewPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, youtubeViewPolicy);
-  const videoUrl = typeof body.videoUrl === 'string' ? body.videoUrl.trim() : '';
+  requireAllowedFields(body, ['videoUrl']);
+  const videoUrl = optionalStringField(body, 'videoUrl');
 
   if (!videoUrl) {
     throw new RequestValidationError('videoUrl is required', { field: 'videoUrl' });
