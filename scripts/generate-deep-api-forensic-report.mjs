@@ -159,18 +159,18 @@ const routeOverrides = {
     upgrade: 'Do not expose publicly until the async worker exists.'
   },
   'snapify-capture-screenshot-save-pdf': {
-    strength: '1/5',
-    coverage: '~5%',
-    current: 'Queued placeholder only.',
-    gap: 'No screenshot or PDF renderer exists.',
-    upgrade: 'Move into a worker-backed PDF/screenshot suite.'
+    strength: '3/5',
+    coverage: '~40%',
+    current: 'Real async job submission plus live HTML evidence capture and persisted report artifacts.',
+    gap: 'Still no rendered screenshot or PDF binary generation.',
+    upgrade: 'Keep evidence-capture mode as fallback and add real browser/PDF rendering in the worker.'
   },
   'youtube-rank-checker': {
-    strength: '1/5',
-    coverage: '~5%',
-    current: 'Queued placeholder only.',
-    gap: 'No rank collection logic exists.',
-    upgrade: 'Implement inside a canonical rank-tracker family.'
+    strength: '3/5',
+    coverage: '~45%',
+    current: 'Real async job submission plus lightweight YouTube search evidence parsing with deterministic fallback.',
+    gap: 'Current parsing path is fragile and degrades to simulation when live evidence is unavailable.',
+    upgrade: 'Promote into a canonical rank-tracker family with retries, provenance, and hardened evidence capture.'
   },
   'youtube-region-restriction-checker': {
     strength: '1/5',
@@ -188,7 +188,9 @@ function escapeCell(value) {
 function parsePlan() {
   const md = fs.readFileSync(PLAN_PATH, 'utf8');
   const lines = md.split(/\r?\n/).filter((line) => line.startsWith('| TN-API-'));
-  const rows = lines.map((line) => line.split('|').slice(1, -1).map((part) => part.trim()));
+  const rows = lines
+    .map((line) => line.split('|').slice(1, -1).map((part) => part.trim()))
+    .filter((row) => row.length >= 11 && typeof row[6] === 'string' && row[6].includes('/api/v1/'));
   const byEndpoint = new Map();
 
   for (const row of rows) {
