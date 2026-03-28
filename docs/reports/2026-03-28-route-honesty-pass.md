@@ -3,6 +3,7 @@
 - Date: 2026-03-28
 - Scope: weak-route over-promise cleanup for prioritized SEO tools.
 - Mission outcome: all prioritized routes are now either explicitly **lite/helper/template** in response contracts or **deferred** for public launch.
+- Follow-up governance outcome: rejected traffic and fake-engagement routes now return explicit `rejected_for_public_catalog` contracts instead of generic queued/test placeholders.
 
 ## Forensic category definitions used
 

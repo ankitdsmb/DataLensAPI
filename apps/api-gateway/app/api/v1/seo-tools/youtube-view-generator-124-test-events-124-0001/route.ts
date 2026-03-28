@@ -25,6 +25,13 @@ export const POST = withScrapingHandler({ policy: youtubeTestPolicy }, async (re
 
   return {
     videoUrl,
-    status: 'test-only'
+    status: 'rejected_for_public_catalog',
+    contract: {
+      productLabel: 'YouTube View Generator Test Template (Rejected)',
+      forensicCategory: 'fake-engagement',
+      implementationDepth: 'template',
+      launchRecommendation: 'rejected_from_public_catalog',
+      notes: 'Tracked for inventory only; fake-view and fake-engagement routes are excluded from the public catalog, including test variants.'
+    }
   };
 });

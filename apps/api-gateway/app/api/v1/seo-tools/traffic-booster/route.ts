@@ -5,7 +5,6 @@ import {
   withScrapingHandler,
   requireAllowedFields
 } from '@forensic/scraping-core';
-import { jobToEnvelope, submitJob } from '@/lib/jobs/runtime';
 
 const trafficBoosterPolicy = createToolPolicy({
   timeoutMs: 10000,
@@ -20,11 +19,15 @@ export const POST = withScrapingHandler({ policy: trafficBoosterPolicy }, async 
   requireAllowedFields(body, ['url', 'urls']);
   const urls = collectUrlInputs(body, trafficBoosterPolicy);
 
-  const job = await submitJob('traffic-booster', { urls });
-
   return {
-    status: 'queued',
+    status: 'rejected_for_public_catalog',
     urls,
-    job: jobToEnvelope(job)
+    contract: {
+      productLabel: 'Traffic Booster Template (Rejected)',
+      forensicCategory: 'traffic-simulation',
+      implementationDepth: 'template',
+      launchRecommendation: 'rejected_from_public_catalog',
+      notes: 'Tracked for inventory only; traffic-simulation and fake-engagement routes are excluded from the public catalog.'
+    }
   };
 });
