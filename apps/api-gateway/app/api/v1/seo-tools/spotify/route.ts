@@ -27,6 +27,13 @@ export const POST = withScrapingHandler({ policy: spotifyPolicy }, async (req: R
 
   return {
     query,
-    searchUrl
+    searchUrl,
+    contract: {
+      productLabel: 'Spotify Search Helper (Lite)',
+      forensicCategory: 'link-builder',
+      implementationDepth: 'helper',
+      launchRecommendation: 'public_lite',
+      notes: 'Returns a validated Spotify search URL only; it does not fetch tracks, artists, albums, or audio streams.'
+    }
   };
 });

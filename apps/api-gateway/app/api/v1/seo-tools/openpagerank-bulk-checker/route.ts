@@ -44,5 +44,14 @@ export const POST = withScrapingHandler({ policy: openPageRankPolicy }, async (r
     status: 'pending_api_key'
   }));
 
-  return { results };
+  return {
+    results,
+    contract: {
+      productLabel: 'OpenPageRank Bulk Checker (Template)',
+      forensicCategory: 'api-key-stub',
+      implementationDepth: 'template',
+      launchRecommendation: 'defer_from_public_launch',
+      notes: 'No provider API call is performed without credentials; this route is a request-normalization template.'
+    }
+  };
 });

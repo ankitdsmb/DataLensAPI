@@ -28,6 +28,13 @@ export const POST = withScrapingHandler({ policy: rentcastPolicy }, async (req: 
   return {
     address,
     lookupUrl,
-    status: 'pending_api_key'
+    status: 'pending_api_key',
+    contract: {
+      productLabel: 'RentCast Address Lookup Template',
+      forensicCategory: 'api-key-stub',
+      implementationDepth: 'template',
+      launchRecommendation: 'defer_from_public_launch',
+      notes: 'Generates a lookup URL and signals required provider credentials; no RentCast API request is executed.'
+    }
   };
 });

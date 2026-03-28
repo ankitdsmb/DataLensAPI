@@ -21,6 +21,13 @@ export const POST = withScrapingHandler({ policy: snapifyPolicy }, async (req: R
 
   return {
     status: 'queued',
-    urls
+    urls,
+    contract: {
+      productLabel: 'Snapify Capture Queue Stub',
+      forensicCategory: 'queued-placeholder',
+      implementationDepth: 'template',
+      launchRecommendation: 'defer_from_public_launch',
+      notes: 'Accepts and validates URLs, but no screenshot or PDF artifact pipeline is connected in this route.'
+    }
   };
 });
