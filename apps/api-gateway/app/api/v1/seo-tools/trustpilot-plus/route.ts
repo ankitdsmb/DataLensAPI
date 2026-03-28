@@ -27,6 +27,13 @@ export const POST = withScrapingHandler({ policy: trustpilotPolicy }, async (req
 
   return {
     company,
-    searchUrl
+    searchUrl,
+    contract: {
+      productLabel: 'Trustpilot Company Lookup Helper',
+      forensicCategory: 'link-builder',
+      implementationDepth: 'helper',
+      launchRecommendation: 'public_lite',
+      notes: 'Provides a Trustpilot search URL for manual review; this route does not extract review or sentiment datasets.'
+    }
   };
 });

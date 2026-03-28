@@ -28,6 +28,13 @@ export const POST = withScrapingHandler({ policy: regionPolicy }, async (req: Re
   return {
     videoId,
     videoUrl,
-    status: 'pending'
+    status: 'pending',
+    contract: {
+      productLabel: 'YouTube Region Restriction Checker Link Helper',
+      forensicCategory: 'link-builder',
+      implementationDepth: 'helper',
+      launchRecommendation: 'public_lite',
+      notes: 'Builds a canonical YouTube watch URL but does not fetch region restriction metadata.'
+    }
   };
 });

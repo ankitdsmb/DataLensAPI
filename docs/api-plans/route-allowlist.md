@@ -164,3 +164,18 @@ This document is the canonical allowlist for API route existence. A route exists
 ## Verification Rule
 
 If a route appears in planning docs but is not listed here, it is considered **not implemented / removed** in the current branch.
+
+## Public launch honesty recommendations (2026-03-28)
+
+| Route | Forensic category | Public launch recommendation |
+| --- | --- | --- |
+| `/api/v1/seo-tools/business-websites-ranker` | `link-builder` | Keep public only as a **lite helper** (seed URL builder). |
+| `/api/v1/seo-tools/similarweb` | `link-builder` | Keep internal/beta only until real metrics extraction exists. |
+| `/api/v1/seo-tools/spotify` | `link-builder` | Keep public only as a **lite helper** (query URL builder). |
+| `/api/v1/seo-tools/trustpilot-plus` | `link-builder` | Keep public only as a **lite helper** (company lookup helper). |
+| `/api/v1/seo-tools/youtube-region-restriction-checker` | `link-builder` | Keep public only as a **lite helper** until restriction telemetry exists. |
+| `/api/v1/seo-tools/openpagerank-bulk-checker` | `api-key-stub` | Defer/hide from public launch until provider integration is implemented. |
+| `/api/v1/seo-tools/rentcast` | `api-key-stub` | Defer/hide from public launch until provider integration is implemented. |
+| `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | `queued-placeholder` | Defer/hide from public launch until screenshot+PDF worker and artifact storage exist. |
+| `/api/v1/seo-tools/youtube-rank-checker` | `queued-placeholder` | Defer/hide from public launch until async rank worker/status pipeline exists. |
+| `/api/v1/seo-tools/quick-lh` | `queued-placeholder` | Already not implemented in allowlist; keep hidden from public launch. |

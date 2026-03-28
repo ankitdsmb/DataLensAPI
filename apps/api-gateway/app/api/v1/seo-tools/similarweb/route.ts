@@ -27,6 +27,13 @@ export const POST = withScrapingHandler({ policy: similarwebPolicy }, async (req
 
   return {
     domain,
-    reportUrl
+    reportUrl,
+    contract: {
+      productLabel: 'Similarweb Link Builder (Lite)',
+      forensicCategory: 'link-builder',
+      implementationDepth: 'helper',
+      launchRecommendation: 'internal_or_beta_only',
+      notes: 'Builds a validated Similarweb report URL but does not scrape Similarweb analytics metrics in this route.'
+    }
   };
 });

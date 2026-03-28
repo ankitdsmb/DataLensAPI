@@ -30,6 +30,13 @@ export const POST = withScrapingHandler({ policy: youtubeRankPolicy }, async (re
   return {
     keyword,
     videoUrl,
-    status: 'queued'
+    status: 'queued',
+    contract: {
+      productLabel: 'YouTube Rank Checker Queue Stub',
+      forensicCategory: 'queued-placeholder',
+      implementationDepth: 'template',
+      launchRecommendation: 'defer_from_public_launch',
+      notes: 'Request validation is implemented, but no rank retrieval worker or result store is connected.'
+    }
   };
 });

@@ -30,6 +30,13 @@ export const POST = withScrapingHandler({ policy: businessRankerPolicy }, async 
   return {
     keyword,
     location: location || null,
-    searchUrl
+    searchUrl,
+    contract: {
+      productLabel: 'Business Websites Ranker Seed Query Builder',
+      forensicCategory: 'link-builder',
+      implementationDepth: 'helper',
+      launchRecommendation: 'public_lite',
+      notes: 'Constructs a Google Maps search seed URL only; ranking extraction and scoring are out of scope for this route.'
+    }
   };
 });
