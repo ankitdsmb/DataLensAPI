@@ -5,6 +5,7 @@ import {
   withScrapingHandler,
   requireAllowedFields
 } from '@forensic/scraping-core';
+import { jobToEnvelope, submitJob } from '@/lib/jobs/runtime';
 
 const snapifyPolicy = createToolPolicy({
   timeoutMs: 10000,
@@ -19,15 +20,11 @@ export const POST = withScrapingHandler({ policy: snapifyPolicy }, async (req: R
   requireAllowedFields(body, ['url', 'urls']);
   const urls = collectUrlInputs(body, snapifyPolicy);
 
+  const job = await submitJob('snapify-capture-screenshot-save-pdf', { urls });
+
   return {
     status: 'queued',
     urls,
-    contract: {
-      productLabel: 'Snapify Capture Queue Stub',
-      forensicCategory: 'queued-placeholder',
-      implementationDepth: 'template',
-      launchRecommendation: 'defer_from_public_launch',
-      notes: 'Accepts and validates URLs, but no screenshot or PDF artifact pipeline is connected in this route.'
-    }
+    job: jobToEnvelope(job)
   };
 });

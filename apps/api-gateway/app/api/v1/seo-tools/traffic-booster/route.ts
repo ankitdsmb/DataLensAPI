@@ -5,6 +5,7 @@ import {
   withScrapingHandler,
   requireAllowedFields
 } from '@forensic/scraping-core';
+import { jobToEnvelope, submitJob } from '@/lib/jobs/runtime';
 
 const trafficBoosterPolicy = createToolPolicy({
   timeoutMs: 10000,
@@ -19,8 +20,11 @@ export const POST = withScrapingHandler({ policy: trafficBoosterPolicy }, async 
   requireAllowedFields(body, ['url', 'urls']);
   const urls = collectUrlInputs(body, trafficBoosterPolicy);
 
+  const job = await submitJob('traffic-booster', { urls });
+
   return {
     status: 'queued',
-    urls
+    urls,
+    job: jobToEnvelope(job)
   };
 });

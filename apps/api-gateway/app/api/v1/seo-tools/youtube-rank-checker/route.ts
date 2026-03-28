@@ -5,6 +5,7 @@ import {
   withScrapingHandler,
   requireAllowedFields
 } from '@forensic/scraping-core';
+import { jobToEnvelope, submitJob } from '@/lib/jobs/runtime';
 
 const youtubeRankPolicy = createToolPolicy({
   timeoutMs: 10000,
@@ -27,16 +28,12 @@ export const POST = withScrapingHandler({ policy: youtubeRankPolicy }, async (re
     });
   }
 
+  const job = await submitJob('youtube-rank-checker', { keyword, videoUrl });
+
   return {
+    status: 'queued',
     keyword,
     videoUrl,
-    status: 'queued',
-    contract: {
-      productLabel: 'YouTube Rank Checker Queue Stub',
-      forensicCategory: 'queued-placeholder',
-      implementationDepth: 'template',
-      launchRecommendation: 'defer_from_public_launch',
-      notes: 'Request validation is implemented, but no rank retrieval worker or result store is connected.'
-    }
+    job: jobToEnvelope(job)
   };
 });
