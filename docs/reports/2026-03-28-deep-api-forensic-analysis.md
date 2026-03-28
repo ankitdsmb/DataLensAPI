@@ -1,54 +1,448 @@
-# Deep API Forensic Analysis (GitHub-First Reconciliation)
-
-Date: 2026-03-28
+# 2026-03-28 Deep API Forensic Analysis
 
 ## Scope
 
-- Reconcile route inventory with the current repository state.
-- Compare local route tree against the planning allowlist in `dev-and-seo-tooling-list.md`.
-- Remove ambiguity for endpoints historically marked as created but absent from current route files.
+- Audit basis: local repo at `14c14b98a5574c3d614ef8ccc815b8aec9afe3fc` plus GitHub-first reconciliation against `ankitdsmb/DataLensAPI` `main`.
+- GitHub delta: local is behind `main` by 4 commits. The most relevant merged PRs are PR #4 (repo hardening) and PR #5 (strict request validation on 20 routes).
+- Planned rows reviewed from the allowlist: 242. Rows marked `Created: Yes`: 165. Rows marked `Created: No`: 77.
+- Live local route directories reviewed one by one: 163.
+- Important drift note: the local allowlist and local route tree are internally consistent, but GitHub `main` appears to be missing a subset of local routes.
 
-## Canonical Truth Decision
+## Executive Findings
 
-**Canonical source of truth for route existence:** filesystem route tree under `apps/api-gateway/app/api/v1/**/route.ts`, materialized in `docs/api-plans/route-allowlist.md`.
+1. The repo currently has more API breadth than logic depth.
+2. The strongest implementation area is the shared SEO audit analyzer layer in `packages/scraping-core/src/seoAudit.ts`.
+3. The biggest missing capability is the async-heavy runtime: jobs, worker execution, artifact storage, and status endpoints do not really exist yet.
+4. Documentation is stale and still describes a 50-tool mixed architecture that no longer matches the live repo.
+5. The canonical backlog registry is directionally correct: the repo should move toward canonical families instead of one route per ticket.
+6. Free hosting is realistic only for the lightweight subset. Browser, PDF, screenshot, and heavy crawl features are not truly implemented yet.
+7. Traffic and fake-engagement families are still present locally even though the backlog registry marks them as do-not-add for public launch.
 
-Rationale: this matches executable code and build output. Planning documents may lead or lag implementation.
+## Inventory Snapshot
 
-## Reconciliation Results
+| Metric | Value |
+| --- | ---: |
+| Planned rows in allowlist | 242 |
+| Rows marked Created = Yes | 165 |
+| Rows marked Created = No | 77 |
+| Live local route directories | 163 |
+| Routes using `readJsonBody` | 163 |
+| Routes still using raw `JSON.parse` locally | 28 |
+| Routes with local strict allowed-field checks | 0 |
 
-- Local implemented routes: **149**
-- Rows marked `Created = Yes` in planning table: **165**
-- Drift (`Created=Yes` but no local route file): **14**
-- Drift (local route exists but not marked `Created=Yes`): **0**
+### Implementation Classes
 
-### Drift: marked created but missing route file
+| Class | Count |
+| --- | ---: |
+| `audit-suite` | 16 |
+| `crawler-tool` | 6 |
+| `public-api-wrapper` | 28 |
+| `network-wrapper` | 9 |
+| `html-scraper` | 41 |
+| `local-utility` | 10 |
+| `link-builder` | 26 |
+| `template-link-builder` | 1 |
+| `api-key-stub` | 2 |
+| `queued-placeholder` | 24 |
 
-- `/api/v1/seo-tools/complete-seo-audit-tool-comprehensive-website-seo-analysis`
-- `/api/v1/seo-tools/discord-forum-to-website`
-- `/api/v1/seo-tools/discord-website-generator`
-- `/api/v1/seo-tools/keyword-density-checker`
-- `/api/v1/seo-tools/meta-tags-check-api`
-- `/api/v1/seo-tools/moz-domain-authority-checker`
-- `/api/v1/seo-tools/quick-lh`
-- `/api/v1/seo-tools/seo-image-audit-tool-analyze-optimize-website-images`
-- `/api/v1/seo-tools/seobility-keyword-research-rental-unlimited-seo`
-- `/api/v1/seo-tools/simple-http-status-code-checker`
-- `/api/v1/seo-tools/simple-seo-auditor-plus`
-- `/api/v1/seo-tools/sitemap-generator`
-- `/api/v1/seo-tools/sitepulse`
-- `/api/v1/seo-tools/website-traffic-analysis`
+### Functional Families
 
-### Drift: local route exists but not marked created
+| Family | Count |
+| --- | ---: |
+| `audit-and-quality` | 19 |
+| `developer-utility` | 5 |
+| `domain-intelligence` | 10 |
+| `general-public-data` | 58 |
+| `keyword-discovery` | 18 |
+| `knowledge-base-connector` | 6 |
+| `public-connector` | 20 |
+| `social-public-data` | 5 |
+| `tech-stack` | 3 |
+| `traffic-simulation` | 13 |
+| `travel-connector` | 6 |
 
-- None.
+### Duplicate Endpoints in the Plan File
 
-## Actions Applied in This Reconciliation
+- `/api/v1/seo-tools/axe-accessibility-tester`: TN-API-19770, TN-API-19771
+- `/api/v1/seo-tools/broken-link-checker`: TN-API-19791, TN-API-19792
+- `/api/v1/seo-tools/google-search`: TN-API-19980, TN-API-19981
 
-1. Added canonical route allowlist document generated from route files.
-2. Updated planning table status for all missing route files listed above from `Created = Yes` to `Created = No`.
-3. Updated architecture and README docs to remove stale “50-tool system” claims and describe the repository as route-file-driven.
-4. Added this drift report so future diffs can be reconciled quickly.
+### Planned but Not Implemented Yet
 
-## Forward Rule
+| Category | Count of `Created: No` rows |
+| --- | ---: |
+| Developer Tools | 33 |
+| Seo Tools | 44 |
 
-When route status drifts again, update code first, regenerate `route-allowlist.md`, then sync planning and architecture docs in the same PR.
+## GitHub-First Reconciliation
+
+- PR #4 extracted shared helpers and performed cleanup, but the local checkout does not contain that merged state.
+- PR #5 adds strict allowed-field validation to 20 routes on GitHub `main`, while the local checkout still has zero routes using `requireAllowedFields`.
+- GitHub `main` appears to be missing several local routes that are still present in this workspace, so route inventory and docs are drifting.
+
+## Architecture Gaps
+
+### 1. Source of Truth Drift
+
+- README, `docs/FORENSIC_ARCHITECTURE_REPORT.md`, `docs/PLAN.md`, `docs/STRATEGY.md`, and `docs/TECHNICAL_DESIGN.md` are materially stale.
+- The local route tree matches the local allowlist, but GitHub `main` is ahead and appears to have inventory drift.
+- The backlog registry should become the single route-family source of truth.
+
+### 2. Async Runtime Gap
+
+- `apps/scraper-service/index.js` is still just a placeholder Express app.
+- No real `Job` model, `/jobs/{id}` endpoint, artifact URLs, or worker callbacks exist.
+- Every queued/pending route is therefore unfinished product surface.
+
+### 3. Shared Provider Gap
+
+- The wrapper/envelope layer is decent, but most provider logic still lives directly inside route files.
+- The audit engine is reusable; the keyword, connector, domain, review, and performance families still need true shared provider modules.
+
+### 4. Contract / Validation Gap
+
+- All live routes use `readJsonBody`, which is a good baseline.
+- But 28 routes still use raw `JSON.parse` locally, and no local route currently uses strict allowed-field validation.
+- GitHub `main` is already slightly safer on this dimension than the local checkout.
+
+### 5. Public Launch / Abuse Control Gap
+
+- No live auth middleware, API-key middleware, rate limiting, or per-tool concurrency controls were found.
+- No durable cache, queue, object storage, or artifact bucket is implemented despite repeated planning assumptions in docs.
+- That is acceptable for prototyping, not for public anonymous launch.
+
+## Current Architecture Readout
+
+### Workspace Shape
+
+- Root workspace: `forensic-api-suite` with Turbo and npm workspaces.
+- API entrypoint: `apps/api-gateway` running Next.js route handlers.
+- Shared runtime code: `packages/scraping-core`.
+- Shared types: `packages/shared-types`.
+- Async execution service: `apps/scraper-service`, currently only a placeholder Express process.
+
+### What Is Strong Today
+
+- The route envelope pattern is consistent enough that response standardization is achievable.
+- `readJsonBody` gives the repo a common request-reading baseline.
+- `packages/scraping-core/src/seoAudit.ts` is the best reusable logic asset in the codebase.
+- The allowlist file gives the team a practical inventory boundary for cleanup and prioritization.
+
+### What Is Weak Today
+
+- Route handlers are still doing too much provider work inline.
+- There is no durable platform layer for jobs, artifacts, caching, or rate limiting.
+- Several routes are marketed as rich products but behave as links, stubs, or queued placeholders.
+- Documentation describes a broader historical architecture instead of the current repo reality.
+
+## Target Architecture to Max Level
+
+### 1. Thin Gateway Layer
+
+- Keep Next.js route handlers extremely small: validate input, call a provider/service, shape the envelope, and return.
+- Move parsing, provider calls, normalization, and scoring out of route files.
+
+### 2. Provider Modules by Family
+
+- Create provider modules under `packages/scraping-core/src/providers/*`.
+- Suggested families: `keywordProviders`, `domainProviders`, `connectorProviders`, `reviewProviders`, `geoProviders`, `performanceProviders`.
+- Each provider should own request building, retry policy, safe parsing, DTO normalization, and error mapping.
+
+### 3. Canonical Product Families Instead of Ticket Routes
+
+- Merge duplicated SEO audit SKUs into one canonical `site-audit` family with `light`, `crawl`, and `rendered` modes.
+- Merge keyword discovery SKUs into one `keyword-discovery` family with provider switches.
+- Merge domain tools into one `domain-intelligence` family with optional submodules.
+- Deprecate routes that are only links unless they are honestly labeled as redirect helpers.
+
+### 4. Real Async Runtime
+
+- Introduce a durable `Job` contract with `queued`, `running`, `succeeded`, `failed`, and `expired` states.
+- Add `/api/v1/jobs/{id}` style status access, artifact pointers, timestamps, and structured errors.
+- Make browser, PDF, screenshot, long crawl, and report-generation features go through workers only.
+
+### 5. Artifact and Cache Layer
+
+- Persist reports, screenshots, generated PDFs, and crawl results outside memory.
+- Add a small cache for deterministic public wrappers such as autocomplete, lookups, and connectors.
+- Cache keys should include normalized inputs and locale parameters.
+
+### 6. Policy and Abuse-Control Layer
+
+- Add per-route policy metadata: timeout, max URLs, max crawl pages, auth requirement, free-tier eligibility.
+- Add API-key auth, basic IP/key throttling, and concurrency caps.
+- Remove or quarantine traffic-simulation products from public anonymous launch.
+
+### 7. Observability Layer
+
+- Add request IDs, provider timing metrics, route-level error codes, and job lifecycle logging.
+- Track provider failure rate, cache hit rate, crawl size, and artifact generation cost.
+
+## Free-Hosting Deployment Blueprint
+
+### Phase 1: What Can Realistically Run on a Free Server
+
+- Public wrappers with tiny payloads and deterministic parsing.
+- Lightweight HTML-only audits on single pages.
+- Small local utilities such as markdown generation or text transforms.
+- Narrow network checks with very small input caps.
+
+### Phase 2: What Should Be Disabled Until Paid or Worker-Backed
+
+- Multi-page crawls over more than a tiny page cap.
+- Lighthouse, screenshot, PDF, and rendered-browser features.
+- Large provider fan-out queries or bulk enrichment workflows.
+- Any traffic, engagement, or view-generation route.
+
+### Minimal Free-Tier Topology
+
+- One small stateless gateway for synchronous lightweight routes.
+- One tiny persistent store for job metadata and cached responses.
+- Zero public exposure for unfinished queued routes until the worker exists.
+- Hard caps everywhere: input size, URL count, crawl depth, concurrency, and timeout.
+
+### What You Need Before Public Launch
+
+- Canonical route families instead of ticket-by-ticket surface sprawl.
+- Real auth and throttling.
+- A tiny but durable job store.
+- One worker execution path for browser and long-running features.
+- Honest docs that separate lite routes from full product routes.
+
+## Priority Remediation Ladder
+
+1. Sync local with GitHub `main` and resolve route inventory drift before adding more APIs.
+2. Replace raw `JSON.parse` usage with safe parsing and strict allowed-field validation everywhere.
+3. Collapse duplicate audit and keyword routes into canonical families.
+4. Remove, hide, or relabel all link-only routes that currently over-promise.
+5. Build the real job runtime before exposing any queued placeholder as a product.
+6. Add auth, throttling, and route policy metadata before any free public launch.
+7. Rewrite stale architecture docs so the repo tells the truth about itself.
+
+## Free Hosting Reality Check
+
+| Workload Type | Reality on Free Hosting | Recommendation |
+| --- | --- | --- |
+| Lightweight public JSON wrappers and small HTML scrapers | Realistic on Vercel/Cloudflare if capped tightly | Keep them lightweight, add cache and throttling |
+| Multi-page crawls | Borderline because the current code is synchronous and sequential | Keep tiny on free tier or move behind async jobs |
+| Browser audits, Lighthouse, screenshots, PDFs | Not realistic as synchronous free-tier public endpoints | Build a real async worker plus artifact storage |
+| Traffic and fake-engagement tools | Policy-conflicted and abuse-prone | Remove from public launch or repurpose into compliant owned-site QA only |
+| Public anonymous launch without auth/rate limits | Not safe | Add API keys, IP/key throttling, and per-tool policies first |
+
+## Route-by-Route Appendix
+
+The appendix below covers each live local route one by one. The assessments are based on the actual route file plus the current promise in `dev-and-seo-tooling-list.md`.
+
+## Audit-Suite Routes
+
+| Endpoint | Promise | Strength | Coverage | Current Logic | Biggest Gap | Best-Ever Upgrade | Free-Tier Fit | GitHub Note |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `/api/v1/seo-tools/axe-accessibility-tester` | WCAG audits using axe-core. | 4/5 | ~70% | Real lightweight HTML audit using shared analyzers and synthetic scoring. | Still limited to source HTML; browser evidence and artifact history are missing. | Collapse duplicate audit routes into canonical families with light, rendered, and async modes. | Good free-tier fit for capped HTML mode; richer audit modes need workers. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/axe-core-accessibility-checker-actor` | Accessibility testing engine (axe-core). | 4/5 | ~70% | Real lightweight HTML audit using shared analyzers and synthetic scoring. | Still limited to source HTML; browser evidence and artifact history are missing. | Collapse duplicate audit routes into canonical families with light, rendered, and async modes. | Good free-tier fit for capped HTML mode; richer audit modes need workers. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/competitor-based-keyword-recommendations-for-on-page-seo` | Keyword-based on-page SEO insights + competitors. | 4/5 | ~70% | Real lightweight HTML audit using shared analyzers and synthetic scoring. | Still limited to source HTML; browser evidence and artifact history are missing. | Collapse duplicate audit routes into canonical families with light, rendered, and async modes. | Good free-tier fit for capped HTML mode; richer audit modes need workers. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/complete-seo-audit-tool-comprehensive-website-seo-analysis` | Full SEO audit across tags, tech, links, images. | 4/5 | ~78% | Strongest single-route lightweight audit in the repo. | Still static HTML only; GitHub main appears to have lost this route. | Use this as seed logic for the canonical site-audit suite. | Good free-tier fit for capped HTML mode; richer audit modes need workers. | Route exists locally but appears missing on GitHub main. |
+| `/api/v1/seo-tools/keyword-density-checker` | Keyword density for multiple URLs. | 4/5 | ~75% | Real shared keyword-density analyzer over live HTML. | No rendered DOM, competitor baseline, or content-section analysis. | Keep as light mode, then add rendered mode and competitor comparison. | Good free-tier fit for capped HTML mode; richer audit modes need workers. | Route exists locally but appears missing on GitHub main. |
+| `/api/v1/seo-tools/meta-tags-check-api` | Meta tag check/edit/preview. | 4/5 | ~70% | Real meta-tag audit using shared SEO analyzers. | No social preview rendering or structured-data validation. | Fold into a canonical meta audit suite with OG/Twitter previews. | Good free-tier fit for capped HTML mode; richer audit modes need workers. | Route exists locally but appears missing on GitHub main. |
+| `/api/v1/seo-tools/pro-seo-audit-tool-get-your-website-data-for-search-engines` | Pro SEO audit tool. | 4/5 | ~70% | Real lightweight HTML audit using shared analyzers and synthetic scoring. | Still limited to source HTML; browser evidence and artifact history are missing. | Collapse duplicate audit routes into canonical families with light, rendered, and async modes. | Good free-tier fit for capped HTML mode; richer audit modes need workers. | GitHub main adds strict allowed-field validation; local branch lacks it. |
+| `/api/v1/seo-tools/seo-audit-tool` | SEO audit for broken links/missing images. | 4/5 | ~75% | Real multi-section HTML audit with scores and issues. | No browser execution, artifacts, or history. | Merge duplicate audit SKUs into one canonical family with modes. | Good free-tier fit for capped HTML mode; richer audit modes need workers. | GitHub main adds strict allowed-field validation; local branch lacks it. |
+| `/api/v1/seo-tools/seo-h1-h6-headings-checker` | H1-H6 structure audit + recommendations. | 4/5 | ~70% | Real lightweight HTML audit using shared analyzers and synthetic scoring. | Still limited to source HTML; browser evidence and artifact history are missing. | Collapse duplicate audit routes into canonical families with light, rendered, and async modes. | Good free-tier fit for capped HTML mode; richer audit modes need workers. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/seo-image-audit-tool-analyze-optimize-website-images` | Image SEO audit for alt/size/format/dimensions. | 4/5 | ~70% | Real lightweight HTML audit using shared analyzers and synthetic scoring. | Still limited to source HTML; browser evidence and artifact history are missing. | Collapse duplicate audit routes into canonical families with light, rendered, and async modes. | Good free-tier fit for capped HTML mode; richer audit modes need workers. | Route exists locally but appears missing on GitHub main. |
+| `/api/v1/seo-tools/seo-report-generator` | SEO report generation. | 4/5 | ~70% | Real lightweight HTML audit using shared analyzers and synthetic scoring. | Still limited to source HTML; browser evidence and artifact history are missing. | Collapse duplicate audit routes into canonical families with light, rendered, and async modes. | Good free-tier fit for capped HTML mode; richer audit modes need workers. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/seo-site-checkup` | SEO site checkup: speed, mobile, security. | 4/5 | ~70% | Real lightweight HTML audit using shared analyzers and synthetic scoring. | Still limited to source HTML; browser evidence and artifact history are missing. | Collapse duplicate audit routes into canonical families with light, rendered, and async modes. | Good free-tier fit for capped HTML mode; richer audit modes need workers. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/simple-seo-auditor-plus` | SEO audit with meta/broken links/page speed. | 4/5 | ~70% | Real lightweight HTML audit using shared analyzers and synthetic scoring. | Still limited to source HTML; browser evidence and artifact history are missing. | Collapse duplicate audit routes into canonical families with light, rendered, and async modes. | Good free-tier fit for capped HTML mode; richer audit modes need workers. | Route exists locally but appears missing on GitHub main. |
+| `/api/v1/seo-tools/sitepulse` | SEO + technical audit for 100+ pages. | 4/5 | ~78% | Useful synchronous crawl-plus-audit flow with site score. | No async job path, robots policy, or artifact persistence. | Promote into async crawl mode inside the site-audit family. | Good free-tier fit for capped HTML mode; richer audit modes need workers. | Route exists locally but appears missing on GitHub main. |
+| `/api/v1/seo-tools/the-seo-content-optimizer` | Analyze top results + rewrite to compete. | 4/5 | ~70% | Real lightweight HTML audit using shared analyzers and synthetic scoring. | Still limited to source HTML; browser evidence and artifact history are missing. | Collapse duplicate audit routes into canonical families with light, rendered, and async modes. | Good free-tier fit for capped HTML mode; richer audit modes need workers. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/w3c-html-reporter` | HTML validity reports. | 4/5 | ~70% | Real lightweight HTML audit using shared analyzers and synthetic scoring. | Still limited to source HTML; browser evidence and artifact history are missing. | Collapse duplicate audit routes into canonical families with light, rendered, and async modes. | Good free-tier fit for capped HTML mode; richer audit modes need workers. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+
+## Crawler and Graph Routes
+
+| Endpoint | Promise | Strength | Coverage | Current Logic | Biggest Gap | Best-Ever Upgrade | Free-Tier Fit | GitHub Note |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `/api/v1/seo-tools/broken-link-checker` | Crawl site + broken links (incl. fragments). | 3/5 | ~55% | Real crawl/graph logic over a constrained number of pages. | Synchronous in-memory crawling will not scale without async jobs and storage. | Move larger crawl workflows behind a queue and artifact layer. | Borderline on free serverless; use strict page caps. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/broken-link-checker-ensure-your-websites-integrity` | Broken link detection for site health. | 3/5 | ~55% | Real crawl/graph logic over a constrained number of pages. | Synchronous in-memory crawling will not scale without async jobs and storage. | Move larger crawl workflows behind a queue and artifact layer. | Borderline on free serverless; use strict page caps. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/sitemap-generator` | Crawl + generate sitemaps. | 3/5 | ~55% | Real crawl/graph logic over a constrained number of pages. | Synchronous in-memory crawling will not scale without async jobs and storage. | Move larger crawl workflows behind a queue and artifact layer. | Borderline on free serverless; use strict page caps. | Route exists locally but appears missing on GitHub main. |
+| `/api/v1/seo-tools/url-mapper` | Crawl single page and return internal URLs. | 3/5 | ~55% | Real crawl/graph logic over a constrained number of pages. | Synchronous in-memory crawling will not scale without async jobs and storage. | Move larger crawl workflows behind a queue and artifact layer. | Borderline on free serverless; use strict page caps. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/website-broken-links-redirects-checker` | Broken links + redirects analysis. | 3/5 | ~55% | Real crawl/graph logic over a constrained number of pages. | Synchronous in-memory crawling will not scale without async jobs and storage. | Move larger crawl workflows behind a queue and artifact layer. | Borderline on free serverless; use strict page caps. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/website-links-graph-generator` | Link graph + JSON export. | 3/5 | ~55% | Real crawl/graph logic over a constrained number of pages. | Synchronous in-memory crawling will not scale without async jobs and storage. | Move larger crawl workflows behind a queue and artifact layer. | Borderline on free serverless; use strict page caps. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+
+## Public API Wrapper Routes
+
+| Endpoint | Promise | Strength | Coverage | Current Logic | Biggest Gap | Best-Ever Upgrade | Free-Tier Fit | GitHub Note |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `/api/v1/seo-tools/amazon-keywords-discovery-tool` | Amazon search suggestions. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | GitHub main adds strict allowed-field validation; local branch lacks it. |
+| `/api/v1/seo-tools/apideck` | List integrations available on an Apideck instance. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/app-store-keywords-discovery-tool` | App Store search suggestion keywords. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | GitHub main adds strict allowed-field validation; local branch lacks it. |
+| `/api/v1/seo-tools/app-store-search-suggestions` | Search suggestions for App Store. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/arcgis-geocode` | Convert address/text to geolocation. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/bing-keywords-discovery-tool` | Bing suggestions. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | GitHub main adds strict allowed-field validation; local branch lacks it. |
+| `/api/v1/seo-tools/bing-microsoft-translator` | Translate text. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/check-available-domain-names` | Check domain names + expiry. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/clearbit-combined` | Enrich person + company. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/clearbit-company` | Company enrichment. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/clearbit-person` | Person enrichment. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/company-domain` | Find company website + socials. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/data-gov-india-actor` | Access/search Data.gov.in datasets. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/dns-lookup-forward-and-reverse-a-mx-txt-dmarc-ptr` | DNS/Reverse DNS lookup. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/domain-availability-checker` | Domain availability check. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | GitHub main adds strict allowed-field validation; local branch lacks it. |
+| `/api/v1/seo-tools/domain-availability-expiry-whois-dns-ip-asn-70-tld` | Availability + WHOIS + DNS + ASN. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | GitHub main adds strict allowed-field validation; local branch lacks it. |
+| `/api/v1/seo-tools/domain-checker` | Availability + market value; suggestions. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | GitHub main adds strict allowed-field validation; local branch lacks it. |
+| `/api/v1/seo-tools/domain-inspector` | DNS/WHOIS/HTTP/SSL for domains. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | GitHub main adds strict allowed-field validation; local branch lacks it. |
+| `/api/v1/seo-tools/ebay-keywords-discovery-tool` | Ebay search suggestions. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | GitHub main adds strict allowed-field validation; local branch lacks it. |
+| `/api/v1/seo-tools/google-autocomplete-apify` | Live Google autocomplete ideas; locale support. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/google-play-keywords-discovery-tool` | Google Play suggestions + trends. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | GitHub main adds strict allowed-field validation; local branch lacks it. |
+| `/api/v1/seo-tools/reddit` | Reddit posts search + subreddit data. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/reverse-dictionary-api` | Word finder from descriptions. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/search-keyword-research` | Keyword volume/CPC/competition reports. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | GitHub main adds strict allowed-field validation; local branch lacks it. |
+| `/api/v1/seo-tools/subdomain-finder-reverse-ip` | Subdomain + reverse IP enumeration. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/youtube-keywords-discovery-tool` | YouTube search suggestions + related terms. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | GitHub main adds strict allowed-field validation; local branch lacks it. |
+| `/api/v1/seo-tools/youtube-music-autocomplete` | YouTube Music autocomplete. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/youtube-suggester` | YouTube autocomplete ideas. | 3/5 | ~55% | Calls a public endpoint and returns minimally normalized JSON. | Still needs safe parsing, locale validation, and provider abstraction. | Create shared provider adapters with DTOs, cache, and better error shaping. | Strong free-tier fit with caching and throttling. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+
+## Network and Lookup Wrapper Routes
+
+| Endpoint | Promise | Strength | Coverage | Current Logic | Biggest Gap | Best-Ever Upgrade | Free-Tier Fit | GitHub Note |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `/api/v1/seo-tools/api-gw-lite` | Proxy translating custom fields to HTTP requests. | 2/5 | ~35% | Performs a low-level network lookup/check and returns thin diagnostics. | Often too shallow relative to the marketed feature set. | Either relabel as lite network diagnostics or deepen the provider integration. | Easy to host; product depth is the main issue. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/network-security-scanner` | SSL details for IPs/subnets. | 2/5 | ~35% | Performs a low-level network lookup/check and returns thin diagnostics. | Often too shallow relative to the marketed feature set. | Either relabel as lite network diagnostics or deepen the provider integration. | Easy to host; product depth is the main issue. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/pagespeed-insights-checker` | Pagespeed insights for URLs. | 2/5 | ~20% | Network timing plus a few HTTP headers only. | Not real PageSpeed Insights or Lighthouse output. | Replace with a real performance-audit provider and artifact mode. | Easy to host; product depth is the main issue. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/simple-http-status-code-checker` | Bulk status + redirects. | 2/5 | ~35% | Performs a low-level network lookup/check and returns thin diagnostics. | Often too shallow relative to the marketed feature set. | Either relabel as lite network diagnostics or deepen the provider integration. | Easy to host; product depth is the main issue. | Route exists locally but appears missing on GitHub main. |
+| `/api/v1/seo-tools/sitemap-detector` | Find sitemap URLs fast. | 2/5 | ~35% | Performs a low-level network lookup/check and returns thin diagnostics. | Often too shallow relative to the marketed feature set. | Either relabel as lite network diagnostics or deepen the provider integration. | Easy to host; product depth is the main issue. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/tumblr-availability-checker` | Tumblr name availability. | 2/5 | ~35% | Performs a low-level network lookup/check and returns thin diagnostics. | Often too shallow relative to the marketed feature set. | Either relabel as lite network diagnostics or deepen the provider integration. | Easy to host; product depth is the main issue. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/url-shortener` | Shorten list of URLs. | 2/5 | ~35% | Performs a low-level network lookup/check and returns thin diagnostics. | Often too shallow relative to the marketed feature set. | Either relabel as lite network diagnostics or deepen the provider integration. | Easy to host; product depth is the main issue. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/website-speed-checker` | Lighthouse metrics + Core Web Vitals. | 2/5 | ~25% | Low-level response timing and header check. | No CWV or Lighthouse metrics. | Keep as a sub-check only inside a true performance suite. | Easy to host; product depth is the main issue. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/website-traffic-analysis` | Traffic, SEO performance, competitor analysis. | 2/5 | ~35% | Performs a low-level network lookup/check and returns thin diagnostics. | Often too shallow relative to the marketed feature set. | Either relabel as lite network diagnostics or deepen the provider integration. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | Route exists locally but appears missing on GitHub main. |
+
+## HTML Scraper Routes
+
+| Endpoint | Promise | Strength | Coverage | Current Logic | Biggest Gap | Best-Ever Upgrade | Free-Tier Fit | GitHub Note |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `/api/v1/seo-tools/appodeal-benchmark` | App monetization benchmark metrics. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/appsumo` | AppSumo deals list. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/author-finder` | Find author info on webpages. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/bluesky` | Collect/search posts, track follows. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/built-with-updated-current-technologies` | Current tech stack detection. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/builtfirst` | Software deals from Builtfirst. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/builtwith-bulk-urls` | Tech lookups for bulk URLs. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/builtwith-technology-looker` | Tech lookup for a site. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/candor` | Salary/offer data from Candor.co. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/canny` | Boards/roadmaps/feature requests. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/capterra` | Reviews + alternatives from Capterra. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/cb-insights` | Company/analyst data from CB Insights. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/chartmetric` | Music artist insights. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/cms-checker` | Tech stack + competitors. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/cms-checker-bulk` | Tech stack + competitors in bulk. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/cols-app` | High-scale data extraction (generic). | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/community` | Apify Community discussions hub. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/compasscom` | Property search/filters for US listings. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/crisp` | Help center categories + articles. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/ebay-smart-shopper` | eBay data collector + price analysis. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/etsy-product-description` | Etsy listing details. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/flippa` | Businesses for sale on Flippa. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/front-knowledge-base` | Front KB categories + articles. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/funnel-sniper` | CTA + pricing signal detection on ecommerce. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/gainsight-ideas` | Ideas + statuses from Gainsight Ideas. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/mastodon` | Trends/statuses/hashtags from Mastodon. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/mastodon-bulk` | Mastodon trends in bulk. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/media-set` | Generic media data extraction. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/movie-news` | Movie news data extraction. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/myanimelist` | MyAnimeList content data. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/partner-fleet` | App marketplace integrations (Partner Fleet). | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/partnerbase` | Partnerships database. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/partnerpage` | Services/integrations from Partnerpage. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/pricing-page-analyzer` | Analyze pricing pages for CRO insights. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/readability-analyzer` | Readability analysis and scoring. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/rivalflowai` | Competitor discovery. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/uservoice` | UserVoice forums + feature requests. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/web-design-grader` | Design effectiveness evaluation + recommendations. | 2/5 | ~20% | Simple heuristic scoring based on hero/image/button presence. | Far below the promised design/conversion intelligence. | Replace with screenshot-backed rubric and recommendation engine. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/what-site` | Site title + description lookup. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/whatruns` | Tech stack detection via Whatruns. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/zoho-help-center` | Zoho Desk help center categories + articles. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+
+## Local Utility Routes
+
+| Endpoint | Promise | Strength | Coverage | Current Logic | Biggest Gap | Best-Ever Upgrade | Free-Tier Fit | GitHub Note |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `/api/v1/seo-tools/barcode` | Barcode lookup for UPC/EAN/ISBN/GTIN. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/markdown-table-generator` | Convert data to markdown table. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/moz-da-pa-spam-checker` | DA/PA spam checks. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/moz-domain-authority-checker` | Domain Authority metrics. | 1/5 | ~5% | Validates input and returns null authority fields. | No provider integration. | Implement inside an authority-metrics suite or mark not-live. | Excellent technical fit for free hosting. | Route exists locally but appears missing on GitHub main. |
+| `/api/v1/seo-tools/plagiarism-checker` | Plagiarism detection with report. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/profanity-checker` | Remove profanity; custom lists. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/serp-meta-title-generator` | Generate meta titles with competitive analysis. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/social-media-hashtag-generator` | Multi-keyword hashtag generator. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/spell-checker` | Spell/grammar check for many languages. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/topic-trend-aggregator` | Aggregates multi-pipeline news topics. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+
+## Link-Builder Routes
+
+| Endpoint | Promise | Strength | Coverage | Current Logic | Biggest Gap | Best-Ever Upgrade | Free-Tier Fit | GitHub Note |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `/api/v1/seo-tools/bulk-bbb` | BBB complaints/reviews in bulk. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/business-websites-ranker` | Find underperforming local businesses. | 1/5 | ~10% | Builds a Google Maps search URL only. | No ranking, enrichment, or website scoring logic. | Rebuild inside a maps-intelligence family. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/car-hire-rental` | Car rental prices by location. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/car-hire-rental-bulk` | Car rental prices in bulk. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/opentable` | OpenTable search + availability. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/shopify-product-search` | Search products with metadata. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/showtimes` | Showtimes data extraction. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/similarweb` | Website analytics (public data). | 1/5 | ~10% | Returns a Similarweb report URL only. | No analytics extraction or normalization. | Rebuild as real traffic intelligence or relabel honestly. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/simple-bbb` | BBB company reviews + complaints. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/skyscanner-cars` | Car rental prices + filters. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/skyscanner-hotels` | Hotels search + prices. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/software-advice` | Products/reviews/stats from Software Advice. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/spotify` | Search Spotify tracks/artists/albums, etc. | 1/5 | ~10% | Returns a Spotify search URL only. | No track, artist, album, playlist, or pagination data. | Implement a real provider-backed media connector. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/spotify-plus` | Spotify with no limits. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/spyfu` | Spyfu keywords/ads/domain stats. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/spyfu-bulk-urls` | Spyfu data in bulk. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/stackshare` | Tech stacks + tool comparisons. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/the-org` | Org charts + open jobs from The Org. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/trending-news` | Trending news extraction. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/tripadvisor-cruises` | Cruise listings from Tripadvisor. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/tripadvisor-hotels` | Hotels from Tripadvisor. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/trustpilot-plus` | Trustpilot reviews + sentiment. | 1/5 | ~10% | Returns a Trustpilot search URL only. | No reviews or sentiment are collected. | Move into a marketplace-review connector family. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/vrbo` | Vrbo properties + reviews. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/x-twitter` | Tweets + usernames from X. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/youtube-view-generator-124-test-events-124-0001` | Test-only variant of view generator. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/zapier` | Zapier integrations + templates list. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+
+## Template/Asset URL Builder Routes
+
+| Endpoint | Promise | Strength | Coverage | Current Logic | Biggest Gap | Best-Ever Upgrade | Free-Tier Fit | GitHub Note |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `/api/v1/seo-tools/open-graph-image-generator` | Dynamic OG image generation. | 1/5 | ~10% | Builds a dummyimage.com URL instead of rendering assets in DataLens. | No first-party rendering pipeline or artifact storage. | Move into a real image-generation suite with templates and storage. | Cheap to host, but incomplete. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+
+## API-Key Stub Routes
+
+| Endpoint | Promise | Strength | Coverage | Current Logic | Biggest Gap | Best-Ever Upgrade | Free-Tier Fit | GitHub Note |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `/api/v1/seo-tools/openpagerank-bulk-checker` | Bulk OpenPageRank scores. | 1/5 | ~5% | Normalizes input and returns pending/null provider output only. | No live provider data exists. | Implement a real provider adapter or remove from the live catalog. | Not ready until credentials and provider integration exist. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/rentcast` | Rent estimates for US properties. | 1/5 | ~10% | Builds a lookup URL and returns pending_api_key. | No live provider data. | Either integrate the provider or move it to template-only. | Not ready until credentials and provider integration exist. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+
+## Queued Placeholder Routes
+
+| Endpoint | Promise | Strength | Coverage | Current Logic | Biggest Gap | Best-Ever Upgrade | Free-Tier Fit | GitHub Note |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `/api/v1/seo-tools/discord-forum-to-website` | Discord forum -> SEO static site. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Not launch-ready on free hosting. | Route exists locally but appears missing on GitHub main. |
+| `/api/v1/seo-tools/discord-website-generator` | Discord server landing page generator. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Not launch-ready on free hosting. | Route exists locally but appears missing on GitHub main. |
+| `/api/v1/seo-tools/ga4-mcp` | GA4 analysis via MCP. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Not launch-ready on free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/new-web-traffic-generator-youtube-vimeo-twitch` | Realistic traffic simulation for web + video. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | GitHub main adds strict allowed-field validation; local branch lacks it. |
+| `/api/v1/seo-tools/organic-visit-simulator-x` | Organic traffic triggered by viral posts. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | GitHub main adds strict allowed-field validation; local branch lacks it. |
+| `/api/v1/seo-tools/quick-lh` | Lighthouse performance checker. | 1/5 | ~5% | Queued placeholder only. | No Lighthouse job, no status endpoint, no artifacts. | Do not expose publicly until the async worker exists. | Not launch-ready on free hosting. | Route exists locally but appears missing on GitHub main. |
+| `/api/v1/seo-tools/seobility-keyword-research-rental-unlimited-seo` | SEO keyword research via Seobility. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Not launch-ready on free hosting. | Route exists locally but appears missing on GitHub main. |
+| `/api/v1/seo-tools/seobility-ranking-seo` | SEO analysis + ranking. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Not launch-ready on free hosting. | GitHub main adds strict allowed-field validation; local branch lacks it. |
+| `/api/v1/seo-tools/similar-app-store-applications-finder` | Find related apps for discovery. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Not launch-ready on free hosting. | GitHub main adds strict allowed-field validation; local branch lacks it. |
+| `/api/v1/seo-tools/smart-website-traffic` | Targeted traffic + crawl/stress test. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | GitHub main adds strict allowed-field validation; local branch lacks it. |
+| `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | Full-page screenshots + PDFs. | 1/5 | ~5% | Queued placeholder only. | No screenshot or PDF renderer exists. | Move into a worker-backed PDF/screenshot suite. | Not launch-ready on free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/top-1000-websites-worldwide-country-level` | Top 1000 websites by country. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Not launch-ready on free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/traffic-booster` | Quick traffic boosts for analytics/tests. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/traffic-generator-youtube-web-etsy-behance-and-many-more` | Traffic generation across platforms. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/trayvmy-actor` | Generic automation actor. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Not launch-ready on free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/web-traffic-boots` | Realistic GA traffic generation. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/web-traffic-spike-simulator-x` | Traffic spikes triggered by viral posts. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/website-traffic-generator-pro` | Human-like traffic generation. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | GitHub main adds strict allowed-field validation; local branch lacks it. |
+| `/api/v1/seo-tools/website-traffic-machine` | Proxy + search-engine traffic generation. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/websites-traffic-generator` | Geo/device traffic simulation. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/woorank` | Full SEO analysis with Woorank. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Not launch-ready on free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/youtube-rank-checker` | Check video ranks by keyword. | 1/5 | ~5% | Queued placeholder only. | No rank collection logic exists. | Implement inside a canonical rank-tracker family. | Not launch-ready on free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/youtube-region-restriction-checker` | Region restrictions for videos. | 1/5 | ~10% | Echoes a video URL and returns pending. | No region matrix or restriction verification exists. | Either remove or implement against real metadata sources. | Not launch-ready on free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/youtube-view-generator` | Increase YouTube views. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | GitHub main adds strict allowed-field validation; local branch lacks it. |
+
