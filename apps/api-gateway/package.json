@@ -16,7 +16,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "stopword": "^3.0.0",
-    "turndown": "^7.2.2"
+    "turndown": "^7.2.2",
+    "@forensic/shared-types": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "^20",
