@@ -5,7 +5,9 @@ import {
   RequestValidationError,
   stealthGet
 ,
-  safeJsonParse} from '@forensic/scraping-core';
+  safeJsonParse,
+  requireAllowedFields
+} from '@forensic/scraping-core';
 
 const dataGovPolicy = createToolPolicy({
   timeoutMs: 10000,
@@ -17,6 +19,7 @@ const dataGovPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: dataGovPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, dataGovPolicy);
+  requireAllowedFields(body, ['apiKey', 'query']);
   const query = typeof body.query === 'string' ? body.query.trim() : '';
   const apiKey = typeof body.apiKey === 'string' ? body.apiKey.trim() : '';
   if (!query) {

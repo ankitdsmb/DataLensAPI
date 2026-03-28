@@ -24,7 +24,7 @@ const youtubeKeywordsPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: youtubeKeywordsPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, youtubeKeywordsPolicy);
-  requireAllowedFields(body, ['keyword', 'keywords', 'limit', 'language', 'country']);
+  requireAllowedFields(body, ['country', 'keyword', 'keywords', 'language', 'limit']);
   const keywords = normalizeKeywordInputs(body);
   const limit = optionalIntegerField(body, 'limit', { defaultValue: 10, min: 1, max: 25 });
   const language = optionalStringField(body, 'language', 'en');

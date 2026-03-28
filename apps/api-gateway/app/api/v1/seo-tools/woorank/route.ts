@@ -2,7 +2,8 @@ import {
   collectUrlInputs,
   createToolPolicy,
   readJsonBody,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const woorankPolicy = createToolPolicy({
@@ -15,6 +16,7 @@ const woorankPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: woorankPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, woorankPolicy);
+  requireAllowedFields(body, ['url', 'urls']);
   const urls = collectUrlInputs(body, woorankPolicy);
 
   return {

@@ -2,7 +2,8 @@ import {
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const shopifyPolicy = createToolPolicy({
@@ -15,6 +16,7 @@ const shopifyPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: shopifyPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, shopifyPolicy);
+  requireAllowedFields(body, ['query', 'storeUrl']);
   const query = typeof body.query === 'string' ? body.query.trim() : '';
   const storeUrl = typeof body.storeUrl === 'string' ? body.storeUrl.trim() : '';
 

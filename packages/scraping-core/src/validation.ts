@@ -13,6 +13,11 @@ type StringArrayFieldOptions = {
   fieldLabel?: string;
 };
 
+type NumberRangeOptions = {
+  min?: number;
+  max?: number;
+};
+
 export class RequestValidationError extends Error implements ApiHandlerError {
   code: string;
   status: number;
@@ -243,6 +248,62 @@ export function normalizeKeywordInputs(body: Record<string, unknown>): string[] 
   }
 
   return Array.from(new Set(combined));
+}
+
+function normalizeOptionalCodeField(
+  body: Record<string, unknown>,
+  field: 'language' | 'country'
+): string | null {
+  const value = body[field];
+  if (value === undefined) {
+    return null;
+  }
+
+  if (typeof value !== 'string') {
+    throw new RequestValidationError(`${field} must be a string`, { field });
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) {
+    throw new RequestValidationError(`${field} must be a non-empty string`, { field });
+  }
+
+  if (!/^[a-z]{2,5}$/.test(normalized)) {
+    throw new RequestValidationError(`${field} must be a 2-5 letter code`, { field });
+  }
+
+  return normalized;
+}
+
+export function normalizeLanguage(body: Record<string, unknown>): string | null {
+  return normalizeOptionalCodeField(body, 'language');
+}
+
+export function normalizeCountry(body: Record<string, unknown>): string | null {
+  return normalizeOptionalCodeField(body, 'country');
+}
+
+export function normalizeOptionalInteger(
+  body: Record<string, unknown>,
+  field: string,
+  defaultValue: number,
+  options: NumberRangeOptions = {}
+): number {
+  return optionalIntegerField(body, field, {
+    defaultValue,
+    min: options.min,
+    max: options.max
+  });
+}
+
+export function normalizePaginationInputs(body: Record<string, unknown>) {
+  return {
+    limit: normalizeOptionalInteger(body, 'limit', 10, { min: 1, max: 100 }),
+    page: normalizeOptionalInteger(body, 'page', 1, { min: 1, max: 1000 }),
+    maxPages: normalizeOptionalInteger(body, 'maxPages', 1, { min: 1, max: 20 }),
+    maxUrls: normalizeOptionalInteger(body, 'maxUrls', 1, { min: 1, max: 100 }),
+    includeSubpages: optionalBooleanField(body, 'includeSubpages', false)
+  };
 }
 
 export class UpstreamApiError extends Error implements ApiHandlerError {

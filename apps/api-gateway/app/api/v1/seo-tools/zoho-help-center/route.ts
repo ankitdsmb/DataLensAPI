@@ -3,7 +3,8 @@ import {
   createToolPolicy,
   fetchHtmlDocument,
   readJsonBody,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const zohoPolicy = createToolPolicy({
@@ -16,6 +17,7 @@ const zohoPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: zohoPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, zohoPolicy);
+  requireAllowedFields(body, ['url', 'urls']);
   const urls = collectUrlInputs(body, zohoPolicy);
 
   const results = [];

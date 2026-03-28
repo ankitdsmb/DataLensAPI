@@ -3,7 +3,8 @@ import {
   readJsonBody,
   withScrapingHandler,
   RequestValidationError,
-  stealthGet
+  stealthGet,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const networkScanPolicy = createToolPolicy({
@@ -16,6 +17,7 @@ const networkScanPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: networkScanPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, networkScanPolicy);
+  requireAllowedFields(body, ['hosts']);
   const hosts = Array.isArray(body.hosts) ? body.hosts : [];
   if (hosts.length === 0) {
     throw new RequestValidationError('hosts is required', { field: 'hosts' });

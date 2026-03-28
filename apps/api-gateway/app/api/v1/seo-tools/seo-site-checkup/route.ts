@@ -12,7 +12,8 @@ import {
   optionalStringArrayField,
   readJsonBody,
   summarizeLinkSection,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const seoSiteCheckupPolicy = createToolPolicy({
@@ -25,6 +26,7 @@ const seoSiteCheckupPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: seoSiteCheckupPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, seoSiteCheckupPolicy);
+  requireAllowedFields(body, ['keywords', 'topN', 'url', 'urls']);
   const urls = collectUrlInputs(body, seoSiteCheckupPolicy);
   const requestedKeywords = optionalStringArrayField(body, 'keywords', { maxItems: 50 });
   const topN = optionalIntegerField(body, 'topN', { defaultValue: 15, min: 5, max: 100 });

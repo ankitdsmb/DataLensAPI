@@ -2,7 +2,8 @@ import {
   createToolPolicy,
   readJsonBody,
   withScrapingHandler,
-  RequestValidationError
+  RequestValidationError,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const serpTitlePolicy = createToolPolicy({
@@ -15,6 +16,7 @@ const serpTitlePolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: serpTitlePolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, serpTitlePolicy);
+  requireAllowedFields(body, ['brand', 'keyword']);
   const keyword = typeof body.keyword === 'string' ? body.keyword.trim() : '';
   const brand = typeof body.brand === 'string' ? body.brand.trim() : '';
 

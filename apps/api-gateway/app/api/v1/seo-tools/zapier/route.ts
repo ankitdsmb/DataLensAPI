@@ -2,7 +2,8 @@ import {
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const zapierPolicy = createToolPolicy({
@@ -15,6 +16,7 @@ const zapierPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: zapierPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, zapierPolicy);
+  requireAllowedFields(body, ['query']);
   const query = typeof body.query === 'string' ? body.query.trim() : '';
 
   if (!query) {

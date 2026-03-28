@@ -4,7 +4,8 @@ import {
   optionalStringArrayField,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const flippaPolicy = createToolPolicy({
@@ -35,6 +36,7 @@ function normalizeQueries(body: Record<string, unknown>) {
 
 export const POST = withScrapingHandler({ policy: flippaPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, flippaPolicy);
+  requireAllowedFields(body, ['limit', 'queries', 'query']);
   const queries = normalizeQueries(body);
   const limit = typeof body.limit === 'number' && Number.isInteger(body.limit) ? Math.min(body.limit, 20) : 10;
 

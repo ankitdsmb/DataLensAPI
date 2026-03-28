@@ -2,7 +2,8 @@ import {
   createToolPolicy,
   readJsonBody,
   withScrapingHandler,
-  RequestValidationError
+  RequestValidationError,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const barcodePolicy = createToolPolicy({
@@ -22,6 +23,7 @@ function detectFormat(code: string) {
 
 export const POST = withScrapingHandler({ policy: barcodePolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, barcodePolicy);
+  requireAllowedFields(body, ['code']);
   const code = typeof body.code === 'string' ? body.code.trim() : '';
   if (!code) {
     throw new RequestValidationError('code is required', { field: 'code' });

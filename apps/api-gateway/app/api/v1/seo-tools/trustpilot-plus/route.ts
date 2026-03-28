@@ -2,7 +2,8 @@ import {
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const trustpilotPolicy = createToolPolicy({
@@ -15,6 +16,7 @@ const trustpilotPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: trustpilotPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, trustpilotPolicy);
+  requireAllowedFields(body, ['company']);
   const company = typeof body.company === 'string' ? body.company.trim() : '';
 
   if (!company) {

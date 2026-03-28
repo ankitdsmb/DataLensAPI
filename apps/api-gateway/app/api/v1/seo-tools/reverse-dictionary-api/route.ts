@@ -6,7 +6,9 @@ import {
   RequestValidationError,
   stealthGet
 ,
-  safeJsonParse} from '@forensic/scraping-core';
+  safeJsonParse,
+  requireAllowedFields
+} from '@forensic/scraping-core';
 
 const reverseDictionaryPolicy = createToolPolicy({
   timeoutMs: 8000,
@@ -36,6 +38,7 @@ function normalizeQueries(body: Record<string, unknown>) {
 
 export const POST = withScrapingHandler({ policy: reverseDictionaryPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, reverseDictionaryPolicy);
+  requireAllowedFields(body, ['limit', 'queries', 'query']);
   const queries = normalizeQueries(body);
   const limit = typeof body.limit === 'number' && Number.isInteger(body.limit) ? body.limit : 10;
 

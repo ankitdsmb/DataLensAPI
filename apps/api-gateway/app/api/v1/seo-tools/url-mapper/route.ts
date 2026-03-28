@@ -5,11 +5,12 @@ import {
   fetchHtmlDocument,
   optionalIntegerField,
   readJsonBody,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const urlMapperPolicy = createToolPolicy({
-  timeoutMs: 12000,
+  timeoutMs: 10000,
   maxPayloadBytes: 96 * 1024,
   maxUrlCount: 3,
   anonymous: true,
@@ -18,6 +19,7 @@ const urlMapperPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: urlMapperPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, urlMapperPolicy);
+  requireAllowedFields(body, ['maxPages', 'url', 'urls']);
   const urls = collectUrlInputs(body, urlMapperPolicy);
   const maxPages = optionalIntegerField(body, 'maxPages', { defaultValue: 50, min: 5, max: 300 });
 

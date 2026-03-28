@@ -6,7 +6,9 @@ import {
   stealthGet,
   withScrapingHandler
 ,
-  safeJsonParse} from '@forensic/scraping-core';
+  safeJsonParse,
+  requireAllowedFields
+} from '@forensic/scraping-core';
 
 const translatorPolicy = createToolPolicy({
   timeoutMs: 10000,
@@ -36,6 +38,7 @@ function normalizeTexts(body: Record<string, unknown>) {
 
 export const POST = withScrapingHandler({ policy: translatorPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, translatorPolicy);
+  requireAllowedFields(body, ['from', 'text', 'texts', 'to']);
   const texts = normalizeTexts(body);
   const from = typeof body.from === 'string' && body.from.trim() ? body.from.trim() : 'en';
   const to = typeof body.to === 'string' && body.to.trim() ? body.to.trim() : 'es';

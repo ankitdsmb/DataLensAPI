@@ -5,7 +5,9 @@ import {
   stealthGet,
   withScrapingHandler
 ,
-  safeJsonParse} from '@forensic/scraping-core';
+  safeJsonParse,
+  requireAllowedFields
+} from '@forensic/scraping-core';
 
 const redditPolicy = createToolPolicy({
   timeoutMs: 10000,
@@ -17,6 +19,7 @@ const redditPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: redditPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, redditPolicy);
+  requireAllowedFields(body, ['limit', 'query', 'subreddit']);
   const query = typeof body.query === 'string' ? body.query.trim() : '';
   const subreddit = typeof body.subreddit === 'string' ? body.subreddit.trim() : '';
   const limit = typeof body.limit === 'number' && Number.isInteger(body.limit) ? Math.min(body.limit, 25) : 10;

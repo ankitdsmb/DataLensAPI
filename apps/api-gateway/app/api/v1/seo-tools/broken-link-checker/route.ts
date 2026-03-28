@@ -6,7 +6,8 @@ import {
   readJsonBody,
   stealthGet,
   collectUrlInputs,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const brokenLinkPolicy = createToolPolicy({
@@ -19,6 +20,7 @@ const brokenLinkPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: brokenLinkPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, brokenLinkPolicy);
+  requireAllowedFields(body, ['maxLinks', 'url', 'urls']);
   const urls = collectUrlInputs(body, brokenLinkPolicy);
   const maxLinks = optionalIntegerField(body, 'maxLinks', { defaultValue: 75, min: 5, max: 250 });
 

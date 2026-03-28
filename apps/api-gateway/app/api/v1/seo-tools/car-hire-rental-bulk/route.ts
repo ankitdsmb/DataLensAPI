@@ -3,7 +3,8 @@ import {
   optionalStringArrayField,
   readJsonBody,
   withScrapingHandler,
-  RequestValidationError
+  RequestValidationError,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const carHireBulkPolicy = createToolPolicy({
@@ -16,6 +17,7 @@ const carHireBulkPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: carHireBulkPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, carHireBulkPolicy);
+  requireAllowedFields(body, ['locations']);
   const locations = optionalStringArrayField(body, 'locations', { maxItems: 25, fieldLabel: 'locations' });
   if (locations.length === 0) {
     throw new RequestValidationError('locations is required', { field: 'locations' });

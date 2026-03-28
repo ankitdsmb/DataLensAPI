@@ -3,7 +3,8 @@ import {
   optionalStringArrayField,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const spyfuBulkPolicy = createToolPolicy({
@@ -34,6 +35,7 @@ function normalizeDomains(body: Record<string, unknown>) {
 
 export const POST = withScrapingHandler({ policy: spyfuBulkPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, spyfuBulkPolicy);
+  requireAllowedFields(body, ['domain', 'domains']);
   const domains = normalizeDomains(body);
 
   const results = domains.map((domain) => ({

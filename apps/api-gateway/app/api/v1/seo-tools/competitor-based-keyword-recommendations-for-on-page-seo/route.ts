@@ -5,7 +5,8 @@ import {
   fetchHtmlDocument,
   optionalStringArrayField,
   readJsonBody,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const competitorKeywordPolicy = createToolPolicy({
@@ -18,6 +19,7 @@ const competitorKeywordPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: competitorKeywordPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, competitorKeywordPolicy);
+  requireAllowedFields(body, ['keywords', 'url', 'urls']);
   const urls = collectUrlInputs(body, competitorKeywordPolicy);
   const keywords = optionalStringArrayField(body, 'keywords', { maxItems: 25 });
 

@@ -3,7 +3,8 @@ import {
   optionalStringArrayField,
   readJsonBody,
   withScrapingHandler,
-  RequestValidationError
+  RequestValidationError,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const topicTrendPolicy = createToolPolicy({
@@ -16,6 +17,7 @@ const topicTrendPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: topicTrendPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, topicTrendPolicy);
+  requireAllowedFields(body, ['topics']);
   const topics = optionalStringArrayField(body, 'topics', { maxItems: 50, fieldLabel: 'topics' });
   if (topics.length === 0) {
     throw new RequestValidationError('topics is required', { field: 'topics' });

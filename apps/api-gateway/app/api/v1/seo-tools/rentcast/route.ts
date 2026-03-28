@@ -2,7 +2,8 @@ import {
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const rentcastPolicy = createToolPolicy({
@@ -15,6 +16,7 @@ const rentcastPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: rentcastPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, rentcastPolicy);
+  requireAllowedFields(body, ['address']);
   const address = typeof body.address === 'string' ? body.address.trim() : '';
 
   if (!address) {

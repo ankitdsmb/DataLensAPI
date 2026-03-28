@@ -3,7 +3,8 @@ import {
   fetchHtmlDocument,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const etsyPolicy = createToolPolicy({
@@ -16,6 +17,7 @@ const etsyPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: etsyPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, etsyPolicy);
+  requireAllowedFields(body, ['listingId', 'url']);
   const url = typeof body.url === 'string' ? body.url.trim() : '';
   const listingId = typeof body.listingId === 'string' ? body.listingId.trim() : '';
 

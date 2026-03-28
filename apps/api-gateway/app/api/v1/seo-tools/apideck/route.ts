@@ -6,7 +6,9 @@ import {
   withScrapingHandler,
   RequestValidationError
 ,
-  safeJsonParse} from '@forensic/scraping-core';
+  safeJsonParse,
+  requireAllowedFields
+} from '@forensic/scraping-core';
 
 const apideckPolicy = createToolPolicy({
   timeoutMs: 10000,
@@ -18,6 +20,7 @@ const apideckPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: apideckPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, apideckPolicy);
+  requireAllowedFields(body, ['apiKey', 'apiUrl', 'appId']);
   const apiUrl = typeof body.apiUrl === 'string' ? assertHttpUrl(body.apiUrl.trim()) : '';
   if (!apiUrl) {
     throw new RequestValidationError('apiUrl is required', { field: 'apiUrl' });

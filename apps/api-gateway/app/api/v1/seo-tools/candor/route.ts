@@ -3,7 +3,8 @@ import {
   createToolPolicy,
   fetchHtmlDocument,
   readJsonBody,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const candorPolicy = createToolPolicy({
@@ -16,6 +17,7 @@ const candorPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: candorPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, candorPolicy);
+  requireAllowedFields(body, ['url', 'urls']);
   const urls = collectUrlInputs(body, candorPolicy);
 
   const results = [];

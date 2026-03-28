@@ -3,7 +3,8 @@ import {
   createToolPolicy,
   fetchHtmlDocument,
   readJsonBody,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const readabilityPolicy = createToolPolicy({
@@ -42,6 +43,7 @@ function computeReadability(text: string) {
 
 export const POST = withScrapingHandler({ policy: readabilityPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, readabilityPolicy);
+  requireAllowedFields(body, ['url', 'urls']);
   const urls = collectUrlInputs(body, readabilityPolicy);
 
   const results = [];

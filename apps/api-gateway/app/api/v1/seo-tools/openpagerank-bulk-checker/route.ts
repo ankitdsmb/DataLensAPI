@@ -3,7 +3,8 @@ import {
   optionalStringArrayField,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const openPageRankPolicy = createToolPolicy({
@@ -34,6 +35,7 @@ function normalizeDomains(body: Record<string, unknown>) {
 
 export const POST = withScrapingHandler({ policy: openPageRankPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, openPageRankPolicy);
+  requireAllowedFields(body, ['domain', 'domains']);
   const domains = normalizeDomains(body);
 
   const results = domains.map((domain) => ({

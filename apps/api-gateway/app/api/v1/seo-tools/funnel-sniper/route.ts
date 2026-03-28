@@ -3,7 +3,8 @@ import {
   createToolPolicy,
   fetchHtmlDocument,
   readJsonBody,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const funnelSniperPolicy = createToolPolicy({
@@ -16,6 +17,7 @@ const funnelSniperPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: funnelSniperPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, funnelSniperPolicy);
+  requireAllowedFields(body, ['url', 'urls']);
   const urls = collectUrlInputs(body, funnelSniperPolicy);
 
   const results = [];

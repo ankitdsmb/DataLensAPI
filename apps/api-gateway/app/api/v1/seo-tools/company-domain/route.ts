@@ -5,7 +5,9 @@ import {
   RequestValidationError,
   stealthGet
 ,
-  safeJsonParse} from '@forensic/scraping-core';
+  safeJsonParse,
+  requireAllowedFields
+} from '@forensic/scraping-core';
 
 const companyDomainPolicy = createToolPolicy({
   timeoutMs: 8000,
@@ -17,6 +19,7 @@ const companyDomainPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: companyDomainPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, companyDomainPolicy);
+  requireAllowedFields(body, ['company']);
   const company = typeof body.company === 'string' ? body.company.trim() : '';
   if (!company) {
     throw new RequestValidationError('company is required', { field: 'company' });

@@ -2,7 +2,8 @@ import {
   createToolPolicy,
   readJsonBody,
   withScrapingHandler,
-  RequestValidationError
+  RequestValidationError,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const ga4Policy = createToolPolicy({
@@ -15,6 +16,7 @@ const ga4Policy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: ga4Policy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, ga4Policy);
+  requireAllowedFields(body, ['propertyId']);
   const propertyId = typeof body.propertyId === 'string' ? body.propertyId.trim() : '';
   if (!propertyId) {
     throw new RequestValidationError('propertyId is required', { field: 'propertyId' });

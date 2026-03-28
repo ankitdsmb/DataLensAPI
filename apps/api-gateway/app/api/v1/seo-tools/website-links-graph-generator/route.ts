@@ -5,11 +5,12 @@ import {
   fetchHtmlDocument,
   optionalIntegerField,
   readJsonBody,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const linkGraphPolicy = createToolPolicy({
-  timeoutMs: 12000,
+  timeoutMs: 10000,
   maxPayloadBytes: 96 * 1024,
   maxUrlCount: 3,
   anonymous: true,
@@ -18,6 +19,7 @@ const linkGraphPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: linkGraphPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, linkGraphPolicy);
+  requireAllowedFields(body, ['maxPages', 'url', 'urls']);
   const urls = collectUrlInputs(body, linkGraphPolicy);
   const maxPages = optionalIntegerField(body, 'maxPages', { defaultValue: 50, min: 5, max: 300 });
 

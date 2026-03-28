@@ -3,11 +3,12 @@ import {
   createToolPolicy,
   fetchHtmlDocument,
   readJsonBody,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const whatRunsPolicy = createToolPolicy({
-  timeoutMs: 12000,
+  timeoutMs: 10000,
   maxPayloadBytes: 96 * 1024,
   maxUrlCount: 10,
   anonymous: true,
@@ -35,6 +36,7 @@ function detectStack(html: string) {
 
 export const POST = withScrapingHandler({ policy: whatRunsPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, whatRunsPolicy);
+  requireAllowedFields(body, ['url', 'urls']);
   const urls = collectUrlInputs(body, whatRunsPolicy);
 
   const results = [];

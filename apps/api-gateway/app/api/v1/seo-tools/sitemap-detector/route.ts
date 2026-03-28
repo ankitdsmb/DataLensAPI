@@ -3,11 +3,12 @@ import {
   createToolPolicy,
   readJsonBody,
   stealthGet,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const sitemapDetectorPolicy = createToolPolicy({
-  timeoutMs: 12000,
+  timeoutMs: 10000,
   maxPayloadBytes: 64 * 1024,
   maxUrlCount: 5,
   anonymous: true,
@@ -58,6 +59,7 @@ async function detectSitemaps(startUrl: string, timeoutMs: number) {
 
 export const POST = withScrapingHandler({ policy: sitemapDetectorPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, sitemapDetectorPolicy);
+  requireAllowedFields(body, ['url', 'urls']);
   const urls = collectUrlInputs(body, sitemapDetectorPolicy);
 
   const results = [];

@@ -2,7 +2,8 @@ import {
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const spotifyPolicy = createToolPolicy({
@@ -15,6 +16,7 @@ const spotifyPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: spotifyPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, spotifyPolicy);
+  requireAllowedFields(body, ['query']);
   const query = typeof body.query === 'string' ? body.query.trim() : '';
 
   if (!query) {

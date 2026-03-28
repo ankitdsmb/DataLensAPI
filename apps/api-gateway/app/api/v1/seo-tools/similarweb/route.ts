@@ -2,7 +2,8 @@ import {
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler
+  withScrapingHandler,
+  requireAllowedFields
 } from '@forensic/scraping-core';
 
 const similarwebPolicy = createToolPolicy({
@@ -15,6 +16,7 @@ const similarwebPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: similarwebPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, similarwebPolicy);
+  requireAllowedFields(body, ['domain']);
   const domain = typeof body.domain === 'string' ? body.domain.trim() : '';
 
   if (!domain) {
