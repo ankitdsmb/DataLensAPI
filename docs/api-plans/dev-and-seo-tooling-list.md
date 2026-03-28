@@ -260,3 +260,22 @@ These routes exist in code after the latest upstream family refactor. They were 
 ## Scope note
 
 This file tracks Developer Tools and SEO Tools requested or later surfaced as live SEO plan-gap routes. Generic operational routes such as `/api/v1/jobs/[jobId]` are intentionally governed by `docs/api-plans/route-allowlist.md`, not this intake list.
+
+## Public Catalog Exclusions
+
+The routes below remain tracked as created in code, but they are explicitly excluded from the public catalog for launch governance, abuse-risk, and trust reasons.
+
+| Ticket ID | Endpoint | Governance Status | Reason |
+|---|---|---|---|
+| TN-API-20083 | `/api/v1/seo-tools/new-web-traffic-generator-youtube-vimeo-twitch` | Rejected from public catalog | Traffic simulation / fake-engagement class. |
+| TN-API-20095 | `/api/v1/seo-tools/organic-visit-simulator-x` | Rejected from public catalog | Traffic simulation / fake-engagement class. |
+| TN-API-20202 | `/api/v1/seo-tools/smart-website-traffic` | Rejected from public catalog | Traffic simulation / fake-engagement class. |
+| TN-API-20249 | `/api/v1/seo-tools/traffic-booster` | Rejected from public catalog | Traffic simulation / fake-engagement class. |
+| TN-API-20250 | `/api/v1/seo-tools/traffic-generator-youtube-web-etsy-behance-and-many-more` | Rejected from public catalog | Traffic simulation / fake-engagement class. |
+| TN-API-20294 | `/api/v1/seo-tools/web-traffic-boots` | Rejected from public catalog | Traffic simulation / fake-engagement class. |
+| TN-API-20295 | `/api/v1/seo-tools/web-traffic-spike-simulator-x` | Rejected from public catalog | Traffic simulation / fake-engagement class. |
+| TN-API-20307 | `/api/v1/seo-tools/website-traffic-generator-pro` | Rejected from public catalog | Traffic simulation / fake-engagement class. |
+| TN-API-20308 | `/api/v1/seo-tools/website-traffic-machine` | Rejected from public catalog | Traffic simulation / fake-engagement class. |
+| TN-API-20309 | `/api/v1/seo-tools/websites-traffic-generator` | Rejected from public catalog | Traffic simulation / fake-engagement class. |
+| TN-API-20380 | `/api/v1/seo-tools/youtube-view-generator` | Rejected from public catalog | Fake view / fake-engagement class. |
+| TN-API-20381 | `/api/v1/seo-tools/youtube-view-generator-124-test-events-124-0001` | Rejected from public catalog | Fake view / fake-engagement class, including the test variant. |

@@ -186,3 +186,22 @@ If a route appears in planning docs but is not listed here, it is considered **n
 | `/api/v1/seo-tools/rentcast` | `api-key-stub` | Defer/hide from public launch until provider integration is implemented. |
 | `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | `queued-placeholder` | Keep deferred from public launch until browser/PDF rendering exists; current worker captures live HTML evidence only. |
 | `/api/v1/seo-tools/youtube-rank-checker` | `queued-placeholder` | Keep deferred from public launch until lightweight search evidence parsing is hardened into a reliable rank pipeline. |
+
+## Rejected From Public Catalog
+
+The following live routes exist in code but are explicitly rejected from the public catalog because they simulate traffic, inflate views, or otherwise fit the fake-engagement/abuse-prone class.
+
+| Route | Class | Recommendation |
+| --- | --- | --- |
+| `/api/v1/seo-tools/new-web-traffic-generator-youtube-vimeo-twitch` | `traffic-simulation` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/organic-visit-simulator-x` | `traffic-simulation` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/smart-website-traffic` | `traffic-simulation` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/traffic-booster` | `traffic-simulation` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/traffic-generator-youtube-web-etsy-behance-and-many-more` | `traffic-simulation` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/web-traffic-boots` | `traffic-simulation` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/web-traffic-spike-simulator-x` | `traffic-simulation` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/website-traffic-generator-pro` | `traffic-simulation` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/website-traffic-machine` | `traffic-simulation` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/websites-traffic-generator` | `traffic-simulation` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/youtube-view-generator` | `fake-engagement` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/youtube-view-generator-124-test-events-124-0001` | `fake-engagement` | Keep disabled and out of the public catalog. |

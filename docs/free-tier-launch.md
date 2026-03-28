@@ -46,6 +46,19 @@ These routes exist in code but should not be presented as part of the free-tier 
   - Real async job contract exists and now attempts lightweight YouTube search evidence collection, but still falls back when live evidence cannot be collected.
 - `POST /api/v1/seo-tools/traffic-booster`
   - Real async job contract exists, but current worker returns projection-style planning output and the route is quarantined by policy.
+- Rejected from the public catalog entirely because they are traffic/fake-engagement tools:
+  - `POST /api/v1/seo-tools/new-web-traffic-generator-youtube-vimeo-twitch`
+  - `POST /api/v1/seo-tools/organic-visit-simulator-x`
+  - `POST /api/v1/seo-tools/smart-website-traffic`
+  - `POST /api/v1/seo-tools/traffic-booster`
+  - `POST /api/v1/seo-tools/traffic-generator-youtube-web-etsy-behance-and-many-more`
+  - `POST /api/v1/seo-tools/web-traffic-boots`
+  - `POST /api/v1/seo-tools/web-traffic-spike-simulator-x`
+  - `POST /api/v1/seo-tools/website-traffic-generator-pro`
+  - `POST /api/v1/seo-tools/website-traffic-machine`
+  - `POST /api/v1/seo-tools/websites-traffic-generator`
+  - `POST /api/v1/seo-tools/youtube-view-generator`
+  - `POST /api/v1/seo-tools/youtube-view-generator-124-test-events-124-0001`
 - `GET /api/v1/jobs/:jobId`
 - `GET /api/v1/jobs/:jobId/artifacts/:artifactId`
   - Operational surfaces for internal polling and artifact retrieval; not part of the public free-tier catalog.
