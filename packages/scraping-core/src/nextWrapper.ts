@@ -3,6 +3,7 @@ import { createErrorResponse, createRequestId, createResponse } from './apiWrapp
 import { DEFAULT_TOOL_POLICY } from './policy';
 import type { ToolExecutionPolicy } from '../../shared-types/src';
 import { RequestValidationError, UpstreamApiError } from './validation';
+import { acquireConcurrencyLease, enforceLaunchPolicy, resolveLaunchPolicy } from './launchGuard';
 type ScrapingHandlerOptions = {
   policy?: Partial<ToolExecutionPolicy>;
 };
@@ -56,13 +57,18 @@ export function withScrapingHandler<T>(
   return async function POST(req: Request) {
     const startTime = Date.now();
     const requestId = createRequestId();
+    let releaseConcurrency: (() => void) | undefined;
     try {
+      const routePolicy = resolveLaunchPolicy(req, options.policy);
+      enforceLaunchPolicy(req, routePolicy);
+      releaseConcurrency = acquireConcurrencyLease(req, routePolicy);
+
       const contentLengthHeader = req.headers.get('content-length');
       if (contentLengthHeader) {
         const contentLength = Number(contentLengthHeader);
-        if (Number.isFinite(contentLength) && contentLength > options.policy.maxPayloadBytes) {
+        if (Number.isFinite(contentLength) && contentLength > routePolicy.maxPayloadBytes) {
           throw new RequestValidationError('request body exceeds maximum payload size', {
-            maxPayloadBytes: options.policy.maxPayloadBytes,
+            maxPayloadBytes: routePolicy.maxPayloadBytes,
             contentLength
           });
         }
@@ -73,10 +79,10 @@ export function withScrapingHandler<T>(
         timeoutId = setTimeout(() => {
           reject(
             new UpstreamApiError('request exceeded route timeout', 408, {
-              timeoutMs: options.policy.timeoutMs
+              timeoutMs: routePolicy.timeoutMs
             })
           );
-        }, options.policy.timeoutMs);
+        }, routePolicy.timeoutMs);
       });
 
       const data = await Promise.race([handler(req), timeoutPromise]);
@@ -89,7 +95,7 @@ export function withScrapingHandler<T>(
           'x-request-id': requestId
         }
       });
-        } catch (error: unknown) {
+    } catch (error: unknown) {
       let normalizedError =
         typeof error === 'string'
           ? new Error(error)
@@ -123,6 +129,8 @@ export function withScrapingHandler<T>(
           'x-request-id': requestId
         }
       });
+    } finally {
+      releaseConcurrency?.();
     }
   };
 }

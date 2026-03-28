@@ -11,13 +11,14 @@ import {
 const urlShortenerPolicy = createToolPolicy({
   timeoutMs: 8000,
   maxPayloadBytes: 64 * 1024,
-  maxUrlCount: 25,
+  maxUrlCount: 5,
+  maxBulkItems: 5,
   anonymous: true,
   cacheTtlSeconds: 120
 });
 
 function normalizeUrls(body: Record<string, unknown>) {
-  const urls = optionalStringArrayField(body, 'urls', { maxItems: 25, fieldLabel: 'urls' });
+  const urls = optionalStringArrayField(body, 'urls', { maxItems: urlShortenerPolicy.maxBulkItems, fieldLabel: 'urls' });
   const singleUrl = typeof body.url === 'string' ? body.url.trim() : '';
   const combined = [
     ...(singleUrl ? [singleUrl] : []),
@@ -28,6 +29,12 @@ function normalizeUrls(body: Record<string, unknown>) {
     throw new RequestValidationError('url or urls is required', {
       field: 'url',
       alternateField: 'urls'
+    });
+  }
+  if (combined.length > urlShortenerPolicy.maxBulkItems) {
+    throw new RequestValidationError('urls exceeds the allowed item limit', {
+      field: 'urls',
+      maxBulkItems: urlShortenerPolicy.maxBulkItems
     });
   }
 

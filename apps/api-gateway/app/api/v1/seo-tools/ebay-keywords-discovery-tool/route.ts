@@ -15,6 +15,8 @@ const ebayKeywordsPolicy = createToolPolicy({
   timeoutMs: 8000,
   maxPayloadBytes: 64 * 1024,
   maxUrlCount: 1,
+  maxKeywordCount: 12,
+  maxBulkItems: 12,
   anonymous: true,
   cacheTtlSeconds: 120
 });
@@ -24,7 +26,7 @@ const ebayKeywordsPolicy = createToolPolicy({
 export const POST = withScrapingHandler({ policy: ebayKeywordsPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, ebayKeywordsPolicy);
   requireAllowedFields(body, ['keyword', 'keywords', 'limit']);
-  const keywords = normalizeKeywordInputs(body);
+  const keywords = normalizeKeywordInputs(body, ebayKeywordsPolicy);
   const limit = optionalIntegerField(body, 'limit', { defaultValue: 10, min: 1, max: 25 });
 
   const results = [];
