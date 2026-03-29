@@ -39,9 +39,8 @@
 | `public-api-wrapper` | 3 |
 | `network-wrapper` | 28 |
 | `html-scraper` | 45 |
-| `local-utility` | 31 |
+| `local-utility` | 32 |
 | `link-builder` | 23 |
-| `template-link-builder` | 1 |
 | `queued-placeholder` | 8 |
 
 ### Functional Families
@@ -364,6 +363,7 @@ The appendix below covers each live local route one by one. The assessments are 
 | `/api/v1/seo-tools/markdown-table-generator` | Convert data to markdown table. | 3/5 | ~45% | Runs a deterministic local table-formatting engine with delimited-input parsing, alignment, markdown escaping, and ragged-row normalization. | Still does not support spreadsheet formulas, merged cells, or fully generalized CSV/TSV edge cases across every dialect. | Promote into a canonical structured-text utility family with TSV/CSV import presets, schema hints, and export format variants. | Excellent free-tier fit because the logic is deterministic, fast, and local-only. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/moz-da-pa-spam-checker` | DA/PA spam checks. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/new-web-traffic-generator-youtube-vimeo-twitch` | Realistic traffic simulation for web + video. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/open-graph-image-generator` | Dynamic OG image generation. | 3/5 | ~45% | Generates first-party SVG open graph artwork with deterministic layout, wrapped text, theme presets, and previewable data URIs. | Still does not render PNG/WebP binaries, use custom fonts, or support richer template composition and asset uploads. | Promote into a canonical social-image utility family with multiple templates, binary render modes, and brand-kit support. | Strong free-tier fit because the current renderer is deterministic, local-only, and fast. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/openpagerank-bulk-checker` | Bulk OpenPageRank scores. | 1/5 | ~5% | Normalizes domains and returns an explicit internal provider-template contract with non-executed provider state. | No live provider data exists yet. | Either integrate the provider or keep it internal-only as a provider template. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/organic-visit-simulator-x` | Organic traffic triggered by viral posts. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/plagiarism-checker` | Plagiarism detection with report. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
@@ -414,12 +414,6 @@ The appendix below covers each live local route one by one. The assessments are 
 | `/api/v1/seo-tools/youtube-view-generator` | Increase YouTube views. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/youtube-view-generator-124-test-events-124-0001` | Test-only variant of view generator. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/zapier` | Zapier integrations + templates list. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
-
-## Template/Asset URL Builder Routes
-
-| Endpoint | Promise | Strength | Coverage | Current Logic | Biggest Gap | Best-Ever Upgrade | Free-Tier Fit | GitHub Note |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `/api/v1/seo-tools/open-graph-image-generator` | Dynamic OG image generation. | 1/5 | ~10% | Builds a dummyimage.com URL instead of rendering assets in DataLens. | No first-party rendering pipeline or artifact storage. | Move into a real image-generation suite with templates and storage. | Cheap to host, but incomplete. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 
 ## Queued Placeholder Routes
 

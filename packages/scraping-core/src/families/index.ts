@@ -4,6 +4,7 @@ export * from './businessWebsiteRanker';
 export * from './domainIntelligence';
 export * from './keywordDiscovery';
 export * from './markdownTable';
+export * from './openGraphImage';
 export * from './profanityFilter';
 export * from './shopifyProductSearch';
 export * from './siteAudit';

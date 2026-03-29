@@ -1,7 +1,9 @@
 import {
+  buildOpenGraphImage,
   createToolPolicy,
+  optionalIntegerField,
+  optionalStringField,
   readJsonBody,
-  RequestValidationError,
   withScrapingHandler,
   requireAllowedFields
 } from '@forensic/scraping-core';
@@ -16,24 +18,26 @@ const openGraphPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: openGraphPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, openGraphPolicy);
-  requireAllowedFields(body, ['height', 'subtitle', 'title', 'width']);
-  const title = typeof body.title === 'string' ? body.title.trim() : '';
-  const subtitle = typeof body.subtitle === 'string' ? body.subtitle.trim() : '';
-  const width = typeof body.width === 'number' && body.width > 200 ? Math.round(body.width) : 1200;
-  const height = typeof body.height === 'number' && body.height > 200 ? Math.round(body.height) : 630;
-
-  if (!title) {
-    throw new RequestValidationError('title is required', { field: 'title' });
-  }
-
-  const text = subtitle ? `${title} - ${subtitle}` : title;
-  const imageUrl = `https://dummyimage.com/${width}x${height}/0b1220/ffffff&text=${encodeURIComponent(text)}`;
+  requireAllowedFields(body, ['brand', 'eyebrow', 'height', 'subtitle', 'theme', 'title', 'width']);
+  const image = buildOpenGraphImage({
+    title: optionalStringField(body, 'title'),
+    subtitle: optionalStringField(body, 'subtitle', '') || null,
+    brand: optionalStringField(body, 'brand', '') || null,
+    eyebrow: optionalStringField(body, 'eyebrow', '') || null,
+    width: optionalIntegerField(body, 'width', { defaultValue: 1200, min: 600, max: 2000 }),
+    height: optionalIntegerField(body, 'height', { defaultValue: 630, min: 315, max: 1200 }),
+    theme: optionalStringField(body, 'theme', '') || null
+  });
 
   return {
-    title,
-    subtitle: subtitle || null,
-    width,
-    height,
-    imageUrl
+    ...image,
+    contract: {
+      productLabel: 'Open Graph Image Generator',
+      forensicCategory: 'local-utility',
+      implementationDepth: 'live',
+      launchRecommendation: 'public_lite',
+      notes:
+        'Generates first-party SVG open graph artwork with deterministic layout, theme presets, wrapped text, and a previewable data URI. This is a lightweight local image generator, not a browser-rendered asset pipeline.'
+    }
   };
 });

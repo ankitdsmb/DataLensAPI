@@ -103,11 +103,13 @@ const routeOverrides = {
     upgrade: 'Keep as a sub-check only inside a true performance suite.'
   },
   'open-graph-image-generator': {
-    strength: '1/5',
-    coverage: '~10%',
-    current: 'Builds a dummyimage.com URL instead of rendering assets in DataLens.',
-    gap: 'No first-party rendering pipeline or artifact storage.',
-    upgrade: 'Move into a real image-generation suite with templates and storage.'
+    cls: 'local-utility',
+    strength: '3/5',
+    coverage: '~45%',
+    current: 'Generates first-party SVG open graph artwork with deterministic layout, wrapped text, theme presets, and previewable data URIs.',
+    gap: 'Still does not render PNG/WebP binaries, use custom fonts, or support richer template composition and asset uploads.',
+    upgrade: 'Promote into a canonical social-image utility family with multiple templates, binary render modes, and brand-kit support.',
+    fit: 'Strong free-tier fit because the current renderer is deterministic, local-only, and fast.'
   },
   'openpagerank-bulk-checker': {
     strength: '1/5',

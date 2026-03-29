@@ -69,7 +69,7 @@ route,file,forensic_category,implementation_depth,launch_recommendation,strength
 /api/v1/seo-tools/myanimelist,apps/api-gateway/app/api/v1/seo-tools/myanimelist/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/network-security-scanner,apps/api-gateway/app/api/v1/seo-tools/network-security-scanner/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/new-web-traffic-generator-youtube-vimeo-twitch,apps/api-gateway/app/api/v1/seo-tools/new-web-traffic-generator-youtube-vimeo-twitch/route.ts,traffic-simulation,template,rejected_from_public_catalog,weak,blocked,blocked,internal-only,high
-/api/v1/seo-tools/open-graph-image-generator,apps/api-gateway/app/api/v1/seo-tools/open-graph-image-generator/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low
+/api/v1/seo-tools/open-graph-image-generator,apps/api-gateway/app/api/v1/seo-tools/open-graph-image-generator/route.ts,local-utility,live,public_lite,medium,not-in-free-tier-allowlist,conditional,strengthen,medium
 /api/v1/seo-tools/openpagerank-bulk-checker,apps/api-gateway/app/api/v1/seo-tools/openpagerank-bulk-checker/route.ts,api-key-stub,template,internal_only_until_provider_integration,weak,blocked,blocked,strengthen,high
 /api/v1/seo-tools/opentable,apps/api-gateway/app/api/v1/seo-tools/opentable/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low
 /api/v1/seo-tools/organic-visit-simulator-x,apps/api-gateway/app/api/v1/seo-tools/organic-visit-simulator-x/route.ts,traffic-simulation,template,rejected_from_public_catalog,weak,blocked,blocked,internal-only,high

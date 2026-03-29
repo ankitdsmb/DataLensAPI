@@ -476,6 +476,30 @@ try {
   assert.equal(hashtags.json.data.contract.implementationDepth, 'live');
   assert.equal(hashtags.json.data.contract.launchRecommendation, 'public_lite');
 
+  const openGraph = await post('/api/v1/seo-tools/open-graph-image-generator', {
+    title: 'AI Search Visibility Playbook',
+    subtitle: 'Technical SEO + GEO + AEO',
+    brand: 'DataLensAPI',
+    theme: 'ocean'
+  });
+  assert.equal(openGraph.response.status, 200);
+  assert.equal(openGraph.json.success, true);
+  assert.equal(openGraph.json.data.status, 'generated');
+  assert.equal(openGraph.json.data.theme, 'ocean');
+  assert.equal(openGraph.json.data.width, 1200);
+  assert.equal(openGraph.json.data.height, 630);
+  assert.equal(openGraph.json.data.mimeType, 'image/svg+xml');
+  assert.equal(typeof openGraph.json.data.svg, 'string');
+  assert.ok(openGraph.json.data.svg.startsWith('<svg'));
+  assert.ok(openGraph.json.data.svg.includes('AI Search Visibility Playbook'));
+  assert.equal(typeof openGraph.json.data.dataUri, 'string');
+  assert.ok(openGraph.json.data.dataUri.startsWith('data:image/svg+xml'));
+  assert.equal(openGraph.json.data.evidence.localSvgGenerated, true);
+  assert.equal(openGraph.json.data.evidence.themePresetUsed, 'ocean');
+  assert.equal(openGraph.json.data.contract.forensicCategory, 'local-utility');
+  assert.equal(openGraph.json.data.contract.implementationDepth, 'live');
+  assert.equal(openGraph.json.data.contract.launchRecommendation, 'public_lite');
+
   console.log('regression-tests: canonical families ok');
 } finally {
   await stopProcess(server, 'api-gateway');
