@@ -1,3 +1,4 @@
+export * from './barcodeLookup';
 export * from './bbb';
 export * from './businessWebsiteRanker';
 export * from './domainIntelligence';

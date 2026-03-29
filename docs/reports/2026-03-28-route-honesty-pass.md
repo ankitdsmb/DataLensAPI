@@ -20,6 +20,7 @@
 | Route | Forensic category | Action taken | Public launch recommendation | Notes |
 | --- | --- | --- | --- | --- |
 | `/api/v1/seo-tools/business-websites-ranker` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Discovers public websites from DuckDuckGo HTML search results and applies lightweight website-quality scoring; still heuristic, but no longer just a seed URL builder. |
+| `/api/v1/seo-tools/barcode` | `public-api-wrapper` | Strengthened with public evidence | Public lite/evidence | Calls the public OpenFoodFacts product API and returns real barcode product evidence for codes found in that public catalog instead of only inferring format from string length. |
 | `/api/v1/seo-tools/cms-checker` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches public HTML and applies lightweight technology fingerprinting to identify likely CMS and related site-stack signals instead of only shallow generator hints. |
 | `/api/v1/seo-tools/cms-checker-bulk` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches public HTML in bulk and applies the same lightweight technology fingerprinting across multiple supplied URLs. |
 | `/api/v1/seo-tools/shopify-product-search` | `public-api-wrapper` | Strengthened with public evidence | Public lite/evidence | Uses public Shopify storefront predictive-search or products-feed endpoints to return normalized product evidence for a supplied `storeUrl`; without `storeUrl` it falls back honestly to a helper URL. |
@@ -62,6 +63,7 @@ Follow-up QA now exists for the strongest honesty-sensitive routes:
   - verifies `snapify-capture-screenshot-save-pdf` is blocked at the public gateway but succeeds through the internal worker path
 - `npm run regression-tests`
   - verifies `business-websites-ranker` returns live website discovery plus scoring evidence
+  - verifies `barcode` returns live product evidence from the public OpenFoodFacts catalog for a known UPC/EAN
   - verifies `cms-checker` returns live technology fingerprint evidence for a supplied public site
   - verifies `shopify-product-search` returns live storefront product evidence from a supplied public Shopify store
   - verifies `spell-checker` returns live spelling and grammar match evidence from the public LanguageTool endpoint

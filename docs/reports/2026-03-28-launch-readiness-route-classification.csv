@@ -12,7 +12,7 @@ route,file,forensic_category,implementation_depth,launch_recommendation,strength
 /api/v1/seo-tools/author-finder,apps/api-gateway/app/api/v1/seo-tools/author-finder/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/axe-accessibility-tester,apps/api-gateway/app/api/v1/seo-tools/axe-accessibility-tester/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/axe-core-accessibility-checker-actor,apps/api-gateway/app/api/v1/seo-tools/axe-core-accessibility-checker-actor/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
-/api/v1/seo-tools/barcode,apps/api-gateway/app/api/v1/seo-tools/barcode/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low
+/api/v1/seo-tools/barcode,apps/api-gateway/app/api/v1/seo-tools/barcode/route.ts,public-api-wrapper,live,public_lite,medium,not-in-free-tier-allowlist,conditional,strengthen,medium
 /api/v1/seo-tools/bing-keywords-discovery-tool,apps/api-gateway/app/api/v1/seo-tools/bing-keywords-discovery-tool/route.ts,real-scraper,medium,public,strong,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/bing-microsoft-translator,apps/api-gateway/app/api/v1/seo-tools/bing-microsoft-translator/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/bluesky,apps/api-gateway/app/api/v1/seo-tools/bluesky/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium

@@ -374,6 +374,27 @@ try {
   assert.equal(typeof domainIntelligence.json.data.domains[0].http.finalUrl, 'string');
   assertNetworkWrapperContract(domainIntelligence.json.data);
 
+  const barcode = await post('/api/v1/seo-tools/barcode', {
+    code: '737628064502'
+  });
+  assert.equal(barcode.response.status, 200);
+  assert.equal(barcode.json.success, true);
+  assert.equal(barcode.json.data.status, 'found');
+  assert.equal(barcode.json.data.source, 'openfoodfacts_public_api');
+  assert.equal(barcode.json.data.code, '737628064502');
+  assert.equal(barcode.json.data.format, 'UPC-A');
+  assert.equal(typeof barcode.json.data.lookupUrl, 'string');
+  assert.ok(barcode.json.data.lookupUrl.includes('openfoodfacts.org'));
+  assert.equal(typeof barcode.json.data.product?.name, 'string');
+  assert.ok(barcode.json.data.product.name.length >= 5);
+  assert.equal(typeof barcode.json.data.product?.brands, 'string');
+  assert.ok(barcode.json.data.product.brands.length >= 3);
+  assert.equal(typeof barcode.json.data.product?.productUrl, 'string');
+  assert.ok(barcode.json.data.product.productUrl.includes('openfoodfacts.org/product/'));
+  assert.equal(barcode.json.data.evidence.publicApiChecked, true);
+  assert.equal(barcode.json.data.evidence.productFound, true);
+  assertPublicApiWrapperContract(barcode.json.data);
+
   console.log('regression-tests: canonical families ok');
 } finally {
   await stopProcess(server, 'api-gateway');

@@ -153,6 +153,15 @@ const routeOverrides = {
     upgrade: 'Promote into a local-business intelligence family with stronger business-source discovery, homepage normalization, and multi-page scoring.',
     fit: 'Usually fine on free serverless if inputs stay capped.'
   },
+  'barcode': {
+    cls: 'public-api-wrapper',
+    strength: '3/5',
+    coverage: '~40%',
+    current: 'Calls the public OpenFoodFacts product API and returns real barcode product evidence for codes found in that public catalog.',
+    gap: 'Coverage depends on products present in OpenFoodFacts and does not yet aggregate additional barcode catalogs or ISBN-specific book metadata providers.',
+    upgrade: 'Promote into a canonical barcode intelligence family with multi-catalog fallback, ISBN/book enrichment, and clearer confidence/source provenance.',
+    fit: 'Strong free-tier fit with tight per-request code caps and caching.'
+  },
   'cms-checker': {
     cls: 'html-scraper',
     strength: '3/5',
