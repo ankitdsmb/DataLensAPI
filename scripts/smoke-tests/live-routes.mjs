@@ -1,8 +1,13 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
+import http from 'node:http';
 
 const PORT = process.env.SMOKE_PORT ?? '3101';
+const SCRAPER_PORT = process.env.SMOKE_SCRAPER_PORT ?? '3103';
+const EVIDENCE_PORT = process.env.SMOKE_EVIDENCE_PORT ?? '3104';
 const BASE_URL = `http://127.0.0.1:${PORT}`;
+const SCRAPER_URL = `http://127.0.0.1:${SCRAPER_PORT}`;
+const EVIDENCE_URL = `http://127.0.0.1:${EVIDENCE_PORT}`;
 
 function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -36,6 +41,23 @@ async function postJson(path, body) {
   return { response, json };
 }
 
+async function postExternalJson(baseUrl, path, body) {
+  const response = await fetch(`${baseUrl}${path}`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+
+  const json = await response.json();
+  return { response, json };
+}
+
+async function getJson(path) {
+  const response = await fetch(`${BASE_URL}${path}`);
+  const json = await response.json();
+  return { response, json };
+}
+
 function assertEnvelope(json) {
   assert.equal(typeof json.success, 'boolean');
   assert.equal(typeof json.metadata?.request_id, 'string');
@@ -45,19 +67,125 @@ function assertEnvelope(json) {
   assert.ok(Object.prototype.hasOwnProperty.call(json, 'error'));
 }
 
+async function waitForJob(jobId, timeoutMs = 60000) {
+  const start = Date.now();
+
+  while (Date.now() - start < timeoutMs) {
+    const result = await getJson(`/api/v1/jobs/${jobId}`);
+    assert.equal(result.response.status, 200);
+    assertEnvelope(result.json);
+
+    const job = result.json.data;
+    if (job?.status === 'succeeded' || job?.status === 'failed' || job?.status === 'expired') {
+      return job;
+    }
+
+    await wait(500);
+  }
+
+  throw new Error(`job ${jobId} did not reach a terminal state in time`);
+}
+
+function createEvidenceServer() {
+  const server = http.createServer((req, res) => {
+    if (req.url === '/page') {
+      res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+      res.end(`<!doctype html>
+<html lang="en">
+  <head>
+    <title>Smoke Evidence Page</title>
+    <meta name="description" content="Local smoke-test evidence page for snapify." />
+  </head>
+  <body>
+    <main>
+      <h1>Smoke Evidence</h1>
+      <p>This page exists so async smoke tests can capture deterministic HTML evidence.</p>
+    </main>
+  </body>
+</html>`);
+      return;
+    }
+
+    res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
+    res.end('not found');
+  });
+
+  return new Promise((resolve) => {
+    server.listen(Number(EVIDENCE_PORT), '127.0.0.1', () => resolve(server));
+  });
+}
+
+function stopProcess(child, label) {
+  if (child.exitCode !== null || child.killed) {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    const fallback = setTimeout(() => {
+      process.stderr.write(`[smoke:cleanup] forcing ${label} shutdown\n`);
+      try {
+        process.kill(-child.pid, 'SIGKILL');
+      } catch {
+        child.kill('SIGKILL');
+      }
+    }, 5000);
+
+    child.once('exit', () => {
+      clearTimeout(fallback);
+      resolve();
+    });
+
+    try {
+      process.kill(-child.pid, 'SIGTERM');
+    } catch {
+      child.kill('SIGTERM');
+    }
+  });
+}
+
+function closeServer(server) {
+  return new Promise((resolve, reject) => {
+    server.close((error) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+
+      resolve();
+    });
+  });
+}
+
+const scraper = spawn('npm', ['--workspace', 'scraper-service', 'run', 'start'], {
+  stdio: ['ignore', 'pipe', 'pipe'],
+  detached: true,
+  env: {
+    ...process.env,
+    PORT: SCRAPER_PORT
+  }
+});
+
+scraper.stdout.on('data', (chunk) => process.stdout.write(`[smoke:scraper] ${chunk}`));
+scraper.stderr.on('data', (chunk) => process.stderr.write(`[smoke:scraper] ${chunk}`));
+
 const server = spawn('npm', ['--workspace', 'api-gateway', 'run', 'dev', '--', '-p', PORT], {
   stdio: ['ignore', 'pipe', 'pipe'],
+  detached: true,
   env: {
     ...process.env,
     FREE_TIER_LAUNCH_MODE: 'false',
-    FREE_TIER_API_KEYS: 'smoke-key'
+    FREE_TIER_API_KEYS: 'smoke-key',
+    SCRAPER_SERVICE_URL: SCRAPER_URL
   }
 });
 
 server.stdout.on('data', (chunk) => process.stdout.write(`[smoke:next] ${chunk}`));
 server.stderr.on('data', (chunk) => process.stderr.write(`[smoke:next] ${chunk}`));
 
+const evidenceServer = await createEvidenceServer();
+
 try {
+  await waitForServer(SCRAPER_URL, 60000);
   await waitForServer(`${BASE_URL}/api/v1/seo-tools/spotify`, 60000);
 
   const auditValidation = await postJson('/api/v1/seo-tools/seo-audit-tool', {
@@ -92,13 +220,54 @@ try {
   const jobId = queued.json.data?.job?.id;
   assert.equal(typeof jobId, 'string');
 
-  const jobStatusResponse = await fetch(`${BASE_URL}/api/v1/jobs/${jobId}`);
-  const jobStatus = await jobStatusResponse.json();
-  assert.equal(jobStatusResponse.status, 200);
-  assertEnvelope(jobStatus);
+  const youtubeJob = await waitForJob(jobId);
+  assert.equal(youtubeJob.status, 'succeeded');
+  assert.ok(['provider', 'simulated'].includes(youtubeJob.execution?.mode));
+  assert.equal(youtubeJob.execution?.readyForPublicLaunch, false);
+  assert.equal(Array.isArray(youtubeJob.artifacts), true);
+  assert.ok(youtubeJob.artifacts.length >= 1);
+
+  const youtubeArtifact = youtubeJob.artifacts[0];
+  const youtubeArtifactResponse = await getJson(youtubeArtifact.url);
+  assert.equal(youtubeArtifactResponse.response.status, 200);
+  assertEnvelope(youtubeArtifactResponse.json);
+  assert.equal(typeof youtubeArtifactResponse.json.data?.artifact?.summary, 'string');
+
+  const snapifyBlocked = await postJson('/api/v1/seo-tools/snapify-capture-screenshot-save-pdf', {
+    url: `${EVIDENCE_URL}/page`
+  });
+  assert.equal(snapifyBlocked.response.status, 400);
+  assertEnvelope(snapifyBlocked.json);
+  assert.equal(snapifyBlocked.json.error?.code, 'validation_error');
+
+  const snapifyWorker = await postExternalJson(SCRAPER_URL, '/jobs/execute', {
+    jobId: 'smoke-snapify',
+    tool: 'snapify-capture-screenshot-save-pdf',
+    payload: {
+      urls: [`${EVIDENCE_URL}/page`]
+    }
+  });
+  assert.equal(snapifyWorker.response.status, 200);
+  assert.equal(snapifyWorker.json.execution?.mode, 'provider');
+  assert.equal(snapifyWorker.json.execution?.readyForPublicLaunch, false);
+  assert.equal(snapifyWorker.json.result?.captureMode, 'html-evidence-only');
+  assert.equal(snapifyWorker.json.result?.renderedArtifactsAvailable, false);
+  assert.equal(Array.isArray(snapifyWorker.json.result?.captures), true);
+  assert.equal(snapifyWorker.json.result?.captures?.[0]?.success, true);
+  assert.equal(snapifyWorker.json.result?.captures?.[0]?.evidence?.title, 'Smoke Evidence Page');
+  assert.equal(
+    snapifyWorker.json.result?.captures?.[0]?.evidence?.description,
+    'Local smoke-test evidence page for snapify.'
+  );
+  assert.equal(snapifyWorker.json.result?.captures?.[0]?.evidence?.status, 200);
+  assert.equal(Array.isArray(snapifyWorker.json.artifacts), true);
+  assert.ok(snapifyWorker.json.artifacts.length >= 1);
 
   console.log('smoke-tests: live routes ok');
 } finally {
-  server.kill('SIGTERM');
-  await wait(500);
+  await Promise.allSettled([
+    closeServer(evidenceServer),
+    stopProcess(scraper, 'scraper-service'),
+    stopProcess(server, 'api-gateway')
+  ]);
 }
