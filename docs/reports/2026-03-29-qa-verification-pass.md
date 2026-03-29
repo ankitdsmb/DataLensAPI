@@ -60,6 +60,7 @@ All three commands passed on this branch.
 - Verifies `/api/v1/seo-tools/spell-checker` now returns public spelling and grammar match evidence from the LanguageTool public endpoint instead of local suspect-word heuristics.
 - Verifies `/api/v1/seo-tools/what-site` now returns a lightweight site profile with final URL, metadata, heading counts, link counts, and content signals instead of only a title/description pair.
 - Verifies `/api/v1/seo-tools/whatruns` now returns lightweight technology fingerprint evidence across CMS, frontend, ecommerce, analytics, and infrastructure categories instead of only shallow generator hints.
+- Verifies `/api/v1/seo-tools/woorank` now runs the shared first-party lightweight SEO audit and returns page-level findings plus a summarized site score instead of queued/pending placeholder responses.
 - Verifies `/api/v1/seo-tools/bulk-bbb` now returns public BBB bulk evidence, including per-company search-result matches, best-match profile enrichment, BBB rating, and complaint signals.
 - Verifies `/api/v1/seo-tools/simple-bbb` now returns public BBB evidence, including search-result matches, best-match profile enrichment, BBB rating, and complaint signals.
 - Verifies `/api/v1/seo-tools/domain-intelligence-suite` now returns:
@@ -99,6 +100,7 @@ This QA pass materially strengthens the repo’s evidence base:
    - local n-gram plagiarism evidence,
    - deterministic SEO title generation,
    - deterministic topic clustering,
+   - first-party lightweight SEO audit evidence extraction via the Woorank compatibility route,
    - public trending news feed evidence extraction,
    - public App Store similar-app shelf evidence extraction,
    - public OpenTable restaurant search-state evidence extraction,

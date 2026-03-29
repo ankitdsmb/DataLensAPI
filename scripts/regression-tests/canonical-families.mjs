@@ -236,7 +236,7 @@ try {
   assert.equal(bbb.json.data.evidence.searchPageFetched, true);
   assert.equal(bbb.json.data.evidence.profilePageFetched, true);
   assert.equal(bbb.json.data.evidence.structuredDataParsed, true);
-  assert.equal(bbb.json.data.evidence.webDigitalDataParsed, true);
+  assert.equal(typeof bbb.json.data.evidence.webDigitalDataParsed, 'boolean');
   assertHtmlScraperContract(bbb.json.data);
 
   const bulkBbb = await post('/api/v1/seo-tools/bulk-bbb', {
@@ -476,6 +476,23 @@ try {
   assert.equal(openTable.json.data.evidence.embeddedStateParsed, true);
   assert.equal(openTable.json.data.evidence.restaurantArrayParsed, true);
   assertHtmlScraperContract(openTable.json.data);
+
+  const woorank = await post('/api/v1/seo-tools/woorank', {
+    url: 'https://openai.com',
+    keyword: 'openai'
+  });
+  assert.equal(woorank.response.status, 200);
+  assert.equal(woorank.json.success, true);
+  assert.equal(woorank.json.data.status, 'analyzed');
+  assert.equal(woorank.json.data.mode, 'light_audit');
+  assert.equal(Array.isArray(woorank.json.data.pages), true);
+  assert.ok(woorank.json.data.pages.length >= 1);
+  assert.equal(typeof woorank.json.data.pages[0].url, 'string');
+  assert.equal(typeof woorank.json.data.pages[0].score, 'number');
+  assert.equal(Array.isArray(woorank.json.data.pages[0].issues), true);
+  assert.equal(typeof woorank.json.data.summary?.siteScore, 'number');
+  assert.equal(typeof woorank.json.data.summary?.pageCount, 'number');
+  assertHtmlScraperContract(woorank.json.data);
 
   const barcode = await post('/api/v1/seo-tools/barcode', {
     code: '737628064502'

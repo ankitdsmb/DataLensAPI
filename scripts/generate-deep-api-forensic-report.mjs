@@ -81,6 +81,15 @@ const routeOverrides = {
     gap: 'No async job path, robots policy, or artifact persistence.',
     upgrade: 'Promote into async crawl mode inside the site-audit family.'
   },
+  woorank: {
+    cls: 'html-scraper',
+    strength: '3/5',
+    coverage: '~40%',
+    current: 'Runs the shared first-party lightweight SEO audit over supplied URLs and returns page-level findings plus a summarized site score.',
+    gap: 'Still does not call the official Woorank service or provide browser-rendered evidence, deeper crawl coverage, or historical comparisons.',
+    upgrade: 'Keep as a compatibility-lite audit route and eventually fold it into the canonical site-audit family with optional rendered and async modes.',
+    fit: 'Good free-tier fit for capped HTML mode with small URL limits and caching.'
+  },
   'web-design-grader': {
     strength: '2/5',
     coverage: '~20%',
