@@ -2,7 +2,15 @@
 
 - Date: 2026-03-29
 - Branch baseline: `codex/origin-main-integration`
-- Purpose: turn the latest forensic findings into a concrete execution order for the remaining repo work.
+- Purpose: capture the executed remediation-plan baseline and point future work at the next-cycle backlog.
+
+## Status
+
+The phase-wise remediation plan described in this document has now been implemented on this branch through commit `1571fbe`.
+
+For the follow-up cycle, use:
+
+- `docs/reports/2026-03-29-next-cycle-implementation-plan.md`
 
 ## Source reports
 
@@ -18,12 +26,12 @@ This plan is based on:
 - Live routes: `154`
 - Strength:
   - `strong: 16`
-  - `medium: 105`
-  - `weak: 33`
+  - `medium: 106`
+  - `weak: 32`
 - Launch readiness:
   - `ready: 89`
-  - `conditional: 47`
-  - `internal-only: 4`
+  - `conditional: 46`
+  - `internal-only: 5`
   - `blocked: 14`
 - Route inventory drift:
   - routes in code but missing from allowlist: `0`
