@@ -147,6 +147,15 @@ const routeOverrides = {
     upgrade: 'Keep as a compatibility-lite audit route and eventually fold it into the canonical site-audit family with optional rendered and async modes.',
     fit: 'Good free-tier fit for capped HTML mode with small domain counts and caching.'
   },
+  'moz-da-pa-spam-checker': {
+    cls: 'html-scraper',
+    strength: '3/5',
+    coverage: '~40%',
+    current: 'Runs first-party homepage audit plus live DNS/HTTP checks and returns heuristic proxy scores for authority and spam risk.',
+    gap: 'Still does not call the official Moz API or provide real DA/PA/Spam from Moz data sources.',
+    upgrade: 'Keep as a proxy-lite compatibility route and swap in provider-backed scoring when Moz integration is available.',
+    fit: 'Good free-tier fit for capped HTML mode with small domain counts and caching.'
+  },
   'openpagerank-bulk-checker': {
     strength: '1/5',
     coverage: '~5%',

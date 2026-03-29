@@ -408,6 +408,25 @@ try {
   assert.equal(domainDetails.json.data.evidence.liveAsn, false);
   assertNetworkWrapperContract(domainDetails.json.data);
 
+  const mozSpam = await post('/api/v1/seo-tools/moz-da-pa-spam-checker', {
+    domain: 'openai.com'
+  });
+  assert.equal(mozSpam.response.status, 200);
+  assert.equal(mozSpam.json.success, true);
+  assert.equal(mozSpam.json.data.status, 'analyzed');
+  assert.equal(mozSpam.json.data.mode, 'proxy_scores');
+  assert.equal(mozSpam.json.data.domain, 'openai.com');
+  assert.equal(typeof mozSpam.json.data.da, 'number');
+  assert.equal(typeof mozSpam.json.data.pa, 'number');
+  assert.equal(typeof mozSpam.json.data.spamScore, 'number');
+  assert.equal(typeof mozSpam.json.data.signals?.tld, 'string');
+  assert.equal(typeof mozSpam.json.data.signals?.httpsReachable, 'boolean');
+  assert.equal(typeof mozSpam.json.data.signals?.auditScore, 'number');
+  assert.equal(Array.isArray(mozSpam.json.data.pages), true);
+  assert.equal(mozSpam.json.data.pages.length, 1);
+  assert.equal(typeof mozSpam.json.data.summary?.siteScore, 'number');
+  assertHtmlScraperContract(mozSpam.json.data);
+
   const seobilityRanking = await post('/api/v1/seo-tools/seobility-ranking-seo', {
     domain: 'openai.com'
   });

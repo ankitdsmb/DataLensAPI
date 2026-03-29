@@ -30,8 +30,8 @@ Classification summary:
 
 - **Strength**
   - Strong: **16**
-  - Medium: **102**
-  - Weak: **36**
+  - Medium: **103**
+  - Weak: **35**
 - **Launch readiness**
   - Ready: **89**
   - Conditional: **47**
@@ -91,6 +91,7 @@ What this evidence now covers:
 - public OpenTable restaurant search-state evidence for `opentable`,
 - shared first-party light SEO audit evidence for `woorank`,
 - shared first-party homepage audit plus live domain-check evidence for `seobility-ranking-seo`,
+- first-party proxy authority and spam-risk evidence for `moz-da-pa-spam-checker`,
 - local profanity moderation evidence for `profanity-checker`,
 - public CMS/site-stack fingerprint evidence for `cms-checker`,
 - public Shopify storefront product evidence for `shopify-product-search`,
