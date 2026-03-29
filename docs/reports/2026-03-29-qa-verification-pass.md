@@ -43,13 +43,16 @@ confirmed the shared timing path stays stable after the change.
 - Verifies validation failure envelopes for representative live routes.
 - Verifies `youtube-rank-checker`:
   - async job submission,
+  - authenticated-only job status access,
   - terminal job completion,
   - execution metadata plus provenance,
-  - artifact retrieval.
+  - authenticated-only artifact retrieval,
+  - explicit retention metadata on the preview job/artifact envelope.
 - Verifies `snapify-capture-screenshot-save-pdf`:
   - is blocked at the public gateway because it is internal-only,
   - still executes successfully through the internal worker path,
-  - now returns browser-rendered screenshot/PDF artifacts plus page-evidence reports.
+  - now returns browser-rendered screenshot/PDF artifacts plus page-evidence reports,
+  - and keeps preview status/artifact access behind authenticated-only reads with explicit TTL metadata.
 - Confirms the smoke harness now exits cleanly after teardown.
 
 ### Regression tests

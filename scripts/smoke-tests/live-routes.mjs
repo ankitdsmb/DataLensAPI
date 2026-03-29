@@ -52,8 +52,11 @@ async function postExternalJson(baseUrl, path, body) {
   return { response, json };
 }
 
-async function getJson(path) {
-  const response = await fetch(`${BASE_URL}${path}`);
+async function getJson(path, options = {}) {
+  const headers = options.withApiKey ? { 'x-api-key': 'smoke-key' } : {};
+  const response = await fetch(`${BASE_URL}${path}`, {
+    headers
+  });
   const json = await response.json();
   return { response, json };
 }
@@ -71,7 +74,7 @@ async function waitForJob(jobId, timeoutMs = 60000) {
   const start = Date.now();
 
   while (Date.now() - start < timeoutMs) {
-    const result = await getJson(`/api/v1/jobs/${jobId}`);
+    const result = await getJson(`/api/v1/jobs/${jobId}`, { withApiKey: true });
     assert.equal(result.response.status, 200);
     assertEnvelope(result.json);
 
@@ -221,16 +224,28 @@ try {
   assertEnvelope(queued.json);
   const jobId = queued.json.data?.job?.id;
   assert.equal(typeof jobId, 'string');
+  assert.equal(queued.json.data?.job?.retention?.artifactAccess, 'authenticated');
+  assert.equal(queued.json.data?.job?.retention?.jobTtlSeconds, 12 * 60 * 60);
+  assert.equal(queued.json.data?.job?.retention?.artifactTtlSeconds, 6 * 60 * 60);
+
+  const youtubeUnauthorizedStatus = await getJson(`/api/v1/jobs/${jobId}`);
+  assert.equal(youtubeUnauthorizedStatus.response.status, 401);
+  assertEnvelope(youtubeUnauthorizedStatus.json);
+  assert.equal(youtubeUnauthorizedStatus.json.error?.code, 'unauthorized');
 
   const youtubeJob = await waitForJob(jobId);
   assert.equal(youtubeJob.status, 'succeeded');
   assert.ok(['provider', 'simulated'].includes(youtubeJob.execution?.mode));
   assert.equal(youtubeJob.execution?.readyForPublicLaunch, false);
+  assert.equal(youtubeJob.retention?.artifactAccess, 'authenticated');
+  assert.equal(youtubeJob.retention?.jobTtlSeconds, 12 * 60 * 60);
+  assert.equal(youtubeJob.retention?.artifactTtlSeconds, 6 * 60 * 60);
   assert.equal(youtubeJob.execution?.provenance?.provider, 'youtube-public-search');
   assert.equal(typeof youtubeJob.execution?.provenance?.attemptCount, 'number');
   assert.ok(Array.isArray(youtubeJob.execution?.provenance?.attemptedStrategies));
   assert.equal(Array.isArray(youtubeJob.artifacts), true);
   assert.ok(youtubeJob.artifacts.length >= 1);
+  assert.equal(typeof youtubeJob.artifacts[0]?.expiresAt, 'string');
   assert.equal(typeof youtubeJob.result?.targetMetadata, 'object');
   if (youtubeJob.execution?.mode === 'provider') {
     assert.equal(typeof youtubeJob.result?.strategyUsed, 'string');
@@ -241,10 +256,16 @@ try {
   }
 
   const youtubeArtifact = youtubeJob.artifacts[0];
-  const youtubeArtifactResponse = await getJson(youtubeArtifact.url);
+  const youtubeArtifactUnauthorized = await getJson(youtubeArtifact.url);
+  assert.equal(youtubeArtifactUnauthorized.response.status, 401);
+  assertEnvelope(youtubeArtifactUnauthorized.json);
+  assert.equal(youtubeArtifactUnauthorized.json.error?.code, 'unauthorized');
+
+  const youtubeArtifactResponse = await getJson(youtubeArtifact.url, { withApiKey: true });
   assert.equal(youtubeArtifactResponse.response.status, 200);
   assertEnvelope(youtubeArtifactResponse.json);
   assert.equal(typeof youtubeArtifactResponse.json.data?.artifact?.summary, 'string');
+  assert.equal(typeof youtubeArtifactResponse.json.data?.metadata?.expiresAt, 'string');
 
   const snapifyBlocked = await postJson('/api/v1/seo-tools/snapify-capture-screenshot-save-pdf', {
     url: `${EVIDENCE_URL}/page`

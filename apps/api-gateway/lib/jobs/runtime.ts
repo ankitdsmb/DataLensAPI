@@ -1,10 +1,13 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { RequestValidationError } from '@forensic/scraping-core';
 import type {
   JobArtifactRef,
   JobContract,
+  JobArtifactAccess,
   JobError,
   JobExecutionMetadata,
+  JobRetentionPolicy,
   JobState
 } from '@forensic/shared-types';
 
@@ -13,6 +16,29 @@ const JOBS_FILE = path.join(DATA_ROOT, 'jobs.json');
 const ARTIFACT_ROOT = path.join(DATA_ROOT, 'artifacts');
 const DEFAULT_TTL_MS = 24 * 60 * 60 * 1000;
 const SCRAPER_SERVICE_URL = process.env.SCRAPER_SERVICE_URL ?? 'http://localhost:3000';
+const DEFAULT_RETENTION_POLICY: JobRetentionPolicy = {
+  jobTtlSeconds: DEFAULT_TTL_MS / 1000,
+  artifactTtlSeconds: DEFAULT_TTL_MS / 1000,
+  artifactAccess: 'public'
+};
+
+type SubmitJobOptions = Partial<JobRetentionPolicy>;
+
+type ArtifactLookupResult =
+  | {
+      status: 'found';
+      artifact: JobArtifactRef;
+      job: JobContract;
+      content: unknown;
+    }
+  | {
+      status: 'expired';
+      artifact: JobArtifactRef;
+      job: JobContract;
+    }
+  | {
+      status: 'missing';
+    };
 
 type JobsDb = { jobs: Record<string, JobContract> };
 
@@ -64,6 +90,17 @@ function nowIso() {
   return new Date().toISOString();
 }
 
+function toIsoFromNow(seconds: number) {
+  return new Date(Date.now() + seconds * 1000).toISOString();
+}
+
+function resolveRetentionPolicy(options?: SubmitJobOptions): JobRetentionPolicy {
+  return {
+    ...DEFAULT_RETENTION_POLICY,
+    ...(options ?? {})
+  };
+}
+
 function markExpired(job: JobContract): JobContract {
   if ((job.state === 'queued' || job.state === 'running') && new Date(job.timestamps.expiresAt).getTime() <= Date.now()) {
     return {
@@ -87,8 +124,51 @@ function markExpired(job: JobContract): JobContract {
   return job;
 }
 
-export async function submitJob(tool: string, payload: Record<string, unknown>) {
+function getRequestApiKey(req: Request): string {
+  const bearer = req.headers.get('authorization');
+  if (bearer?.startsWith('Bearer ')) {
+    return bearer.replace('Bearer ', '').trim();
+  }
+
+  return req.headers.get('x-api-key')?.trim() ?? '';
+}
+
+function isAuthenticatedJobAccess(req: Request): boolean {
+  const configuredKeys = (process.env.FREE_TIER_API_KEYS ?? '')
+    .split(',')
+    .map((key) => key.trim())
+    .filter(Boolean);
+
+  if (configuredKeys.length === 0) {
+    return false;
+  }
+
+  return configuredKeys.includes(getRequestApiKey(req));
+}
+
+export function assertJobReadAccess(req: Request, job: JobContract) {
+  if (job.retention.artifactAccess !== 'authenticated') {
+    return;
+  }
+
+  if (isAuthenticatedJobAccess(req)) {
+    return;
+  }
+
+  const error = new RequestValidationError('valid API key is required for internal preview job access', {
+    jobId: job.id,
+    tool: job.tool,
+    acceptedHeaders: ['x-api-key', 'authorization: Bearer <key>'],
+    artifactAccess: job.retention.artifactAccess
+  });
+  error.status = 401;
+  error.code = 'unauthorized';
+  throw error;
+}
+
+export async function submitJob(tool: string, payload: Record<string, unknown>, options?: SubmitJobOptions) {
   const queuedAt = nowIso();
+  const retention = resolveRetentionPolicy(options);
   const job: JobContract = {
     id: createJobId(),
     tool,
@@ -98,8 +178,9 @@ export async function submitJob(tool: string, payload: Record<string, unknown>) 
     timestamps: {
       queuedAt,
       updatedAt: queuedAt,
-      expiresAt: new Date(Date.now() + DEFAULT_TTL_MS).toISOString()
+      expiresAt: toIsoFromNow(retention.jobTtlSeconds)
     },
+    retention,
     execution: {
       mode: 'template',
       readyForPublicLaunch: false,
@@ -165,13 +246,14 @@ function toJobError(error: unknown): JobError {
   };
 }
 
-async function persistArtifacts(jobId: string, artifacts: NonNullable<ExecuteResponse['artifacts']>) {
+async function persistArtifacts(job: JobContract, artifacts: NonNullable<ExecuteResponse['artifacts']>) {
   const refs: JobArtifactRef[] = [];
 
   for (let index = 0; index < artifacts.length; index += 1) {
     const artifact = artifacts[index];
     const artifactId = artifact.id?.trim() || `artifact_${index + 1}`;
-    const filePath = path.join(ARTIFACT_ROOT, `${jobId}-${artifactId}.json`);
+    const filePath = path.join(ARTIFACT_ROOT, `${job.id}-${artifactId}.json`);
+    const createdAt = nowIso();
     await writeFile(filePath, JSON.stringify(artifact.content, null, 2), 'utf8');
 
     refs.push({
@@ -179,21 +261,43 @@ async function persistArtifacts(jobId: string, artifacts: NonNullable<ExecuteRes
       type: artifact.type ?? 'json',
       title: artifact.title ?? `${artifactId} output`,
       path: filePath,
-      url: `/api/v1/jobs/${jobId}/artifacts/${artifactId}`,
-      createdAt: nowIso()
+      url: `/api/v1/jobs/${job.id}/artifacts/${artifactId}`,
+      createdAt,
+      expiresAt: toIsoFromNow(job.retention.artifactTtlSeconds)
     });
   }
 
   return refs;
 }
 
-export async function getArtifactContent(jobId: string, artifactId: string): Promise<unknown | null> {
-  const artifactPath = path.join(ARTIFACT_ROOT, `${jobId}-${artifactId}.json`);
+export async function getArtifactRecord(jobId: string, artifactId: string): Promise<ArtifactLookupResult> {
+  const job = await getJob(jobId);
+  if (!job) {
+    return { status: 'missing' };
+  }
+
+  const artifact = job.artifacts.find((item) => item.id === artifactId);
+  if (!artifact) {
+    return { status: 'missing' };
+  }
+
+  const expired =
+    new Date(job.timestamps.expiresAt).getTime() <= Date.now() ||
+    new Date(artifact.expiresAt).getTime() <= Date.now();
+  if (expired) {
+    return { status: 'expired', job, artifact };
+  }
+
   try {
-    const raw = await readFile(artifactPath, 'utf8');
-    return JSON.parse(raw);
+    const raw = await readFile(artifact.path, 'utf8');
+    return {
+      status: 'found',
+      artifact,
+      job,
+      content: JSON.parse(raw)
+    };
   } catch {
-    return null;
+    return { status: 'missing' };
   }
 }
 
@@ -228,7 +332,7 @@ async function processJob(jobId: string) {
     }
 
     const body = (await response.json()) as ExecuteResponse;
-    const artifactRefs = body.artifacts ? await persistArtifacts(jobId, body.artifacts) : [];
+    const artifactRefs = body.artifacts ? await persistArtifacts(job, body.artifacts) : [];
 
     await updateJob(jobId, (current) => ({
       ...current,
@@ -265,6 +369,7 @@ export function jobToEnvelope(job: JobContract) {
     status: job.state,
     progress: job.progress,
     timestamps: job.timestamps,
+    retention: job.retention,
     execution: job.execution ?? null,
     error: job.error ?? null,
     artifacts: job.artifacts,

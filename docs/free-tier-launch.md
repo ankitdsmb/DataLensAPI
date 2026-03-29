@@ -41,9 +41,9 @@ These routes exist in code but should not be presented as part of the free-tier 
 - `POST /api/v1/seo-tools/rentcast`
   - Provider template only; returns a normalized lookup helper plus `internal_provider_template` until real credentialed integration exists.
 - `POST /api/v1/seo-tools/snapify-capture-screenshot-save-pdf`
-  - Real async job contract exists and now renders screenshot/PDF artifacts in an internal browser worker, but remains non-public until browser execution controls and artifact retention are hardened.
+  - Real async job contract exists and now renders screenshot/PDF artifacts in an internal browser worker, with authenticated-only status/artifact access, a 6-hour job TTL, and a 2-hour artifact-retention window. It remains non-public until browser execution controls and broader abuse safeguards are hardened.
 - `POST /api/v1/seo-tools/youtube-rank-checker`
-  - Real async job contract exists and now attempts lightweight YouTube search evidence collection, but still falls back when live evidence cannot be collected.
+  - Real async job contract exists and now attempts lightweight YouTube search evidence collection, with authenticated-only status/artifact access, a 12-hour job TTL, and a 6-hour artifact-retention window. It still falls back when live evidence cannot be collected.
 - `POST /api/v1/seo-tools/trayvmy-actor`
   - Deprecated internal compatibility stub only; performs no automation and is intentionally excluded from the public product story.
 - `POST /api/v1/seo-tools/traffic-booster`

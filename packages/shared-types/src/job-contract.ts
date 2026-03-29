@@ -17,6 +17,14 @@ export type JobExecutionMetadata = {
   provenance?: JobExecutionProvenance | null;
 };
 
+export type JobArtifactAccess = 'public' | 'authenticated';
+
+export type JobRetentionPolicy = {
+  jobTtlSeconds: number;
+  artifactTtlSeconds: number;
+  artifactAccess: JobArtifactAccess;
+};
+
 export type JobError = {
   code: string;
   message: string;
@@ -31,6 +39,7 @@ export type JobArtifactRef = {
   path: string;
   url: string;
   createdAt: string;
+  expiresAt: string;
 };
 
 export type JobTimestamps = {
@@ -48,6 +57,7 @@ export type JobContract<TPayload = Record<string, unknown>, TResult = Record<str
   payload: TPayload;
   progress: number;
   timestamps: JobTimestamps;
+  retention: JobRetentionPolicy;
   execution?: JobExecutionMetadata;
   result?: TResult;
   error?: JobError;

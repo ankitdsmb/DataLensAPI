@@ -76,6 +76,7 @@ Routes:
 Current truth:
 
 - both routes have real job submission, status, and artifact behavior,
+- both now expose explicit preview retention policy with authenticated-only status/artifact reads,
 - both are useful internally,
 - neither is yet public-grade.
 
@@ -89,11 +90,13 @@ Suggested order:
 1. `snapify-capture-screenshot-save-pdf`
    - completed on `codex/origin-main-integration`,
    - now renders real browser screenshot/PDF artifacts,
-   - keeps the HTML evidence path as fallback.
+   - keeps the HTML evidence path as fallback,
+   - and now limits preview jobs to a 6-hour TTL with 2-hour authenticated artifact retention.
 2. `youtube-rank-checker`
    - completed on `codex/origin-main-integration`,
    - now uses multi-strategy live result collection with provenance,
-   - still needs a decision on further hardening versus permanent preview-only posture.
+   - and now limits preview jobs to a 12-hour TTL with 6-hour authenticated artifact retention,
+   - but still needs a decision on further hardening versus permanent preview-only posture.
 
 Exit criteria:
 

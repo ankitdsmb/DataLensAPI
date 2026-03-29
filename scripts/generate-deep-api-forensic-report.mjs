@@ -329,9 +329,11 @@ const routeOverrides = {
   'snapify-capture-screenshot-save-pdf': {
     strength: '3/5',
     coverage: '~55%',
-    current: 'Real internal-preview async job submission plus browser-rendered screenshot and PDF artifacts, with HTML evidence fallback and persisted report artifacts.',
-    gap: 'Still remains internal-only because browser execution limits, artifact retention, and public safeguards are not yet hardened for broad launch.',
-    upgrade: 'Keep the browser-backed worker internal-only until artifact delivery, retention, quotas, and abuse controls are production-grade, then re-evaluate public promotion.'
+    current:
+      'Real internal-preview async job submission plus browser-rendered screenshot and PDF artifacts, with HTML evidence fallback, authenticated-only status/artifact reads, and explicit TTL-based retention.',
+    gap: 'Still remains internal-only because browser execution limits, artifact delivery, and broader abuse safeguards are not yet hardened for broad launch.',
+    upgrade:
+      'Keep the browser-backed worker internal-only until browser quotas, artifact delivery, and abuse controls are production-grade, then re-evaluate public promotion.'
   },
   'trayvmy-actor': {
     cls: 'shallow-local-utility',
@@ -426,9 +428,12 @@ const routeOverrides = {
   'youtube-rank-checker': {
     strength: '3/5',
     coverage: '~55%',
-    current: 'Real internal-preview async job submission plus multi-strategy YouTube search evidence parsing, provenance, and deterministic fallback.',
-    gap: 'The worker still depends on public search-page parsing and can degrade to simulation when YouTube markup shifts or live evidence is unavailable, so the route remains internal-only for the supported public subset.',
-    upgrade: 'Promote into a canonical rank-tracker family with stronger retries, result-window expansion, artifact provenance, and eventually a more stable provider-backed evidence path before any public graduation.'
+    current:
+      'Real internal-preview async job submission plus multi-strategy YouTube search evidence parsing, provenance, deterministic fallback, authenticated-only status/artifact reads, and explicit TTL-based retention.',
+    gap:
+      'The worker still depends on public search-page parsing and can degrade to simulation when YouTube markup shifts or live evidence is unavailable, so the route remains internal-only for the supported public subset.',
+    upgrade:
+      'Promote into a canonical rank-tracker family with stronger retries, result-window expansion, artifact provenance, and eventually a more stable provider-backed evidence path before any public graduation.'
   },
   'youtube-region-restriction-checker': {
     strength: '3/5',
