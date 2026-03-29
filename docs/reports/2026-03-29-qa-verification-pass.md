@@ -42,6 +42,7 @@ All three commands passed on this branch.
 - Verifies the canonical link-builder/helper family still returns the expected helper contracts.
 - Verifies `/api/v1/seo-tools/youtube-region-restriction-checker` now returns public watch-page availability evidence, including `playabilityStatus` and `availableCountries`.
 - Verifies `/api/v1/seo-tools/trustpilot-plus` now returns public review-page evidence, including aggregate TrustScore-style rating data and total review count for a resolvable company identifier.
+- Verifies `/api/v1/seo-tools/simple-bbb` now returns public BBB evidence, including search-result matches, best-match profile enrichment, BBB rating, and complaint signals.
 - Verifies `/api/v1/seo-tools/domain-intelligence-suite` now returns:
   - live DNS lookups,
   - normalized A-record evidence,
@@ -70,6 +71,7 @@ This QA pass materially strengthens the repo’s evidence base:
    - artifact serving,
    - public watch-page availability evidence extraction,
    - public Trustpilot review-page aggregate evidence extraction,
+   - public BBB search and profile evidence extraction,
    - live domain DNS and HTTP evidence extraction,
    - provider-template route contracts.
 

@@ -220,6 +220,13 @@ const routeOverrides = {
     current: 'Fetches the public Trustpilot review page and extracts aggregate rating plus review-count evidence when the identifier resolves directly.',
     gap: 'Still depends on a resolvable review identifier and does not paginate individual reviews or compute sentiment.',
     upgrade: 'Promote into a marketplace-review connector with identifier discovery, review pagination, and normalized sentiment/review DTOs.'
+  },
+  'simple-bbb': {
+    strength: '3/5',
+    coverage: '~45%',
+    current: 'Fetches the public BBB search page, parses visible business matches, and enriches the best match with profile metadata, BBB rating evidence, and complaint signals.',
+    gap: 'Still does not paginate customer reviews or return a normalized complaints timeline across all matched companies.',
+    upgrade: 'Promote into a marketplace-review connector with reusable BBB parsers, bulk enrichment, and structured complaint/review timelines.'
   }
 };
 

@@ -27,7 +27,7 @@
 | Rows marked Created = No | 91 |
 | Live local route directories | 152 |
 | Routes using `readJsonBody` | 152 |
-| Routes still using raw `JSON.parse` locally | 1 |
+| Routes still using raw `JSON.parse` locally | 2 |
 | Routes with local strict allowed-field checks | 152 |
 
 ### Implementation Classes
@@ -37,9 +37,9 @@
 | `audit-suite` | 8 |
 | `crawler-tool` | 5 |
 | `network-wrapper` | 28 |
-| `html-scraper` | 43 |
+| `html-scraper` | 44 |
 | `local-utility` | 32 |
-| `link-builder` | 27 |
+| `link-builder` | 26 |
 | `template-link-builder` | 1 |
 | `queued-placeholder` | 8 |
 
@@ -104,7 +104,7 @@
 ### 4. Contract / Validation Gap
 
 - All live routes use `readJsonBody`, which is a good baseline.
-- Raw `JSON.parse` usage across live SEO routes is now down to 1.
+- Raw `JSON.parse` usage across live SEO routes is now down to 2.
 - Strict allowed-field validation is present on 152 live SEO routes.
 - The next contract task is to keep route metadata and route promises aligned with those stronger contracts.
 
@@ -332,6 +332,7 @@ The appendix below covers each live local route one by one. The assessments are 
 | `/api/v1/seo-tools/pricing-page-analyzer` | Analyze pricing pages for CRO insights. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/readability-analyzer` | Readability analysis and scoring. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/rivalflowai` | Competitor discovery. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/simple-bbb` | BBB company reviews + complaints. | 3/5 | ~45% | Fetches the public BBB search page, parses visible business matches, and enriches the best match with profile metadata, BBB rating evidence, and complaint signals. | Still does not paginate customer reviews or return a normalized complaints timeline across all matched companies. | Promote into a marketplace-review connector with reusable BBB parsers, bulk enrichment, and structured complaint/review timelines. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/trustpilot-plus` | Trustpilot reviews + sentiment. | 3/5 | ~40% | Fetches the public Trustpilot review page and extracts aggregate rating plus review-count evidence when the identifier resolves directly. | Still depends on a resolvable review identifier and does not paginate individual reviews or compute sentiment. | Promote into a marketplace-review connector with identifier discovery, review pagination, and normalized sentiment/review DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/uservoice` | UserVoice forums + feature requests. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/web-design-grader` | Design effectiveness evaluation + recommendations. | 2/5 | ~20% | Simple heuristic scoring based on hero/image/button presence. | Far below the promised design/conversion intelligence. | Replace with screenshot-backed rubric and recommendation engine. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
@@ -390,7 +391,6 @@ The appendix below covers each live local route one by one. The assessments are 
 | `/api/v1/seo-tools/shopify-product-search` | Search products with metadata. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/showtimes` | Showtimes data extraction. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/similarweb` | Website analytics (public data). | 1/5 | ~10% | Returns a Similarweb report URL only. | No analytics extraction or normalization. | Rebuild as real traffic intelligence or relabel honestly. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
-| `/api/v1/seo-tools/simple-bbb` | BBB company reviews + complaints. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/skyscanner-cars` | Car rental prices + filters. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/skyscanner-hotels` | Hotels search + prices. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/software-advice` | Products/reviews/stats from Software Advice. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |

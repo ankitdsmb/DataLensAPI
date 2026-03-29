@@ -175,6 +175,30 @@ try {
   assert.equal(trustpilot.json.data.evidence.aggregateRatingParsed, true);
   assertHtmlScraperContract(trustpilot.json.data);
 
+  const bbb = await post('/api/v1/seo-tools/simple-bbb', {
+    company: 'openai'
+  });
+  assert.equal(bbb.response.status, 200);
+  assert.equal(bbb.json.success, true);
+  assert.equal(bbb.json.data.status, 'analyzed');
+  assert.equal(typeof bbb.json.data.searchUrl, 'string');
+  assert.ok(bbb.json.data.searchUrl.includes('bbb.org/search'));
+  assert.equal(Array.isArray(bbb.json.data.results), true);
+  assert.ok(bbb.json.data.results.length >= 1);
+  assert.equal(typeof bbb.json.data.bestMatch?.profileUrl, 'string');
+  assert.ok(bbb.json.data.bestMatch.profileUrl.includes('bbb.org'));
+  assert.equal(typeof bbb.json.data.profile?.bbbRating, 'string');
+  assert.ok(bbb.json.data.profile.bbbRating.length >= 1);
+  assert.equal(Array.isArray(bbb.json.data.profile?.ratingReasons), true);
+  assert.ok(bbb.json.data.profile.ratingReasons.length >= 1);
+  assert.equal(typeof bbb.json.data.profile?.complaintsFiledCount, 'number');
+  assert.ok(bbb.json.data.profile.complaintsFiledCount > 0);
+  assert.equal(bbb.json.data.evidence.searchPageFetched, true);
+  assert.equal(bbb.json.data.evidence.profilePageFetched, true);
+  assert.equal(bbb.json.data.evidence.structuredDataParsed, true);
+  assert.equal(bbb.json.data.evidence.webDigitalDataParsed, true);
+  assertHtmlScraperContract(bbb.json.data);
+
   const domainIntelligence = await post('/api/v1/seo-tools/domain-intelligence-suite', {
     domain: 'openai.com'
   });
