@@ -112,8 +112,7 @@ try {
   const cases = [
     ['/api/v1/seo-tools/business-websites-ranker', { keyword: 'coffee', location: 'austin' }, 'searchUrl'],
     ['/api/v1/seo-tools/similarweb', { domain: 'example.com' }, 'reportUrl'],
-    ['/api/v1/seo-tools/spotify', { query: 'indie jazz' }, 'searchUrl'],
-    ['/api/v1/seo-tools/trustpilot-plus', { company: 'acme' }, 'searchUrl']
+    ['/api/v1/seo-tools/spotify', { query: 'indie jazz' }, 'searchUrl']
   ];
 
   for (const [path, payload, field] of cases) {
@@ -157,6 +156,24 @@ try {
   assert.equal(youtubeRegion.json.data.evidence.watchPageFetched, true);
   assert.equal(youtubeRegion.json.data.evidence.playerResponseParsed, true);
   assertHtmlScraperContract(youtubeRegion.json.data);
+
+  const trustpilot = await post('/api/v1/seo-tools/trustpilot-plus', {
+    company: 'openai.com'
+  });
+  assert.equal(trustpilot.response.status, 200);
+  assert.equal(trustpilot.json.success, true);
+  assert.equal(trustpilot.json.data.status, 'analyzed');
+  assert.equal(trustpilot.json.data.source, 'trustpilot_review_html');
+  assert.equal(trustpilot.json.data.reviewIdentifier, 'openai.com');
+  assert.equal(typeof trustpilot.json.data.reviewUrl, 'string');
+  assert.ok(trustpilot.json.data.reviewUrl.includes('/review/openai.com'));
+  assert.equal(typeof trustpilot.json.data.trustScore, 'number');
+  assert.ok(trustpilot.json.data.trustScore > 0);
+  assert.equal(typeof trustpilot.json.data.reviewCount, 'number');
+  assert.ok(trustpilot.json.data.reviewCount > 100);
+  assert.equal(trustpilot.json.data.evidence.reviewPageFetched, true);
+  assert.equal(trustpilot.json.data.evidence.aggregateRatingParsed, true);
+  assertHtmlScraperContract(trustpilot.json.data);
 
   const domainIntelligence = await post('/api/v1/seo-tools/domain-intelligence-suite', {
     domain: 'openai.com'

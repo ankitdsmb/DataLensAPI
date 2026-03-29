@@ -213,6 +213,13 @@ const routeOverrides = {
     current: 'Performs a live DNS availability check against public resolvers.',
     gap: 'Only checks resolver status; registrar-grade availability evidence is still missing.',
     upgrade: 'Keep public as a lite availability signal or deepen with registrar/RDAP evidence.'
+  },
+  'trustpilot-plus': {
+    strength: '3/5',
+    coverage: '~40%',
+    current: 'Fetches the public Trustpilot review page and extracts aggregate rating plus review-count evidence when the identifier resolves directly.',
+    gap: 'Still depends on a resolvable review identifier and does not paginate individual reviews or compute sentiment.',
+    upgrade: 'Promote into a marketplace-review connector with identifier discovery, review pagination, and normalized sentiment/review DTOs.'
   }
 };
 
