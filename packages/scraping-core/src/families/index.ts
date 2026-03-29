@@ -6,6 +6,7 @@ export * from './domainIntelligence';
 export * from './keywordDiscovery';
 export * from './markdownTable';
 export * from './openGraphImage';
+export * from './openTableSearch';
 export * from './plagiarismAnalyzer';
 export * from './profanityFilter';
 export * from './shopifyProductSearch';

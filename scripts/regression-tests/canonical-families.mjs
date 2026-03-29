@@ -455,6 +455,28 @@ try {
   assert.equal(similarApps.json.data.evidence.similarShelfParsed, true);
   assertHtmlScraperContract(similarApps.json.data);
 
+  const openTable = await post('/api/v1/seo-tools/opentable', {
+    location: 'san francisco',
+    limit: 3
+  });
+  assert.equal(openTable.response.status, 200);
+  assert.equal(openTable.json.success, true);
+  assert.equal(openTable.json.data.status, 'analyzed');
+  assert.equal(openTable.json.data.source, 'opentable_search_state');
+  assert.equal(typeof openTable.json.data.searchUrl, 'string');
+  assert.ok(openTable.json.data.searchUrl.includes('opentable.com/s/'));
+  assert.equal(typeof openTable.json.data.restaurantCount, 'number');
+  assert.ok(openTable.json.data.restaurantCount >= 1);
+  assert.equal(Array.isArray(openTable.json.data.restaurants), true);
+  assert.ok(openTable.json.data.restaurants.length >= 1);
+  assert.equal(typeof openTable.json.data.restaurants[0].name, 'string');
+  assert.equal(typeof openTable.json.data.restaurants[0].profileUrl, 'string');
+  assert.ok(openTable.json.data.restaurants[0].profileUrl.includes('opentable.com/r/'));
+  assert.equal(openTable.json.data.evidence.pageFetched, true);
+  assert.equal(openTable.json.data.evidence.embeddedStateParsed, true);
+  assert.equal(openTable.json.data.evidence.restaurantArrayParsed, true);
+  assertHtmlScraperContract(openTable.json.data);
+
   const barcode = await post('/api/v1/seo-tools/barcode', {
     code: '737628064502'
   });

@@ -227,6 +227,15 @@ const routeOverrides = {
     upgrade: 'Promote into a canonical app-store intelligence family with storefront selection, developer adjacency, category clustering, and optional cross-market comparison layered on top of the current shelf parser.',
     fit: 'Good free-tier fit because the current page fetch is capped, deterministic, and relatively lightweight.'
   },
+  opentable: {
+    cls: 'html-scraper',
+    strength: '3/5',
+    coverage: '~40%',
+    current: 'Fetches the public OpenTable search page and parses embedded restaurant search-state data such as names, profile links, cuisine, neighborhood, ratings, and reservation signals.',
+    gap: 'Still depends on public search-state HTML and does not access private booking APIs, live table inventory, or richer geographic filters beyond the supplied search term.',
+    upgrade: 'Promote into a canonical dining-intelligence family with structured location filters, cuisine facets, and optional restaurant-profile enrichment layered on top of the current public search parser.',
+    fit: 'Good free-tier fit because the current search fetch is capped, deterministic, and network-light.'
+  },
   'markdown-table-generator': {
     cls: 'local-utility',
     strength: '3/5',
