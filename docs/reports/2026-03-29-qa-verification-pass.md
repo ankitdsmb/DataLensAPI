@@ -34,7 +34,7 @@ All three commands passed on this branch.
 - Verifies `snapify-capture-screenshot-save-pdf`:
   - is blocked at the public gateway because it is internal-only,
   - still executes successfully through the internal worker path,
-  - returns live HTML evidence capture output.
+  - now returns browser-rendered screenshot/PDF artifacts plus page-evidence reports.
 - Confirms the smoke harness now exits cleanly after teardown.
 
 ### Regression tests

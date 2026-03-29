@@ -127,7 +127,7 @@ These routes are now explicitly classified as internal provider templates rather
 - `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf`
 - `/api/v1/seo-tools/youtube-rank-checker`
 
-These routes now have a real async submission and job-status surface, and both have been strengthened beyond pure placeholders. Even so, at least part of the current worker logic is still limited, degraded-fallback driven, or missing final browser/PDF rendering, so they remain internal-only or preview-only by design.
+These routes now have a real async submission and job-status surface, and both have been strengthened beyond pure placeholders. `snapify-capture-screenshot-save-pdf` now renders browser-backed screenshot/PDF artifacts internally, while `youtube-rank-checker` still relies on a fragile evidence path with degraded fallback. They remain internal-only because browser execution controls, artifact retention, and preview-route safeguards are still intentionally tighter than the public subset.
 
 ### Rejected traffic and fake-engagement routes remain blocked by design
 

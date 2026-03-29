@@ -326,10 +326,10 @@ const routeOverrides = {
   },
   'snapify-capture-screenshot-save-pdf': {
     strength: '3/5',
-    coverage: '~40%',
-    current: 'Real internal-preview async job submission plus live HTML evidence capture and persisted report artifacts.',
-    gap: 'Still no rendered screenshot or PDF binary generation, so the route remains internal-only for the supported public subset.',
-    upgrade: 'Keep evidence-capture mode as the internal fallback and add real browser/PDF rendering before any public graduation.'
+    coverage: '~55%',
+    current: 'Real internal-preview async job submission plus browser-rendered screenshot and PDF artifacts, with HTML evidence fallback and persisted report artifacts.',
+    gap: 'Still remains internal-only because browser execution limits, artifact retention, and public safeguards are not yet hardened for broad launch.',
+    upgrade: 'Keep the browser-backed worker internal-only until artifact delivery, retention, quotas, and abuse controls are production-grade, then re-evaluate public promotion.'
   },
   'trayvmy-actor': {
     cls: 'shallow-local-utility',

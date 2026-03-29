@@ -161,7 +161,9 @@ const scraper = spawn('npm', ['--workspace', 'scraper-service', 'run', 'start'],
   detached: true,
   env: {
     ...process.env,
-    PORT: SCRAPER_PORT
+    PORT: SCRAPER_PORT,
+    PLAYWRIGHT_BROWSERS_PATH:
+      process.env.PLAYWRIGHT_BROWSERS_PATH ?? '/tmp/pw-cache/ms-playwright'
   }
 });
 
@@ -248,12 +250,24 @@ try {
     }
   });
   assert.equal(snapifyWorker.response.status, 200);
-  assert.equal(snapifyWorker.json.execution?.mode, 'provider');
+  assert.equal(snapifyWorker.json.execution?.mode, 'browser');
   assert.equal(snapifyWorker.json.execution?.readyForPublicLaunch, false);
-  assert.equal(snapifyWorker.json.result?.captureMode, 'html-evidence-only');
-  assert.equal(snapifyWorker.json.result?.renderedArtifactsAvailable, false);
+  assert.ok(
+    ['browser-rendered', 'browser-rendered-with-fallback'].includes(
+      snapifyWorker.json.result?.captureMode
+    )
+  );
+  assert.equal(snapifyWorker.json.result?.renderedArtifactsAvailable, true);
+  assert.equal(snapifyWorker.json.result?.browserRuntimeAvailable, true);
   assert.equal(Array.isArray(snapifyWorker.json.result?.captures), true);
   assert.equal(snapifyWorker.json.result?.captures?.[0]?.success, true);
+  assert.equal(snapifyWorker.json.result?.captures?.[0]?.renderMode, 'browser');
+  assert.equal(snapifyWorker.json.result?.captures?.[0]?.renderedArtifactsAvailable, true);
+  assert.equal(
+    typeof snapifyWorker.json.result?.captures?.[0]?.artifacts?.screenshotId,
+    'string'
+  );
+  assert.equal(typeof snapifyWorker.json.result?.captures?.[0]?.artifacts?.pdfId, 'string');
   assert.equal(snapifyWorker.json.result?.captures?.[0]?.evidence?.title, 'Smoke Evidence Page');
   assert.equal(
     snapifyWorker.json.result?.captures?.[0]?.evidence?.description,
@@ -261,7 +275,17 @@ try {
   );
   assert.equal(snapifyWorker.json.result?.captures?.[0]?.evidence?.status, 200);
   assert.equal(Array.isArray(snapifyWorker.json.artifacts), true);
-  assert.ok(snapifyWorker.json.artifacts.length >= 1);
+  assert.ok(
+    snapifyWorker.json.artifacts.some(
+      (artifact) => artifact.type === 'screenshot' && artifact.content?.mimeType === 'image/png'
+    )
+  );
+  assert.ok(
+    snapifyWorker.json.artifacts.some(
+      (artifact) => artifact.type === 'pdf' && artifact.content?.mimeType === 'application/pdf'
+    )
+  );
+  assert.ok(snapifyWorker.json.artifacts.some((artifact) => artifact.type === 'report'));
 
   console.log('smoke-tests: live routes ok');
 } finally {

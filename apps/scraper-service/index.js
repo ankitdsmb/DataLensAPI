@@ -1,7 +1,10 @@
 const express = require('express');
+const { existsSync } = require('node:fs');
+const { chromium } = require('playwright');
 
 const app = express();
 const port = process.env.PORT || 3000;
+const DEFAULT_PLAYWRIGHT_BROWSERS_PATH = '/tmp/pw-cache/ms-playwright';
 
 app.use(express.json({ limit: '256kb' }));
 
@@ -138,6 +141,103 @@ async function fetchPageEvidence(url) {
   };
 }
 
+function ensurePlaywrightBrowsersPath() {
+  if (!process.env.PLAYWRIGHT_BROWSERS_PATH && existsSync(DEFAULT_PLAYWRIGHT_BROWSERS_PATH)) {
+    process.env.PLAYWRIGHT_BROWSERS_PATH = DEFAULT_PLAYWRIGHT_BROWSERS_PATH;
+  }
+}
+
+async function launchRenderingBrowser() {
+  ensurePlaywrightBrowsersPath();
+  return chromium.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+  });
+}
+
+function toBase64Artifact(buffer, mimeType, filename, metadata = {}) {
+  return {
+    mimeType,
+    filename,
+    encoding: 'base64',
+    byteLength: buffer.length,
+    base64: buffer.toString('base64'),
+    ...metadata
+  };
+}
+
+async function renderPageArtifacts(browser, url) {
+  const context = await browser.newContext({
+    viewport: { width: 1440, height: 900 },
+    screen: { width: 1440, height: 900 },
+    ignoreHTTPSErrors: true,
+    locale: 'en-US'
+  });
+
+  const page = await context.newPage();
+
+  try {
+    const response = await page.goto(url, {
+      waitUntil: 'domcontentloaded',
+      timeout: 15000
+    });
+
+    await page.waitForLoadState('networkidle', { timeout: 2000 }).catch(() => undefined);
+    await page.emulateMedia({ media: 'screen' });
+    await page.waitForTimeout(250);
+
+    const html = await page.content();
+    const metadata = await page.evaluate(() => {
+      const queryMeta = (selector) => document.querySelector(selector)?.getAttribute('content') || '';
+      const bodyText = document.body?.innerText || '';
+      return {
+        title: document.title || '',
+        description:
+          queryMeta('meta[name="description"]') || queryMeta('meta[property="og:description"]'),
+        width: document.documentElement?.scrollWidth || 0,
+        height: document.documentElement?.scrollHeight || 0,
+        bodyTextPreview: bodyText.replace(/\s+/g, ' ').trim().slice(0, 400)
+      };
+    });
+
+    const finalUrl = page.url() || response?.url() || url;
+    const screenshot = await page.screenshot({ fullPage: true, type: 'png' });
+    const pdf = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      preferCSSPageSize: true,
+      margin: {
+        top: '0.4in',
+        right: '0.4in',
+        bottom: '0.4in',
+        left: '0.4in'
+      }
+    });
+
+    return {
+      url,
+      finalUrl,
+      responseStatus: response?.status() ?? null,
+      responseOk: response?.ok() ?? null,
+      contentType: response?.headers()['content-type'] ?? '',
+      checkedAt: new Date().toISOString(),
+      title: metadata.title,
+      description: metadata.description,
+      dimensions: {
+        width: metadata.width,
+        height: metadata.height
+      },
+      htmlBytes: Buffer.byteLength(html, 'utf8'),
+      htmlPreview: html.slice(0, 2000),
+      bodyTextPreview: metadata.bodyTextPreview,
+      screenshot,
+      pdf
+    };
+  } finally {
+    await context.close();
+  }
+}
+
 async function executeJob(tool, payload) {
   await delay(800);
 
@@ -240,44 +340,220 @@ async function executeJob(tool, payload) {
       throw new Error('snapify-capture-screenshot-save-pdf requires one or more urls');
     }
 
-    const captures = await Promise.all(
-      urls.map(async (url) => {
+    let browser = null;
+    let browserLaunchError = null;
+    try {
+      browser = await launchRenderingBrowser();
+    } catch (error) {
+      browserLaunchError = error instanceof Error ? error.message : 'Unknown browser launch failure';
+    }
+
+    const artifacts = [];
+    const captures = [];
+
+    try {
+      for (const [index, url] of urls.entries()) {
+        const captureId = String(index + 1);
+
+        if (browser) {
+          try {
+            const rendered = await renderPageArtifacts(browser, url);
+            const screenshotArtifactId = `screenshot-${captureId}`;
+            const pdfArtifactId = `pdf-${captureId}`;
+
+            artifacts.push(
+              {
+                id: screenshotArtifactId,
+                type: 'screenshot',
+                title: `Rendered screenshot for ${url}`,
+                content: toBase64Artifact(
+                  rendered.screenshot,
+                  'image/png',
+                  `snapify-${captureId}.png`,
+                  {
+                    url,
+                    finalUrl: rendered.finalUrl,
+                    generatedAt: rendered.checkedAt
+                  }
+                )
+              },
+              {
+                id: pdfArtifactId,
+                type: 'pdf',
+                title: `Rendered PDF for ${url}`,
+                content: toBase64Artifact(
+                  rendered.pdf,
+                  'application/pdf',
+                  `snapify-${captureId}.pdf`,
+                  {
+                    url,
+                    finalUrl: rendered.finalUrl,
+                    generatedAt: rendered.checkedAt
+                  }
+                )
+              },
+              {
+                id: `page-evidence-${captureId}`,
+                type: 'report',
+                title: `Rendered page evidence for ${url}`,
+                content: {
+                  url,
+                  success: true,
+                  renderedArtifactsAvailable: true,
+                  artifacts: {
+                    screenshotId: screenshotArtifactId,
+                    pdfId: pdfArtifactId
+                  },
+                  evidence: {
+                    requestedUrl: url,
+                    finalUrl: rendered.finalUrl,
+                    ok: rendered.responseOk,
+                    status: rendered.responseStatus,
+                    title: rendered.title,
+                    description: rendered.description,
+                    contentType: rendered.contentType,
+                    htmlBytes: rendered.htmlBytes,
+                    htmlPreview: rendered.htmlPreview,
+                    bodyTextPreview: rendered.bodyTextPreview,
+                    dimensions: rendered.dimensions,
+                    checkedAt: rendered.checkedAt
+                  }
+                }
+              }
+            );
+
+            captures.push({
+              url,
+              success: true,
+              renderMode: 'browser',
+              renderedArtifactsAvailable: true,
+              artifacts: {
+                screenshotId: screenshotArtifactId,
+                pdfId: pdfArtifactId
+              },
+              evidence: {
+                requestedUrl: url,
+                finalUrl: rendered.finalUrl,
+                ok: rendered.responseOk,
+                status: rendered.responseStatus,
+                title: rendered.title,
+                description: rendered.description,
+                contentType: rendered.contentType,
+                htmlBytes: rendered.htmlBytes,
+                htmlPreview: rendered.htmlPreview,
+                bodyTextPreview: rendered.bodyTextPreview,
+                dimensions: rendered.dimensions,
+                checkedAt: rendered.checkedAt
+              }
+            });
+            continue;
+          } catch (error) {
+            const renderError = error instanceof Error ? error.message : 'Unknown browser capture failure';
+
+            try {
+              const evidence = await fetchPageEvidence(url);
+              artifacts.push({
+                id: `page-evidence-${captureId}`,
+                type: 'report',
+                title: `Fallback page evidence for ${url}`,
+                content: {
+                  url,
+                  success: true,
+                  fallbackUsed: true,
+                  renderError,
+                  renderedArtifactsAvailable: false,
+                  evidence
+                }
+              });
+
+              captures.push({
+                url,
+                success: true,
+                fallbackUsed: true,
+                renderMode: 'html-evidence-only',
+                renderedArtifactsAvailable: false,
+                renderError,
+                evidence
+              });
+              continue;
+            } catch (fallbackError) {
+              captures.push({
+                url,
+                success: false,
+                renderMode: 'failed',
+                renderedArtifactsAvailable: false,
+                error: fallbackError instanceof Error ? fallbackError.message : 'Unknown capture failure',
+                renderError
+              });
+              continue;
+            }
+          }
+        }
+
         try {
           const evidence = await fetchPageEvidence(url);
-          return {
+          artifacts.push({
+            id: `page-evidence-${captureId}`,
+            type: 'report',
+            title: `Page evidence for ${url}`,
+            content: {
+              url,
+              success: true,
+              fallbackUsed: true,
+              renderError: browserLaunchError,
+              renderedArtifactsAvailable: false,
+              evidence
+            }
+          });
+
+          captures.push({
             url,
             success: true,
+            fallbackUsed: true,
+            renderMode: 'html-evidence-only',
+            renderedArtifactsAvailable: false,
+            renderError: browserLaunchError,
             evidence
-          };
+          });
         } catch (error) {
-          return {
+          captures.push({
             url,
             success: false,
-            error: error instanceof Error ? error.message : 'Unknown capture failure'
-          };
+            renderMode: 'failed',
+            renderedArtifactsAvailable: false,
+            error: error instanceof Error ? error.message : 'Unknown capture failure',
+            renderError: browserLaunchError
+          });
         }
-      })
-    );
+      }
+    } finally {
+      if (browser) {
+        await browser.close();
+      }
+    }
+
+    const renderedArtifactsAvailable = captures.some((capture) => capture.renderedArtifactsAvailable);
+    const usedFallback = captures.some((capture) => capture.fallbackUsed);
 
     return {
       execution: {
-        mode: 'provider',
+        mode: browser ? 'browser' : 'provider',
         readyForPublicLaunch: false,
         notes:
-          'Fetches live page HTML evidence and metadata, but does not yet render screenshot or PDF binaries. Keep deferred from public launch until browser/PDF execution exists.'
+          renderedArtifactsAvailable
+            ? 'Renders real screenshots and PDFs in an internal browser worker. Keep internal-only until browser execution limits, artifact retention, and stronger public safeguards are finalized.'
+            : `Browser rendering was unavailable, so the worker fell back to live HTML evidence capture only. Reason: ${browserLaunchError || 'unknown browser launch issue'}`
       },
       result: {
         captureCount: captures.length,
-        renderedArtifactsAvailable: false,
-        captureMode: 'html-evidence-only',
+        renderedArtifactsAvailable,
+        captureMode: renderedArtifactsAvailable
+          ? (usedFallback ? 'browser-rendered-with-fallback' : 'browser-rendered')
+          : 'html-evidence-only',
+        browserRuntimeAvailable: Boolean(browser),
         captures
       },
-      artifacts: captures.map((capture, index) => ({
-        id: `page-evidence-${index + 1}`,
-        type: 'report',
-        title: `Page evidence for ${capture.url}`,
-        content: capture
-      }))
+      artifacts
     };
   }
 

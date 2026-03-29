@@ -192,7 +192,7 @@ If a route appears in planning docs but is not listed here, it is considered **n
 | `/api/v1/seo-tools/youtube-region-restriction-checker` | `html-scraper` | Keep public as a **lite evidence scrape**; it parses watch-page availability data but does not independently test playback from each country. |
 | `/api/v1/seo-tools/openpagerank-bulk-checker` | `api-key-stub` | Keep internal-only as a provider template until real OpenPageRank integration is implemented. |
 | `/api/v1/seo-tools/rentcast` | `api-key-stub` | Keep internal-only as a provider template until real RentCast integration is implemented. |
-| `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | `queued-simulated` | Keep internal-only as an **internal preview** until browser/PDF rendering exists; the current worker captures live HTML evidence only. |
+| `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | `queued-browser` | Keep internal-only as an **internal preview**; the current worker now renders real screenshot/PDF artifacts in a browser worker, but public launch still needs stronger browser limits, artifact retention, and abuse safeguards. |
 | `/api/v1/seo-tools/youtube-rank-checker` | `queued-simulated` | Keep internal-only as an **internal preview** until the lightweight search-evidence path is hardened into a reliable public rank pipeline. |
 | `/api/v1/seo-tools/trayvmy-actor` | `shallow-local-utility` | Keep internal-only and deprecated; this path exists only as a compatibility stub and is not part of the public product story. |
 

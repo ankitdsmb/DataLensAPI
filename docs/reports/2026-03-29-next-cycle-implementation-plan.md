@@ -86,9 +86,9 @@ Recommended default:
 Suggested order:
 
 1. `snapify-capture-screenshot-save-pdf`
-   - add real browser screenshot generation,
-   - add real PDF rendering,
-   - keep the HTML evidence path as fallback.
+   - completed on `codex/origin-main-integration`,
+   - now renders real browser screenshot/PDF artifacts,
+   - keeps the HTML evidence path as fallback.
 2. `youtube-rank-checker`
    - harden live result collection,
    - add retries and provenance,
@@ -164,8 +164,8 @@ Additionally:
 
 If we start another implementation batch immediately, the best single next move is:
 
-1. choose whether `snapify-capture-screenshot-save-pdf` or `youtube-rank-checker` is the one async route we will truly finish first,
-2. keep the other internal-preview,
+1. continue with `youtube-rank-checker` as the next async route to harden,
+2. keep `snapify-capture-screenshot-save-pdf` internal-preview while artifact delivery, browser quotas, and retention policy are tightened,
 3. avoid spending the next cycle on blocked provider templates unless credentials and provider access are actually ready.
 
 ## Bottom line
