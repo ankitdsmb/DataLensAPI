@@ -138,6 +138,15 @@ const routeOverrides = {
     upgrade: 'Promote into a canonical search-copy utility family with title/description pairs, SERP snippet simulation, and optional live SERP adapters.',
     fit: 'Excellent free-tier fit because the current generation logic is deterministic, local-only, and fast.'
   },
+  'seobility-ranking-seo': {
+    cls: 'html-scraper',
+    strength: '3/5',
+    coverage: '~40%',
+    current: 'Runs shared first-party homepage audit logic plus basic live domain checks and returns page-level findings with a summarized site score.',
+    gap: 'Still does not call the official Seobility service or provide deeper ranking datasets, browser-rendered evidence, or multi-page crawl history.',
+    upgrade: 'Keep as a compatibility-lite audit route and eventually fold it into the canonical site-audit family with optional rendered and async modes.',
+    fit: 'Good free-tier fit for capped HTML mode with small domain counts and caching.'
+  },
   'openpagerank-bulk-checker': {
     strength: '1/5',
     coverage: '~5%',

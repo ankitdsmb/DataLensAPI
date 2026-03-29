@@ -39,6 +39,7 @@
 | `/api/v1/seo-tools/what-site` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches public HTML and returns a lightweight site profile with final URL, metadata, heading, link, and content signals instead of only a title/description pair. |
 | `/api/v1/seo-tools/whatruns` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches public HTML and returns lightweight technology fingerprints across CMS, frontend, ecommerce, analytics, and infrastructure categories instead of only shallow generator hints. |
 | `/api/v1/seo-tools/woorank` | `html-scraper` | Strengthened with first-party audit evidence | Public lite/evidence | Runs the shared first-party lightweight SEO audit over supplied URLs and returns page-level findings plus a summarized site score instead of only returning queued/pending placeholder responses. |
+| `/api/v1/seo-tools/seobility-ranking-seo` | `html-scraper` | Strengthened with first-party audit evidence | Public lite/evidence | Runs the shared first-party homepage audit plus basic live domain checks for the supplied domain and returns page-level findings with a summarized site score instead of only returning queued/pending placeholder responses. |
 | `/api/v1/seo-tools/similarweb` | `link-builder` | Relabeled honestly | Internal or beta only | Explicitly labeled report URL helper, no analytics scraping claims. |
 | `/api/v1/seo-tools/spotify` | `link-builder` | Relabeled honestly | Public lite/helper | Explicitly labeled Spotify query URL helper only. |
 | `/api/v1/seo-tools/trustpilot-plus` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches the public Trustpilot review page for resolvable identifiers and extracts aggregate rating plus review-count evidence; unresolved inputs still fall back to a helper contract. |
@@ -93,6 +94,7 @@ Follow-up QA now exists for the strongest honesty-sensitive routes:
   - verifies `what-site` returns live site-profile evidence from a supplied public URL
   - verifies `whatruns` returns live technology fingerprint evidence across multiple categories for a supplied public site
   - verifies `woorank` returns first-party light SEO audit evidence with page-level findings and a summarized site score
+  - verifies `seobility-ranking-seo` returns first-party homepage audit evidence plus live domain-check signals for a supplied domain
   - verifies helper/link-builder contracts
   - verifies `youtube-region-restriction-checker` returns watch-page availability evidence
   - verifies `trustpilot-plus` returns live review-page aggregate evidence

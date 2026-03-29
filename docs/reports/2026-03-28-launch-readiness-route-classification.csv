@@ -92,7 +92,7 @@ route,file,forensic_category,implementation_depth,launch_recommendation,strength
 /api/v1/seo-tools/seo-h1-h6-headings-checker,apps/api-gateway/app/api/v1/seo-tools/seo-h1-h6-headings-checker/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/seo-report-generator,apps/api-gateway/app/api/v1/seo-tools/seo-report-generator/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/seo-site-checkup,apps/api-gateway/app/api/v1/seo-tools/seo-site-checkup/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
-/api/v1/seo-tools/seobility-ranking-seo,apps/api-gateway/app/api/v1/seo-tools/seobility-ranking-seo/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low
+/api/v1/seo-tools/seobility-ranking-seo,apps/api-gateway/app/api/v1/seo-tools/seobility-ranking-seo/route.ts,html-scraper,live,public_lite,medium,not-in-free-tier-allowlist,conditional,strengthen,medium
 /api/v1/seo-tools/serp-meta-title-generator,apps/api-gateway/app/api/v1/seo-tools/serp-meta-title-generator/route.ts,local-utility,live,public_lite,medium,not-in-free-tier-allowlist,conditional,strengthen,medium
 /api/v1/seo-tools/shopify-product-search,apps/api-gateway/app/api/v1/seo-tools/shopify-product-search/route.ts,public-api-wrapper,live,public_lite,medium,not-in-free-tier-allowlist,conditional,strengthen,medium
 /api/v1/seo-tools/showtimes,apps/api-gateway/app/api/v1/seo-tools/showtimes/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low

@@ -408,6 +408,28 @@ try {
   assert.equal(domainDetails.json.data.evidence.liveAsn, false);
   assertNetworkWrapperContract(domainDetails.json.data);
 
+  const seobilityRanking = await post('/api/v1/seo-tools/seobility-ranking-seo', {
+    domain: 'openai.com'
+  });
+  assert.equal(seobilityRanking.response.status, 200);
+  assert.equal(seobilityRanking.json.success, true);
+  assert.equal(seobilityRanking.json.data.status, 'analyzed');
+  assert.equal(seobilityRanking.json.data.mode, 'light_domain_audit');
+  assert.equal(seobilityRanking.json.data.domain, 'openai.com');
+  assert.equal(typeof seobilityRanking.json.data.homepageUrl, 'string');
+  assert.ok(seobilityRanking.json.data.homepageUrl.includes('openai.com'));
+  assert.equal(typeof seobilityRanking.json.data.availability?.available, 'boolean');
+  assert.equal(Array.isArray(seobilityRanking.json.data.dnsAnswers), true);
+  assert.ok(seobilityRanking.json.data.dnsAnswers.length >= 1);
+  assert.equal(typeof seobilityRanking.json.data.http?.finalUrl, 'string');
+  assert.ok(seobilityRanking.json.data.http.finalUrl.includes('openai.com'));
+  assert.equal(Array.isArray(seobilityRanking.json.data.pages), true);
+  assert.equal(seobilityRanking.json.data.pages.length, 1);
+  assert.equal(typeof seobilityRanking.json.data.pages[0].score, 'number');
+  assert.equal(Array.isArray(seobilityRanking.json.data.pages[0].issues), true);
+  assert.equal(typeof seobilityRanking.json.data.summary?.siteScore, 'number');
+  assertHtmlScraperContract(seobilityRanking.json.data);
+
   const trendingNews = await post('/api/v1/seo-tools/trending-news', {
     keyword: 'openai',
     limit: 3

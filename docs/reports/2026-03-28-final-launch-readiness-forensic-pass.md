@@ -30,8 +30,8 @@ Classification summary:
 
 - **Strength**
   - Strong: **16**
-  - Medium: **101**
-  - Weak: **37**
+  - Medium: **102**
+  - Weak: **36**
 - **Launch readiness**
   - Ready: **89**
   - Conditional: **47**
@@ -90,6 +90,7 @@ What this evidence now covers:
 - public App Store similar-app shelf evidence for `similar-app-store-applications-finder`,
 - public OpenTable restaurant search-state evidence for `opentable`,
 - shared first-party light SEO audit evidence for `woorank`,
+- shared first-party homepage audit plus live domain-check evidence for `seobility-ranking-seo`,
 - local profanity moderation evidence for `profanity-checker`,
 - public CMS/site-stack fingerprint evidence for `cms-checker`,
 - public Shopify storefront product evidence for `shopify-product-search`,
