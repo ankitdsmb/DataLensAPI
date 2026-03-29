@@ -23,6 +23,7 @@
 | `/api/v1/seo-tools/barcode` | `public-api-wrapper` | Strengthened with public evidence | Public lite/evidence | Calls the public OpenFoodFacts product API and returns real barcode product evidence for codes found in that public catalog instead of only inferring format from string length. |
 | `/api/v1/seo-tools/cms-checker` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches public HTML and applies lightweight technology fingerprinting to identify likely CMS and related site-stack signals instead of only shallow generator hints. |
 | `/api/v1/seo-tools/cms-checker-bulk` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches public HTML in bulk and applies the same lightweight technology fingerprinting across multiple supplied URLs. |
+| `/api/v1/seo-tools/markdown-table-generator` | `local-utility` | Strengthened with deterministic local evidence | Public lite/evidence | Generates markdown tables from explicit rows or parsed CSV/TSV-style input, with alignment control, markdown escaping, and ragged-row normalization instead of only requiring pre-structured headers and rows. |
 | `/api/v1/seo-tools/profanity-checker` | `local-utility` | Strengthened with deterministic local evidence | Public lite/evidence | Runs a deterministic local moderation engine with whole-word matching, light obfuscation normalization, position-aware masking, severity, and optional custom terms instead of a tiny placeholder blocklist. |
 | `/api/v1/seo-tools/shopify-product-search` | `public-api-wrapper` | Strengthened with public evidence | Public lite/evidence | Uses public Shopify storefront predictive-search or products-feed endpoints to return normalized product evidence for a supplied `storeUrl`; without `storeUrl` it falls back honestly to a helper URL. |
 | `/api/v1/seo-tools/spell-checker` | `public-api-wrapper` | Strengthened with public evidence | Public lite/evidence | Calls the public LanguageTool endpoint and returns real spelling/grammar matches with suggested replacements for capped text input instead of local suspect-word heuristics. |
@@ -66,6 +67,7 @@ Follow-up QA now exists for the strongest honesty-sensitive routes:
   - verifies `business-websites-ranker` returns live website discovery plus scoring evidence
   - verifies `barcode` returns live product evidence from the public OpenFoodFacts catalog for a known UPC/EAN
   - verifies `cms-checker` returns live technology fingerprint evidence for a supplied public site
+  - verifies `markdown-table-generator` returns deterministic markdown table output with parsed delimited input, alignment control, escaping, and ragged-row normalization under the route’s API-key launch posture
   - verifies `profanity-checker` returns deterministic moderation matches, masking, severity, and custom-word handling under the route’s API-key launch posture
   - verifies `shopify-product-search` returns live storefront product evidence from a supplied public Shopify store
   - verifies `spell-checker` returns live spelling and grammar match evidence from the public LanguageTool endpoint

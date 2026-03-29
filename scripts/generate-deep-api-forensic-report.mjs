@@ -171,6 +171,15 @@ const routeOverrides = {
     upgrade: 'Promote into a canonical text moderation family with richer lexicons, language-aware tokenization, phrase rules, and adjacent safety signals.',
     fit: 'Excellent free-tier fit because the logic is deterministic, fast, and local-only.'
   },
+  'markdown-table-generator': {
+    cls: 'local-utility',
+    strength: '3/5',
+    coverage: '~45%',
+    current: 'Runs a deterministic local table-formatting engine with delimited-input parsing, alignment, markdown escaping, and ragged-row normalization.',
+    gap: 'Still does not support spreadsheet formulas, merged cells, or fully generalized CSV/TSV edge cases across every dialect.',
+    upgrade: 'Promote into a canonical structured-text utility family with TSV/CSV import presets, schema hints, and export format variants.',
+    fit: 'Excellent free-tier fit because the logic is deterministic, fast, and local-only.'
+  },
   'cms-checker': {
     cls: 'html-scraper',
     strength: '3/5',

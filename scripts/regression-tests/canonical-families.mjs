@@ -426,6 +426,29 @@ try {
   assert.equal(profanity.json.data.contract.implementationDepth, 'live');
   assert.equal(profanity.json.data.contract.launchRecommendation, 'public_lite');
 
+  const markdownTable = await post('/api/v1/seo-tools/markdown-table-generator', {
+    input: 'Name,Role,Score\nAda,Engineer,10\nGrace,Scientist,9',
+    alignments: ['left', 'left', 'right']
+  }, {
+    'x-api-key': 'regression-key'
+  });
+  assert.equal(markdownTable.response.status, 200);
+  assert.equal(markdownTable.json.success, true);
+  assert.equal(markdownTable.json.data.status, 'generated');
+  assert.equal(markdownTable.json.data.rowCount, 2);
+  assert.equal(markdownTable.json.data.columnCount, 3);
+  assert.equal(markdownTable.json.data.delimiterUsed, ',');
+  assert.equal(Array.isArray(markdownTable.json.data.headers), true);
+  assert.equal(markdownTable.json.data.headers[0], 'Name');
+  assert.equal(markdownTable.json.data.alignments[2], 'right');
+  assert.equal(typeof markdownTable.json.data.markdown, 'string');
+  assert.ok(markdownTable.json.data.markdown.includes('| Name | Role | Score |'));
+  assert.ok(markdownTable.json.data.markdown.includes('| --- | --- | ---: |'));
+  assert.equal(markdownTable.json.data.evidence.parsedDelimitedInput, true);
+  assert.equal(markdownTable.json.data.contract.forensicCategory, 'local-utility');
+  assert.equal(markdownTable.json.data.contract.implementationDepth, 'live');
+  assert.equal(markdownTable.json.data.contract.launchRecommendation, 'public_lite');
+
   console.log('regression-tests: canonical families ok');
 } finally {
   await stopProcess(server, 'api-gateway');

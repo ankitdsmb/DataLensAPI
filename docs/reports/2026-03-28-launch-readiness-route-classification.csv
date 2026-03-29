@@ -60,7 +60,7 @@ route,file,forensic_category,implementation_depth,launch_recommendation,strength
 /api/v1/seo-tools/gainsight-ideas,apps/api-gateway/app/api/v1/seo-tools/gainsight-ideas/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/google-autocomplete-apify,apps/api-gateway/app/api/v1/seo-tools/google-autocomplete-apify/route.ts,real-scraper,medium,public,strong,fit,ready,strengthen,medium
 /api/v1/seo-tools/google-play-keywords-discovery-tool,apps/api-gateway/app/api/v1/seo-tools/google-play-keywords-discovery-tool/route.ts,real-scraper,medium,public,strong,not-in-free-tier-allowlist,ready,strengthen,medium
-/api/v1/seo-tools/markdown-table-generator,apps/api-gateway/app/api/v1/seo-tools/markdown-table-generator/route.ts,shallow-local-utility,shallow,public-lite,weak,fit,conditional,relabel,low
+/api/v1/seo-tools/markdown-table-generator,apps/api-gateway/app/api/v1/seo-tools/markdown-table-generator/route.ts,local-utility,live,public_lite,medium,fit,conditional,strengthen,medium
 /api/v1/seo-tools/mastodon,apps/api-gateway/app/api/v1/seo-tools/mastodon/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/mastodon-bulk,apps/api-gateway/app/api/v1/seo-tools/mastodon-bulk/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/media-set,apps/api-gateway/app/api/v1/seo-tools/media-set/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
