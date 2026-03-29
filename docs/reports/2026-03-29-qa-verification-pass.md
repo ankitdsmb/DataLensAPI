@@ -43,8 +43,10 @@ All three commands passed on this branch.
 - Verifies `/api/v1/seo-tools/youtube-region-restriction-checker` now returns public watch-page availability evidence, including `playabilityStatus` and `availableCountries`.
 - Verifies `/api/v1/seo-tools/trustpilot-plus` now returns public review-page evidence, including aggregate TrustScore-style rating data and total review count for a resolvable company identifier.
 - Verifies `/api/v1/seo-tools/business-websites-ranker` now returns public website discovery and lightweight quality-scoring evidence instead of only emitting a seed query URL.
+- Verifies `/api/v1/seo-tools/cms-checker` now returns lightweight CMS and site-stack fingerprint evidence from public HTML instead of only shallow generator hints.
 - Verifies `/api/v1/seo-tools/shopify-product-search` now returns public storefront product evidence from Shopify predictive-search or products-feed endpoints when a `storeUrl` is supplied.
 - Verifies `/api/v1/seo-tools/what-site` now returns a lightweight site profile with final URL, metadata, heading counts, link counts, and content signals instead of only a title/description pair.
+- Verifies `/api/v1/seo-tools/whatruns` now returns lightweight technology fingerprint evidence across CMS, frontend, ecommerce, analytics, and infrastructure categories instead of only shallow generator hints.
 - Verifies `/api/v1/seo-tools/bulk-bbb` now returns public BBB bulk evidence, including per-company search-result matches, best-match profile enrichment, BBB rating, and complaint signals.
 - Verifies `/api/v1/seo-tools/simple-bbb` now returns public BBB evidence, including search-result matches, best-match profile enrichment, BBB rating, and complaint signals.
 - Verifies `/api/v1/seo-tools/domain-intelligence-suite` now returns:
@@ -76,8 +78,10 @@ This QA pass materially strengthens the repo’s evidence base:
    - public watch-page availability evidence extraction,
    - public Trustpilot review-page aggregate evidence extraction,
    - public business website discovery and scoring evidence extraction,
+   - public CMS and site-stack fingerprint extraction,
    - public Shopify storefront product evidence extraction,
    - public site-profile evidence extraction,
+   - public multi-category technology fingerprint extraction,
    - public BBB bulk search and profile evidence extraction,
    - public BBB search and profile evidence extraction,
    - live domain DNS and HTTP evidence extraction,

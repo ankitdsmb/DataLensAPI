@@ -1,7 +1,7 @@
 import {
   collectUrlInputs,
   createToolPolicy,
-  fetchHtmlDocument,
+  inspectTechFingerprint,
   readJsonBody,
   withScrapingHandler,
   requireAllowedFields
@@ -15,21 +15,6 @@ const cmsCheckerBulkPolicy = createToolPolicy({
   cacheTtlSeconds: 300
 });
 
-function detectStack(html: string) {
-  const lower = html.toLowerCase();
-  const stack = new Set<string>();
-
-  if (lower.includes('wp-content') || lower.includes('wordpress')) stack.add('WordPress');
-  if (lower.includes('shopify') || lower.includes('cdn.shopify.com')) stack.add('Shopify');
-  if (lower.includes('wix.com')) stack.add('Wix');
-  if (lower.includes('squarespace')) stack.add('Squarespace');
-  if (lower.includes('webflow')) stack.add('Webflow');
-  if (lower.includes('joomla')) stack.add('Joomla');
-  if (lower.includes('drupal')) stack.add('Drupal');
-
-  return Array.from(stack);
-}
-
 export const POST = withScrapingHandler({ policy: cmsCheckerBulkPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, cmsCheckerBulkPolicy);
   requireAllowedFields(body, ['url', 'urls']);
@@ -38,15 +23,32 @@ export const POST = withScrapingHandler({ policy: cmsCheckerBulkPolicy }, async 
   const results = [];
 
   for (const url of urls) {
-    const { html, $ } = await fetchHtmlDocument(url, { timeoutMs: cmsCheckerBulkPolicy.timeoutMs });
-    const generator = $('meta[name="generator"]').attr('content')?.trim() ?? null;
-    const cms = detectStack(html);
-    if (generator && !cms.includes(generator)) {
-      cms.push(generator);
-    }
+    const profile = await inspectTechFingerprint({
+      url,
+      timeoutMs: cmsCheckerBulkPolicy.timeoutMs
+    });
 
-    results.push({ url, generator, cms });
+    results.push({
+      ...profile,
+      cms: profile.status === 'analyzed' ? profile.categories.cms : []
+    });
   }
 
-  return { results };
+  const analyzedCount = results.filter((result) => result.status === 'analyzed').length;
+
+  return {
+    status: 'analyzed',
+    requestedCount: urls.length,
+    analyzedCount,
+    errorCount: results.length - analyzedCount,
+    results,
+    contract: {
+      productLabel: 'CMS Checker (Bulk)',
+      forensicCategory: 'html-scraper',
+      implementationDepth: 'live',
+      launchRecommendation: 'public_lite',
+      notes:
+        'Fetches public HTML for each supplied URL and applies lightweight technology fingerprints to identify likely CMS and related site-stack signals in bulk.'
+    }
+  };
 });

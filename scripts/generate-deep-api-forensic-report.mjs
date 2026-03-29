@@ -153,6 +153,24 @@ const routeOverrides = {
     upgrade: 'Promote into a local-business intelligence family with stronger business-source discovery, homepage normalization, and multi-page scoring.',
     fit: 'Usually fine on free serverless if inputs stay capped.'
   },
+  'cms-checker': {
+    cls: 'html-scraper',
+    strength: '3/5',
+    coverage: '~50%',
+    current: 'Fetches live HTML and applies lightweight technology fingerprinting to identify likely CMS and related site-stack signals.',
+    gap: 'Still heuristic and does not yet model competitors, confidence scoring, or deeper script execution.',
+    upgrade: 'Promote into a canonical tech-fingerprint family with stronger signatures, structured evidence, and optional confidence weighting.',
+    fit: 'Usually fine on free serverless if inputs stay capped.'
+  },
+  'cms-checker-bulk': {
+    cls: 'html-scraper',
+    strength: '3/5',
+    coverage: '~50%',
+    current: 'Fetches live HTML for multiple URLs and applies lightweight technology fingerprinting to identify likely CMS and related site-stack signals.',
+    gap: 'Still heuristic and does not yet model competitors, confidence scoring, or deeper script execution.',
+    upgrade: 'Promote into a canonical tech-fingerprint family with stronger signatures, structured evidence, bulk tuning, and optional confidence weighting.',
+    fit: 'Usually fine on free serverless if inputs stay capped.'
+  },
   'quick-lh': {
     strength: '1/5',
     coverage: '~5%',
@@ -224,6 +242,15 @@ const routeOverrides = {
     gap: 'Still only inspects the fetched page and does not yet parse structured data deeply, crawl site sections, or resolve brand/entity context.',
     upgrade: 'Promote into a canonical site-profile family with structured-data extraction, home-vs-page normalization, and optional shallow crawl mode.',
     fit: 'Excellent free-tier fit with small URL caps and response caching.'
+  },
+  'whatruns': {
+    cls: 'html-scraper',
+    strength: '3/5',
+    coverage: '~50%',
+    current: 'Fetches live HTML and applies lightweight technology fingerprinting across CMS, frontend, ecommerce, analytics, and infrastructure categories.',
+    gap: 'Still heuristic and does not yet provide vendor-grade detection confidence or browser-executed technology discovery.',
+    upgrade: 'Promote into a canonical tech-fingerprint family with stronger signatures, confidence scoring, and optional rendered-mode verification.',
+    fit: 'Usually fine on free serverless if inputs stay capped.'
   },
   'bulk-bbb': {
     cls: 'html-scraper',

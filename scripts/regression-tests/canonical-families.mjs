@@ -296,6 +296,44 @@ try {
   assert.equal(whatSite.json.data.results[0].evidence.htmlFetched, true);
   assertHtmlScraperContract(whatSite.json.data);
 
+  const cmsChecker = await post('/api/v1/seo-tools/cms-checker', {
+    url: 'https://colourpop.com'
+  });
+  assert.equal(cmsChecker.response.status, 200);
+  assert.equal(cmsChecker.json.success, true);
+  assert.equal(cmsChecker.json.data.status, 'analyzed');
+  assert.equal(cmsChecker.json.data.requestedCount, 1);
+  assert.equal(cmsChecker.json.data.analyzedCount, 1);
+  assert.equal(cmsChecker.json.data.errorCount, 0);
+  assert.equal(Array.isArray(cmsChecker.json.data.results), true);
+  assert.equal(cmsChecker.json.data.results.length, 1);
+  assert.equal(cmsChecker.json.data.results[0].status, 'analyzed');
+  assert.equal(Array.isArray(cmsChecker.json.data.results[0].cms), true);
+  assert.ok(cmsChecker.json.data.results[0].cms.includes('Shopify'));
+  assert.equal(Array.isArray(cmsChecker.json.data.results[0].technologies), true);
+  assert.ok(cmsChecker.json.data.results[0].technologies.includes('Shopify'));
+  assert.equal(cmsChecker.json.data.results[0].evidence.htmlFetched, true);
+  assertHtmlScraperContract(cmsChecker.json.data);
+
+  const whatRuns = await post('/api/v1/seo-tools/whatruns', {
+    url: 'https://colourpop.com'
+  });
+  assert.equal(whatRuns.response.status, 200);
+  assert.equal(whatRuns.json.success, true);
+  assert.equal(whatRuns.json.data.status, 'analyzed');
+  assert.equal(whatRuns.json.data.requestedCount, 1);
+  assert.equal(whatRuns.json.data.analyzedCount, 1);
+  assert.equal(whatRuns.json.data.errorCount, 0);
+  assert.equal(Array.isArray(whatRuns.json.data.results), true);
+  assert.equal(whatRuns.json.data.results.length, 1);
+  assert.equal(whatRuns.json.data.results[0].status, 'analyzed');
+  assert.equal(Array.isArray(whatRuns.json.data.results[0].technologies), true);
+  assert.ok(whatRuns.json.data.results[0].technologies.includes('Shopify'));
+  assert.equal(Array.isArray(whatRuns.json.data.results[0].categories.cms), true);
+  assert.ok(whatRuns.json.data.results[0].categories.cms.includes('Shopify'));
+  assert.equal(whatRuns.json.data.results[0].evidence.htmlFetched, true);
+  assertHtmlScraperContract(whatRuns.json.data);
+
   const domainIntelligence = await post('/api/v1/seo-tools/domain-intelligence-suite', {
     domain: 'openai.com'
   });

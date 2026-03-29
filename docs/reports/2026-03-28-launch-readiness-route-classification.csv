@@ -35,8 +35,8 @@ route,file,forensic_category,implementation_depth,launch_recommendation,strength
 /api/v1/seo-tools/clearbit-combined,apps/api-gateway/app/api/v1/seo-tools/clearbit-combined/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/clearbit-company,apps/api-gateway/app/api/v1/seo-tools/clearbit-company/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/clearbit-person,apps/api-gateway/app/api/v1/seo-tools/clearbit-person/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
-/api/v1/seo-tools/cms-checker,apps/api-gateway/app/api/v1/seo-tools/cms-checker/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
-/api/v1/seo-tools/cms-checker-bulk,apps/api-gateway/app/api/v1/seo-tools/cms-checker-bulk/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
+/api/v1/seo-tools/cms-checker,apps/api-gateway/app/api/v1/seo-tools/cms-checker/route.ts,html-scraper,live,public_lite,medium,not-in-free-tier-allowlist,ready,strengthen,high
+/api/v1/seo-tools/cms-checker-bulk,apps/api-gateway/app/api/v1/seo-tools/cms-checker-bulk/route.ts,html-scraper,live,public_lite,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/cols-app,apps/api-gateway/app/api/v1/seo-tools/cols-app/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/community,apps/api-gateway/app/api/v1/seo-tools/community/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/company-domain,apps/api-gateway/app/api/v1/seo-tools/company-domain/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
@@ -141,7 +141,7 @@ route,file,forensic_category,implementation_depth,launch_recommendation,strength
 /api/v1/seo-tools/website-traffic-machine,apps/api-gateway/app/api/v1/seo-tools/website-traffic-machine/route.ts,traffic-simulation,template,rejected_from_public_catalog,weak,blocked,blocked,internal-only,high
 /api/v1/seo-tools/websites-traffic-generator,apps/api-gateway/app/api/v1/seo-tools/websites-traffic-generator/route.ts,traffic-simulation,template,rejected_from_public_catalog,weak,blocked,blocked,internal-only,high
 /api/v1/seo-tools/what-site,apps/api-gateway/app/api/v1/seo-tools/what-site/route.ts,html-scraper,live,public_lite,strong,not-in-free-tier-allowlist,ready,strengthen,high
-/api/v1/seo-tools/whatruns,apps/api-gateway/app/api/v1/seo-tools/whatruns/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
+/api/v1/seo-tools/whatruns,apps/api-gateway/app/api/v1/seo-tools/whatruns/route.ts,html-scraper,live,public_lite,medium,not-in-free-tier-allowlist,ready,strengthen,high
 /api/v1/seo-tools/woorank,apps/api-gateway/app/api/v1/seo-tools/woorank/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low
 /api/v1/seo-tools/x-twitter,apps/api-gateway/app/api/v1/seo-tools/x-twitter/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low
 /api/v1/seo-tools/youtube-keywords-discovery-tool,apps/api-gateway/app/api/v1/seo-tools/youtube-keywords-discovery-tool/route.ts,real-scraper,medium,public,strong,not-in-free-tier-allowlist,ready,strengthen,medium
