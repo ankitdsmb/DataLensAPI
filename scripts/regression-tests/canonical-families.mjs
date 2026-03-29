@@ -40,8 +40,47 @@ function assertLinkBuilderContract(data) {
   assert.equal(typeof data.contract.notes, 'string');
 }
 
+function assertProviderTemplateContract(data) {
+  assert.equal(data.status, 'internal_provider_template');
+  assert.equal(data.provider?.credentialsRequired, true);
+  assert.equal(data.provider?.executionState, 'not_executed');
+  assert.equal(data.contract?.forensicCategory, 'api-key-stub');
+  assert.equal(data.contract?.implementationDepth, 'template');
+  assert.equal(data.contract?.launchRecommendation, 'internal_only_until_provider_integration');
+  assert.equal(typeof data.contract?.notes, 'string');
+}
+
+function stopProcess(child, label) {
+  if (child.exitCode !== null || child.killed) {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    const fallback = setTimeout(() => {
+      process.stderr.write(`[regression:cleanup] forcing ${label} shutdown\n`);
+      try {
+        process.kill(-child.pid, 'SIGKILL');
+      } catch {
+        child.kill('SIGKILL');
+      }
+    }, 5000);
+
+    child.once('exit', () => {
+      clearTimeout(fallback);
+      resolve();
+    });
+
+    try {
+      process.kill(-child.pid, 'SIGTERM');
+    } catch {
+      child.kill('SIGTERM');
+    }
+  });
+}
+
 const server = spawn('npm', ['--workspace', 'api-gateway', 'run', 'dev', '--', '-p', PORT], {
   stdio: ['ignore', 'pipe', 'pipe'],
+  detached: true,
   env: {
     ...process.env,
     FREE_TIER_LAUNCH_MODE: 'false'
@@ -70,8 +109,26 @@ try {
     assertLinkBuilderContract(result.json.data);
   }
 
+  const openPageRank = await post('/api/v1/seo-tools/openpagerank-bulk-checker', {
+    domains: ['example.com', 'openai.com']
+  });
+  assert.equal(openPageRank.response.status, 200);
+  assert.equal(openPageRank.json.success, true);
+  assertProviderTemplateContract(openPageRank.json.data);
+  assert.equal(Array.isArray(openPageRank.json.data.results), true);
+  assert.equal(openPageRank.json.data.results.length, 2);
+  assert.equal(openPageRank.json.data.results[0].status, 'provider_credentials_required');
+
+  const rentcast = await post('/api/v1/seo-tools/rentcast', {
+    address: '1600 Pennsylvania Ave NW, Washington, DC'
+  });
+  assert.equal(rentcast.response.status, 200);
+  assert.equal(rentcast.json.success, true);
+  assertProviderTemplateContract(rentcast.json.data);
+  assert.equal(typeof rentcast.json.data.lookupUrl, 'string');
+  assert.ok(rentcast.json.data.lookupUrl.includes('rentcast.io'));
+
   console.log('regression-tests: canonical families ok');
 } finally {
-  server.kill('SIGTERM');
-  await wait(500);
+  await stopProcess(server, 'api-gateway');
 }
