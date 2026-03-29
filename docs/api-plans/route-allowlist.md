@@ -177,7 +177,7 @@ If a route appears in planning docs but is not listed here, it is considered **n
 
 | Route | Forensic category | Public launch recommendation |
 | --- | --- | --- |
-| `/api/v1/seo-tools/business-websites-ranker` | `link-builder` | Keep public only as a **lite helper** (seed URL builder). |
+| `/api/v1/seo-tools/business-websites-ranker` | `html-scraper` | Keep public as **lite evidence**; it discovers likely business websites from public search results and applies lightweight website-quality scoring, but it is not an authoritative Google Places feed. |
 | `/api/v1/seo-tools/similarweb` | `link-builder` | Keep internal/beta only until real metrics extraction exists. |
 | `/api/v1/seo-tools/spotify` | `link-builder` | Keep public only as a **lite helper** (query URL builder). |
 | `/api/v1/seo-tools/trustpilot-plus` | `link-builder` | Keep public only as a **lite helper** (company lookup helper). |

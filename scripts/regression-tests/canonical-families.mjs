@@ -110,7 +110,6 @@ try {
   await waitForServer(`${BASE_URL}/api/v1/seo-tools/spotify`, 60000);
 
   const cases = [
-    ['/api/v1/seo-tools/business-websites-ranker', { keyword: 'coffee', location: 'austin' }, 'searchUrl'],
     ['/api/v1/seo-tools/similarweb', { domain: 'example.com' }, 'reportUrl'],
     ['/api/v1/seo-tools/spotify', { query: 'indie jazz' }, 'searchUrl']
   ];
@@ -122,6 +121,27 @@ try {
     assert.ok(result.json.data[field], `${path} expected field ${field}`);
     assertLinkBuilderContract(result.json.data);
   }
+
+  const businessRanker = await post('/api/v1/seo-tools/business-websites-ranker', {
+    keyword: 'openai',
+    location: 'san francisco'
+  });
+  assert.equal(businessRanker.response.status, 200);
+  assert.equal(businessRanker.json.success, true);
+  assert.equal(businessRanker.json.data.source, 'duckduckgo_html_search');
+  assert.equal(typeof businessRanker.json.data.searchUrl, 'string');
+  assert.ok(businessRanker.json.data.searchUrl.includes('duckduckgo.com/html'));
+  assert.equal(typeof businessRanker.json.data.candidateCount, 'number');
+  assert.ok(businessRanker.json.data.candidateCount >= 1);
+  assert.equal(typeof businessRanker.json.data.analyzedCount, 'number');
+  assert.ok(businessRanker.json.data.analyzedCount >= 1);
+  assert.equal(Array.isArray(businessRanker.json.data.rankedBusinesses), true);
+  assert.ok(businessRanker.json.data.rankedBusinesses.length >= 1);
+  assert.equal(typeof businessRanker.json.data.rankedBusinesses[0].websiteUrl, 'string');
+  assert.equal(typeof businessRanker.json.data.rankedBusinesses[0].qualityScore, 'number');
+  assert.equal(typeof businessRanker.json.data.rankedBusinesses[0].underperforming, 'boolean');
+  assert.equal(businessRanker.json.data.rankedBusinesses[0].evidence.websiteFetched, true);
+  assertHtmlScraperContract(businessRanker.json.data);
 
   const openPageRank = await post('/api/v1/seo-tools/openpagerank-bulk-checker', {
     domains: ['example.com', 'openai.com']

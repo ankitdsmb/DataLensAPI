@@ -152,11 +152,13 @@ const routeOverrides = {
     upgrade: 'Move into a marketplace-review connector family.'
   },
   'business-websites-ranker': {
-    strength: '1/5',
-    coverage: '~10%',
-    current: 'Builds a Google Maps search URL only.',
-    gap: 'No ranking, enrichment, or website scoring logic.',
-    upgrade: 'Rebuild inside a maps-intelligence family.'
+    cls: 'html-scraper',
+    strength: '3/5',
+    coverage: '~40%',
+    current: 'Discovers public business websites from DuckDuckGo HTML results and applies lightweight website-quality scoring on the discovered domains.',
+    gap: 'Discovery is still heuristic and not authoritative Google Places data, so non-official sites can still slip into the candidate set.',
+    upgrade: 'Promote into a local-business intelligence family with stronger business-source discovery, homepage normalization, and multi-page scoring.',
+    fit: 'Usually fine on free serverless if inputs stay capped.'
   },
   'quick-lh': {
     strength: '1/5',

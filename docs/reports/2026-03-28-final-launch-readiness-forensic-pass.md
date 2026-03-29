@@ -30,8 +30,8 @@ Classification summary:
 
 - **Strength**
   - Strong: **15**
-  - Medium: **86**
-  - Weak: **53**
+  - Medium: **87**
+  - Weak: **52**
 - **Launch readiness**
   - Ready: **89**
   - Conditional: **47**
@@ -79,6 +79,7 @@ What this evidence now covers:
 - public watch-page availability evidence for `youtube-region-restriction-checker`,
 - public Trustpilot review-page aggregate evidence for `trustpilot-plus`,
 - public BBB bulk company evidence for `bulk-bbb`,
+- public business website discovery/scoring evidence for `business-websites-ranker`,
 - public BBB company-profile evidence for `simple-bbb`,
 - live DNS and HTTPS evidence extraction for `domain-intelligence-suite`,
 - public gateway blocking plus internal worker execution for `snapify-capture-screenshot-save-pdf`,
@@ -139,6 +140,8 @@ These routes now sit in a medium-depth, evidence-backed conditional posture beca
 `/api/v1/seo-tools/trustpilot-plus` also no longer belongs in the weak helper bucket. It now performs direct review-page evidence extraction for resolvable Trustpilot identifiers and should be treated as a medium-depth conditional route rather than a pure link builder.
 
 `/api/v1/seo-tools/bulk-bbb` also no longer belongs in the weak helper bucket. It now performs capped bulk BBB search parsing plus best-match business-profile enrichment with rating and complaint signals for each input company.
+
+`/api/v1/seo-tools/business-websites-ranker` also no longer belongs in the weak helper bucket. It now discovers public websites from search results and applies lightweight website-quality scoring instead of only emitting a seed query URL.
 
 `/api/v1/seo-tools/simple-bbb` also no longer belongs in the weak helper bucket. It now performs public BBB search parsing plus first-match business-profile enrichment with rating and complaint signals.
 

@@ -18,7 +18,7 @@
 
 | Route | Forensic category | Action taken | Public launch recommendation | Notes |
 | --- | --- | --- | --- | --- |
-| `/api/v1/seo-tools/business-websites-ranker` | `link-builder` | Relabeled honestly | Public lite/helper | Explicitly labeled seed query builder, not a ranking engine. |
+| `/api/v1/seo-tools/business-websites-ranker` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Discovers public websites from DuckDuckGo HTML search results and applies lightweight website-quality scoring; still heuristic, but no longer just a seed URL builder. |
 | `/api/v1/seo-tools/similarweb` | `link-builder` | Relabeled honestly | Internal or beta only | Explicitly labeled report URL helper, no analytics scraping claims. |
 | `/api/v1/seo-tools/spotify` | `link-builder` | Relabeled honestly | Public lite/helper | Explicitly labeled Spotify query URL helper only. |
 | `/api/v1/seo-tools/trustpilot-plus` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches the public Trustpilot review page for resolvable identifiers and extracts aggregate rating plus review-count evidence; unresolved inputs still fall back to a helper contract. |
@@ -54,6 +54,7 @@ Follow-up QA now exists for the strongest honesty-sensitive routes:
   - verifies `youtube-rank-checker` async job completion and artifact retrieval
   - verifies `snapify-capture-screenshot-save-pdf` is blocked at the public gateway but succeeds through the internal worker path
 - `npm run regression-tests`
+  - verifies `business-websites-ranker` returns live website discovery plus scoring evidence
   - verifies helper/link-builder contracts
   - verifies `youtube-region-restriction-checker` returns watch-page availability evidence
   - verifies `trustpilot-plus` returns live review-page aggregate evidence
