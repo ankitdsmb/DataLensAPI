@@ -269,6 +269,33 @@ try {
   assert.equal(typeof shopify.json.data.evidence.livePredictiveSearch, 'boolean');
   assertPublicApiWrapperContract(shopify.json.data);
 
+  const whatSite = await post('/api/v1/seo-tools/what-site', {
+    url: 'https://openai.com'
+  });
+  assert.equal(whatSite.response.status, 200);
+  assert.equal(whatSite.json.success, true);
+  assert.equal(whatSite.json.data.status, 'analyzed');
+  assert.equal(whatSite.json.data.requestedCount, 1);
+  assert.equal(whatSite.json.data.analyzedCount, 1);
+  assert.equal(whatSite.json.data.errorCount, 0);
+  assert.equal(Array.isArray(whatSite.json.data.results), true);
+  assert.equal(whatSite.json.data.results.length, 1);
+  assert.equal(whatSite.json.data.results[0].status, 'analyzed');
+  assert.equal(typeof whatSite.json.data.results[0].finalUrl, 'string');
+  assert.ok(whatSite.json.data.results[0].finalUrl.includes('openai.com'));
+  assert.equal(typeof whatSite.json.data.results[0].statusCode, 'number');
+  assert.ok(whatSite.json.data.results[0].statusCode >= 200);
+  assert.equal(typeof whatSite.json.data.results[0].title, 'string');
+  assert.ok(whatSite.json.data.results[0].title.length >= 1);
+  assert.equal(typeof whatSite.json.data.results[0].content.wordCount, 'number');
+  assert.ok(whatSite.json.data.results[0].content.wordCount > 50);
+  assert.equal(typeof whatSite.json.data.results[0].headings.totalHeadings, 'number');
+  assert.ok(whatSite.json.data.results[0].headings.totalHeadings >= 1);
+  assert.equal(typeof whatSite.json.data.results[0].links.internalCount, 'number');
+  assert.ok(whatSite.json.data.results[0].links.internalCount >= 1);
+  assert.equal(whatSite.json.data.results[0].evidence.htmlFetched, true);
+  assertHtmlScraperContract(whatSite.json.data);
+
   const domainIntelligence = await post('/api/v1/seo-tools/domain-intelligence-suite', {
     domain: 'openai.com'
   });

@@ -140,7 +140,7 @@ route,file,forensic_category,implementation_depth,launch_recommendation,strength
 /api/v1/seo-tools/website-traffic-generator-pro,apps/api-gateway/app/api/v1/seo-tools/website-traffic-generator-pro/route.ts,traffic-simulation,template,rejected_from_public_catalog,weak,blocked,blocked,internal-only,high
 /api/v1/seo-tools/website-traffic-machine,apps/api-gateway/app/api/v1/seo-tools/website-traffic-machine/route.ts,traffic-simulation,template,rejected_from_public_catalog,weak,blocked,blocked,internal-only,high
 /api/v1/seo-tools/websites-traffic-generator,apps/api-gateway/app/api/v1/seo-tools/websites-traffic-generator/route.ts,traffic-simulation,template,rejected_from_public_catalog,weak,blocked,blocked,internal-only,high
-/api/v1/seo-tools/what-site,apps/api-gateway/app/api/v1/seo-tools/what-site/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
+/api/v1/seo-tools/what-site,apps/api-gateway/app/api/v1/seo-tools/what-site/route.ts,html-scraper,live,public_lite,strong,not-in-free-tier-allowlist,ready,strengthen,high
 /api/v1/seo-tools/whatruns,apps/api-gateway/app/api/v1/seo-tools/whatruns/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/woorank,apps/api-gateway/app/api/v1/seo-tools/woorank/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low
 /api/v1/seo-tools/x-twitter,apps/api-gateway/app/api/v1/seo-tools/x-twitter/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low

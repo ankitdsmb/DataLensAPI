@@ -21,6 +21,7 @@
 | --- | --- | --- | --- | --- |
 | `/api/v1/seo-tools/business-websites-ranker` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Discovers public websites from DuckDuckGo HTML search results and applies lightweight website-quality scoring; still heuristic, but no longer just a seed URL builder. |
 | `/api/v1/seo-tools/shopify-product-search` | `public-api-wrapper` | Strengthened with public evidence | Public lite/evidence | Uses public Shopify storefront predictive-search or products-feed endpoints to return normalized product evidence for a supplied `storeUrl`; without `storeUrl` it falls back honestly to a helper URL. |
+| `/api/v1/seo-tools/what-site` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches public HTML and returns a lightweight site profile with final URL, metadata, heading, link, and content signals instead of only a title/description pair. |
 | `/api/v1/seo-tools/similarweb` | `link-builder` | Relabeled honestly | Internal or beta only | Explicitly labeled report URL helper, no analytics scraping claims. |
 | `/api/v1/seo-tools/spotify` | `link-builder` | Relabeled honestly | Public lite/helper | Explicitly labeled Spotify query URL helper only. |
 | `/api/v1/seo-tools/trustpilot-plus` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches the public Trustpilot review page for resolvable identifiers and extracts aggregate rating plus review-count evidence; unresolved inputs still fall back to a helper contract. |
@@ -58,6 +59,7 @@ Follow-up QA now exists for the strongest honesty-sensitive routes:
 - `npm run regression-tests`
   - verifies `business-websites-ranker` returns live website discovery plus scoring evidence
   - verifies `shopify-product-search` returns live storefront product evidence from a supplied public Shopify store
+  - verifies `what-site` returns live site-profile evidence from a supplied public URL
   - verifies helper/link-builder contracts
   - verifies `youtube-region-restriction-checker` returns watch-page availability evidence
   - verifies `trustpilot-plus` returns live review-page aggregate evidence

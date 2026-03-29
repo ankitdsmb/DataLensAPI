@@ -216,6 +216,15 @@ const routeOverrides = {
     gap: 'Still depends on a resolvable review identifier and does not paginate individual reviews or compute sentiment.',
     upgrade: 'Promote into a marketplace-review connector with identifier discovery, review pagination, and normalized sentiment/review DTOs.'
   },
+  'what-site': {
+    cls: 'html-scraper',
+    strength: '4/5',
+    coverage: '~65%',
+    current: 'Fetches live HTML and returns a normalized site profile with final URL, metadata, heading, link, and content signals for each supplied URL.',
+    gap: 'Still only inspects the fetched page and does not yet parse structured data deeply, crawl site sections, or resolve brand/entity context.',
+    upgrade: 'Promote into a canonical site-profile family with structured-data extraction, home-vs-page normalization, and optional shallow crawl mode.',
+    fit: 'Excellent free-tier fit with small URL caps and response caching.'
+  },
   'bulk-bbb': {
     cls: 'html-scraper',
     strength: '3/5',

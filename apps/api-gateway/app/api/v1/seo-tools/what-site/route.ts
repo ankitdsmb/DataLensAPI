@@ -1,7 +1,7 @@
 import {
   collectUrlInputs,
   createToolPolicy,
-  fetchHtmlDocument,
+  inspectWhatSiteProfile,
   readJsonBody,
   withScrapingHandler,
   requireAllowedFields
@@ -23,13 +23,28 @@ export const POST = withScrapingHandler({ policy: whatSitePolicy }, async (req: 
   const results = [];
 
   for (const url of urls) {
-    const { $ } = await fetchHtmlDocument(url, { timeoutMs: whatSitePolicy.timeoutMs });
-    results.push({
+    results.push(await inspectWhatSiteProfile({
       url,
-      title: $('title').text().trim() || null,
-      description: $('meta[name="description"]').attr('content')?.trim() ?? null
-    });
+      timeoutMs: whatSitePolicy.timeoutMs
+    }));
   }
 
-  return { results };
+  const analyzedCount = results.filter((result) => result.status === 'analyzed').length;
+  const errorCount = results.length - analyzedCount;
+
+  return {
+    status: 'analyzed',
+    requestedCount: urls.length,
+    analyzedCount,
+    errorCount,
+    results,
+    contract: {
+      productLabel: 'What Site',
+      forensicCategory: 'html-scraper',
+      implementationDepth: 'live',
+      launchRecommendation: 'public_lite',
+      notes:
+        'Fetches public HTML and returns a lightweight site profile with metadata, heading, link, and content signals for each supplied URL.'
+    }
+  };
 });
