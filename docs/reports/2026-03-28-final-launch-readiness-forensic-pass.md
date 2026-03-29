@@ -30,8 +30,8 @@ Classification summary:
 
 - **Strength**
   - Strong: **16**
-  - Medium: **91**
-  - Weak: **47**
+  - Medium: **92**
+  - Weak: **46**
 - **Launch readiness**
   - Ready: **89**
   - Conditional: **47**
@@ -80,6 +80,7 @@ What this evidence now covers:
 - public Trustpilot review-page aggregate evidence for `trustpilot-plus`,
 - public barcode product evidence for `barcode`,
 - deterministic markdown table generation evidence for `markdown-table-generator`,
+- deterministic platform-aware hashtag generation evidence for `social-media-hashtag-generator`,
 - local profanity moderation evidence for `profanity-checker`,
 - public CMS/site-stack fingerprint evidence for `cms-checker`,
 - public Shopify storefront product evidence for `shopify-product-search`,

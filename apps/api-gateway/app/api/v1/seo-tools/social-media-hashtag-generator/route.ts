@@ -1,9 +1,12 @@
 import {
   createToolPolicy,
+  generateSocialHashtags,
+  optionalBooleanField,
+  optionalIntegerField,
   optionalStringArrayField,
+  optionalStringField,
   readJsonBody,
   withScrapingHandler,
-  RequestValidationError,
   requireAllowedFields
 } from '@forensic/scraping-core';
 
@@ -17,33 +20,29 @@ const hashtagPolicy = createToolPolicy({
 
 function normalizeKeywords(body: Record<string, unknown>) {
   const keywords = optionalStringArrayField(body, 'keywords', { maxItems: 50, fieldLabel: 'keywords' });
-  if (keywords.length === 0) {
-    throw new RequestValidationError('keywords is required', { field: 'keywords' });
-  }
   return keywords;
 }
 
 export const POST = withScrapingHandler({ policy: hashtagPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, hashtagPolicy);
-  requireAllowedFields(body, ['keywords']);
+  requireAllowedFields(body, ['combineKeywords', 'includeBroad', 'keywords', 'maxTags', 'platform']);
   const keywords = normalizeKeywords(body);
-
-  const hashtags = Array.from(new Set(
-    keywords.flatMap((keyword) => {
-      const tokens = keyword
-        .toLowerCase()
-        .replace(/[^a-z0-9\s]/g, '')
-        .split(/\s+/)
-        .filter(Boolean);
-      return [
-        `#${tokens.join('')}`,
-        ...tokens.map((token) => `#${token}`)
-      ];
-    })
-  ));
+  const result = generateSocialHashtags(keywords, {
+    platform: optionalStringField(body, 'platform', ''),
+    maxTags: optionalIntegerField(body, 'maxTags', { defaultValue: 12, min: 1, max: 50 }),
+    includeBroad: optionalBooleanField(body, 'includeBroad', true),
+    combineKeywords: optionalBooleanField(body, 'combineKeywords', true)
+  });
 
   return {
-    hashtags,
-    count: hashtags.length
+    ...result,
+    contract: {
+      productLabel: 'Social Media Hashtag Generator',
+      forensicCategory: 'local-utility',
+      implementationDepth: 'live',
+      launchRecommendation: 'public_lite',
+      notes:
+        'Runs a deterministic hashtag composition engine with keyword normalization, platform presets, ranking, grouped suggestions, and duplicate control. This is a local suggestion utility, not a live social trend scraper.'
+    }
   };
 });

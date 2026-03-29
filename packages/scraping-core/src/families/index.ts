@@ -7,6 +7,7 @@ export * from './markdownTable';
 export * from './profanityFilter';
 export * from './shopifyProductSearch';
 export * from './siteAudit';
+export * from './socialHashtagGenerator';
 export * from './spellChecker';
 export * from './techFingerprint';
 export * from './whatSite';

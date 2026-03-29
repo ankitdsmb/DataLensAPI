@@ -171,6 +171,15 @@ const routeOverrides = {
     upgrade: 'Promote into a canonical text moderation family with richer lexicons, language-aware tokenization, phrase rules, and adjacent safety signals.',
     fit: 'Excellent free-tier fit because the logic is deterministic, fast, and local-only.'
   },
+  'social-media-hashtag-generator': {
+    cls: 'local-utility',
+    strength: '3/5',
+    coverage: '~45%',
+    current: 'Runs a deterministic hashtag composition engine with platform presets, ranking, grouped suggestions, duplicate control, and cross-keyword combinations.',
+    gap: 'Still does not use live platform trend data, engagement signals, or hashtag popularity metrics from social networks.',
+    upgrade: 'Promote into a canonical social copy utility family with caption presets, trend-provider adapters, and per-platform output packages.',
+    fit: 'Excellent free-tier fit because the logic is deterministic, fast, and local-only.'
+  },
   'markdown-table-generator': {
     cls: 'local-utility',
     strength: '3/5',

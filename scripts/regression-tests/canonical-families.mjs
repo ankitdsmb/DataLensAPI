@@ -449,6 +449,33 @@ try {
   assert.equal(markdownTable.json.data.contract.implementationDepth, 'live');
   assert.equal(markdownTable.json.data.contract.launchRecommendation, 'public_lite');
 
+  const hashtags = await post('/api/v1/seo-tools/social-media-hashtag-generator', {
+    keywords: ['AI marketing', 'content strategy'],
+    platform: 'linkedin',
+    maxTags: 10
+  }, {
+    'x-api-key': 'regression-key'
+  });
+  assert.equal(hashtags.response.status, 200);
+  assert.equal(hashtags.json.success, true);
+  assert.equal(hashtags.json.data.status, 'generated');
+  assert.equal(hashtags.json.data.platform, 'linkedin');
+  assert.equal(hashtags.json.data.keywordCount, 2);
+  assert.equal(typeof hashtags.json.data.hashtagCount, 'number');
+  assert.ok(hashtags.json.data.hashtagCount >= 4);
+  assert.ok(hashtags.json.data.hashtagCount <= 10);
+  assert.equal(Array.isArray(hashtags.json.data.hashtags), true);
+  assert.ok(hashtags.json.data.hashtags.some((item) => item.hashtag === '#aimarketing'));
+  assert.ok(hashtags.json.data.hashtags.some((item) => item.hashtag === '#contentstrategy'));
+  assert.equal(Array.isArray(hashtags.json.data.grouped), true);
+  assert.equal(hashtags.json.data.grouped.length, 2);
+  assert.equal(hashtags.json.data.evidence.platformPresetUsed, 'linkedin');
+  assert.ok(hashtags.json.data.evidence.exactCount >= 2);
+  assert.ok(hashtags.json.data.evidence.tokenCount >= 2);
+  assert.equal(hashtags.json.data.contract.forensicCategory, 'local-utility');
+  assert.equal(hashtags.json.data.contract.implementationDepth, 'live');
+  assert.equal(hashtags.json.data.contract.launchRecommendation, 'public_lite');
+
   console.log('regression-tests: canonical families ok');
 } finally {
   await stopProcess(server, 'api-gateway');
