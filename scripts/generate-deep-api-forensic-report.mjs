@@ -209,6 +209,15 @@ const routeOverrides = {
     upgrade: 'Promote into a canonical trend-analysis family with ingest adapters, source provenance, and optional live momentum signals layered on top of the local clustering core.',
     fit: 'Excellent free-tier fit because the current aggregation logic is deterministic, local-only, and bounded by input size.'
   },
+  'trending-news': {
+    cls: 'public-api-wrapper',
+    strength: '3/5',
+    coverage: '~40%',
+    current: 'Uses the public Google News RSS search feed to return live article metadata, publisher names, publication times, and feed-level evidence for a supplied keyword.',
+    gap: 'Still does not fetch full article bodies, resolve final publisher URLs beyond the feed metadata, or unify multiple news-provider feeds into one normalized corpus.',
+    upgrade: 'Promote into a canonical news-intelligence family with feed adapters, article resolution, deduplication, and optional deeper content extraction layered on top of the current RSS evidence path.',
+    fit: 'Good free-tier fit because the current feed lookup is capped, deterministic, and network-light.'
+  },
   'markdown-table-generator': {
     cls: 'local-utility',
     strength: '3/5',

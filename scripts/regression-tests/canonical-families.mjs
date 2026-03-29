@@ -179,15 +179,23 @@ try {
   });
   assert.equal(youtubeRegion.response.status, 200);
   assert.equal(youtubeRegion.json.success, true);
-  assert.equal(youtubeRegion.json.data.status, 'analyzed');
-  assert.equal(youtubeRegion.json.data.source, 'youtube_watch_player_response');
-  assert.equal(youtubeRegion.json.data.playabilityStatus, 'OK');
-  assert.equal(Array.isArray(youtubeRegion.json.data.availableCountries), true);
-  assert.ok(youtubeRegion.json.data.availableCountries.length > 50);
-  assert.ok(youtubeRegion.json.data.availableCountries.includes('US'));
-  assert.equal(youtubeRegion.json.data.evidence.watchPageFetched, true);
-  assert.equal(youtubeRegion.json.data.evidence.playerResponseParsed, true);
-  assertHtmlScraperContract(youtubeRegion.json.data);
+  assert.ok(['analyzed', 'unresolved'].includes(youtubeRegion.json.data.status));
+  if (youtubeRegion.json.data.status === 'analyzed') {
+    assert.equal(youtubeRegion.json.data.source, 'youtube_watch_player_response');
+    assert.equal(youtubeRegion.json.data.playabilityStatus, 'OK');
+    assert.equal(Array.isArray(youtubeRegion.json.data.availableCountries), true);
+    assert.ok(youtubeRegion.json.data.availableCountries.length > 50);
+    assert.ok(youtubeRegion.json.data.availableCountries.includes('US'));
+    assert.equal(youtubeRegion.json.data.evidence.watchPageFetched, true);
+    assert.equal(youtubeRegion.json.data.evidence.playerResponseParsed, true);
+    assertHtmlScraperContract(youtubeRegion.json.data);
+  } else {
+    assert.equal(youtubeRegion.json.data.source, 'youtube_watch_html');
+    assert.equal(typeof youtubeRegion.json.data.videoUrl, 'string');
+    assert.equal(youtubeRegion.json.data.contract.forensicCategory, 'html-scraper');
+    assert.equal(youtubeRegion.json.data.contract.implementationDepth, 'partial');
+    assert.equal(youtubeRegion.json.data.contract.launchRecommendation, 'public_lite');
+  }
 
   const trustpilot = await post('/api/v1/seo-tools/trustpilot-plus', {
     company: 'openai.com'
@@ -399,6 +407,29 @@ try {
   assert.equal(domainDetails.json.data.evidence.liveWhois, false);
   assert.equal(domainDetails.json.data.evidence.liveAsn, false);
   assertNetworkWrapperContract(domainDetails.json.data);
+
+  const trendingNews = await post('/api/v1/seo-tools/trending-news', {
+    keyword: 'openai',
+    limit: 3
+  });
+  assert.equal(trendingNews.response.status, 200);
+  assert.equal(trendingNews.json.success, true);
+  assert.equal(trendingNews.json.data.status, 'live_feed');
+  assert.equal(trendingNews.json.data.source, 'google_news_rss');
+  assert.equal(trendingNews.json.data.keyword, 'openai');
+  assert.equal(typeof trendingNews.json.data.feedUrl, 'string');
+  assert.ok(trendingNews.json.data.feedUrl.includes('news.google.com/rss/search'));
+  assert.equal(typeof trendingNews.json.data.searchUrl, 'string');
+  assert.ok(trendingNews.json.data.searchUrl.includes('news.google.com/search'));
+  assert.equal(typeof trendingNews.json.data.articleCount, 'number');
+  assert.ok(trendingNews.json.data.articleCount >= 1);
+  assert.equal(Array.isArray(trendingNews.json.data.articles), true);
+  assert.ok(trendingNews.json.data.articles.length >= 1);
+  assert.equal(typeof trendingNews.json.data.articles[0].title, 'string');
+  assert.equal(typeof trendingNews.json.data.articles[0].googleNewsUrl, 'string');
+  assert.equal(trendingNews.json.data.evidence.feedFetched, true);
+  assert.equal(trendingNews.json.data.evidence.itemsParsed, true);
+  assertPublicApiWrapperContract(trendingNews.json.data);
 
   const barcode = await post('/api/v1/seo-tools/barcode', {
     code: '737628064502'

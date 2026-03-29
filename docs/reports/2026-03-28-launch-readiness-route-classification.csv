@@ -121,7 +121,7 @@ route,file,forensic_category,implementation_depth,launch_recommendation,strength
 /api/v1/seo-tools/traffic-booster,apps/api-gateway/app/api/v1/seo-tools/traffic-booster/route.ts,traffic-simulation,template,rejected_from_public_catalog,weak,blocked,blocked,internal-only,high
 /api/v1/seo-tools/traffic-generator-youtube-web-etsy-behance-and-many-more,apps/api-gateway/app/api/v1/seo-tools/traffic-generator-youtube-web-etsy-behance-and-many-more/route.ts,traffic-simulation,template,rejected_from_public_catalog,weak,blocked,blocked,internal-only,high
 /api/v1/seo-tools/trayvmy-actor,apps/api-gateway/app/api/v1/seo-tools/trayvmy-actor/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low
-/api/v1/seo-tools/trending-news,apps/api-gateway/app/api/v1/seo-tools/trending-news/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low
+/api/v1/seo-tools/trending-news,apps/api-gateway/app/api/v1/seo-tools/trending-news/route.ts,public-api-wrapper,live,public_lite,medium,not-in-free-tier-allowlist,conditional,strengthen,medium
 /api/v1/seo-tools/tripadvisor-cruises,apps/api-gateway/app/api/v1/seo-tools/tripadvisor-cruises/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low
 /api/v1/seo-tools/tripadvisor-hotels,apps/api-gateway/app/api/v1/seo-tools/tripadvisor-hotels/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low
 /api/v1/seo-tools/trustpilot-plus,apps/api-gateway/app/api/v1/seo-tools/trustpilot-plus/route.ts,html-scraper,live,public_lite,medium,not-in-free-tier-allowlist,conditional,strengthen,medium

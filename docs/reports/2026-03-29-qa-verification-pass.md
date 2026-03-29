@@ -51,6 +51,7 @@ All three commands passed on this branch.
 - Verifies `/api/v1/seo-tools/plagiarism-checker` now returns deterministic local n-gram overlap analysis with pairwise match scoring, repeated-phrase evidence, and shared-phrase excerpts across supplied texts.
 - Verifies `/api/v1/seo-tools/serp-meta-title-generator` now returns deterministic intent-aware SEO title variants with scoring, brand placement, and pixel/length evidence.
 - Verifies `/api/v1/seo-tools/topic-trend-aggregator` now returns deterministic topic clusters with representative phrases, shared tokens, and momentum signals instead of raw string-length scoring.
+- Verifies `/api/v1/seo-tools/trending-news` now returns live Google News RSS article metadata, source names, publication times, and feed-level evidence instead of only a search URL.
 - Verifies `/api/v1/seo-tools/domain-availability-expiry-whois-dns-ip-asn-70-tld` now returns live DNS availability, normalized A-record summaries, DNS matrix evidence, and HTTPS reachability instead of a single thin A-record response.
 - Verifies `/api/v1/seo-tools/profanity-checker` now returns deterministic moderation matches, masking, severity, and custom-word handling while respecting the route’s API-key launch posture.
 - Verifies `/api/v1/seo-tools/shopify-product-search` now returns public storefront product evidence from Shopify predictive-search or products-feed endpoints when a `storeUrl` is supplied.
@@ -96,6 +97,7 @@ This QA pass materially strengthens the repo’s evidence base:
    - local n-gram plagiarism evidence,
    - deterministic SEO title generation,
    - deterministic topic clustering,
+   - public trending news feed evidence extraction,
    - live light domain availability evidence,
    - deterministic profanity moderation extraction,
    - public Shopify storefront product evidence extraction,
