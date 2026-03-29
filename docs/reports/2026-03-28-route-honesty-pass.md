@@ -43,3 +43,14 @@
    - no runtime at all,
    - real job orchestration with synthetic execution,
    - and future full worker-backed execution.
+
+## Verification evidence
+
+Follow-up QA now exists for the strongest honesty-sensitive routes:
+
+- `npm run smoke-tests`
+  - verifies `youtube-rank-checker` async job completion and artifact retrieval
+  - verifies `snapify-capture-screenshot-save-pdf` is blocked at the public gateway but succeeds through the internal worker path
+- `npm run regression-tests`
+  - verifies helper/link-builder contracts
+  - verifies `openpagerank-bulk-checker` and `rentcast` return the expected internal provider-template contracts

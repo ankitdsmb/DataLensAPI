@@ -60,6 +60,25 @@ Compared live code routes against `docs/api-plans/route-allowlist.md`.
    - real async orchestration surfaces,
    - and fully implemented worker outputs.
 
+## Verification evidence
+
+Current branch verification is recorded in:
+
+- `docs/reports/2026-03-29-qa-verification-pass.md`
+
+Verified commands:
+
+- `npm run contract-tests`
+- `npm run smoke-tests`
+- `npm run regression-tests`
+
+What this evidence now covers:
+
+- shared response envelope and validation behavior,
+- async job submission/completion/artifact retrieval for `youtube-rank-checker`,
+- public gateway blocking plus internal worker execution for `snapify-capture-screenshot-save-pdf`,
+- provider-template contract assertions for `openpagerank-bulk-checker` and `rentcast`.
+
 ## Launch blockers (explicit)
 
 ### Blocker 1 — Two blocked provider-template endpoints remain non-launchable
