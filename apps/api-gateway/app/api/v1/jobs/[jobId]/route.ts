@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createErrorResponse, createRequestId, createResponse } from '@forensic/scraping-core';
+import { createErrorResponse, createRequestId, createResponse, startTiming } from '@forensic/scraping-core';
 import { getJob, jobToEnvelope } from '@/lib/jobs/runtime';
 
 type RouteContext = {
@@ -7,7 +7,7 @@ type RouteContext = {
 };
 
 export async function GET(_req: Request, context: RouteContext) {
-  const startTime = Date.now();
+  const startTime = startTiming();
   const requestId = createRequestId();
   const { jobId } = await context.params;
   const job = await getJob(jobId);

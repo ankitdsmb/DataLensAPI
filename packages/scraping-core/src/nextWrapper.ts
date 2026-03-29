@@ -4,7 +4,7 @@ import { DEFAULT_TOOL_POLICY } from './policy';
 import type { ToolExecutionPolicy } from '../../shared-types/src';
 import { RequestValidationError, UpstreamApiError } from './validation';
 import { acquireConcurrencyLease, enforceLaunchPolicy, resolveLaunchPolicy } from './launchGuard';
-import { logEvent, logTiming, withRequestContext } from './observability';
+import { elapsedMs, logEvent, logTiming, startTiming, withRequestContext } from './observability';
 type ScrapingHandlerOptions = {
   policy?: Partial<ToolExecutionPolicy>;
 };
@@ -56,7 +56,7 @@ export function withScrapingHandler<T>(
   }
 
   return async function POST(req: Request) {
-    const startTime = Date.now();
+    const startTime = startTiming();
     const requestId = createRequestId();
     let releaseConcurrency: (() => void) | undefined;
 
@@ -145,7 +145,7 @@ export function withScrapingHandler<T>(
           const resolvedStatus = resolveErrorStatus(normalizedError);
           logEvent('error', 'api.request.failed', {
             status_code: resolvedStatus,
-            duration_ms: Date.now() - startTime,
+            duration_ms: elapsedMs(startTime),
             error_code:
               normalizedError instanceof RequestValidationError || normalizedError instanceof UpstreamApiError
                 ? normalizedError.code

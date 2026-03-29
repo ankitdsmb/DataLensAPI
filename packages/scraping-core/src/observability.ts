@@ -1,4 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
+import { performance } from 'node:perf_hooks';
 
 type RequestContext = {
   requestId: string;
@@ -8,6 +9,10 @@ type RequestContext = {
 type LogLevel = 'info' | 'error';
 
 type LogFields = Record<string, unknown>;
+export type TimingHandle = {
+  startedAtMs: number;
+  monotonicStartMs: number;
+};
 
 const requestContextStore = new AsyncLocalStorage<RequestContext>();
 
@@ -38,9 +43,24 @@ export function logEvent(level: LogLevel, event: string, fields: LogFields = {})
   console.info(JSON.stringify(payload));
 }
 
-export function logTiming(event: string, startTime: number, fields: LogFields = {}) {
+export function startTiming(): TimingHandle {
+  return {
+    startedAtMs: Date.now(),
+    monotonicStartMs: performance.now()
+  };
+}
+
+export function elapsedMs(startTime: TimingHandle | number) {
+  if (typeof startTime === 'number') {
+    return Math.max(0, Date.now() - startTime);
+  }
+
+  return Math.max(0, Math.round(performance.now() - startTime.monotonicStartMs));
+}
+
+export function logTiming(event: string, startTime: TimingHandle | number, fields: LogFields = {}) {
   logEvent('info', event, {
-    duration_ms: Date.now() - startTime,
+    duration_ms: elapsedMs(startTime),
     ...fields
   });
 }

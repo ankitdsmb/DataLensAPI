@@ -1,6 +1,6 @@
 import { gotScraping, type OptionsInit } from 'got-scraping';
 import { DEFAULT_TOOL_POLICY } from './policy';
-import { logEvent, logTiming } from './observability';
+import { elapsedMs, logEvent, logTiming, startTiming } from './observability';
 
 type RequestProfile = 'desktop' | 'mobile';
 
@@ -52,7 +52,7 @@ async function requestWithProfile(
   profile: RequestProfile,
   options: StealthRequestOptions = {}
 ): Promise<StealthResponse> {
-  const startTime = Date.now();
+  const startTime = startTiming();
   const provider = options.provider ?? new URL(url).hostname;
   const method =
     typeof options.method === 'string' && options.method.trim().length > 0
@@ -83,7 +83,7 @@ async function requestWithProfile(
       profile,
       method,
       url,
-      duration_ms: Date.now() - startTime,
+      duration_ms: elapsedMs(startTime),
       error_message: normalized.message
     });
     throw error;
