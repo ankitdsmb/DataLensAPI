@@ -221,6 +221,15 @@ const routeOverrides = {
     gap: 'Still depends on a resolvable review identifier and does not paginate individual reviews or compute sentiment.',
     upgrade: 'Promote into a marketplace-review connector with identifier discovery, review pagination, and normalized sentiment/review DTOs.'
   },
+  'bulk-bbb': {
+    cls: 'html-scraper',
+    strength: '3/5',
+    coverage: '~40%',
+    current: 'Fetches public BBB search pages in bulk and enriches the best matched profile for each company with rating evidence and complaint signals.',
+    gap: 'Still caps batch size, does not paginate customer reviews, and does not normalize complaint timelines across all matched businesses.',
+    upgrade: 'Promote into a marketplace-review connector with reusable BBB parsers, bulk enrichment, and structured complaint/review timelines.',
+    fit: 'Usually fine on free serverless if inputs stay capped.'
+  },
   'simple-bbb': {
     strength: '3/5',
     coverage: '~45%',
@@ -394,10 +403,10 @@ function buildGithubNote(slug, src) {
 function buildEntry(slug, src, planMeta) {
   const endpoint = `/api/v1/seo-tools/${slug}`;
   const summary = planMeta ? [...planMeta.summaries][0] : 'Live route present in code but missing from dev-and-seo-tooling-list.md.';
-  const cls = classify(slug, src);
+  const override = routeOverrides[slug] ?? {};
+  const cls = override.cls ?? classify(slug, src);
   const family = inferFamily(slug, summary);
   const defaults = classDefaults[cls];
-  const override = routeOverrides[slug] ?? {};
 
   let fit = override.fit ?? defaults.fit;
   if (family === 'traffic-simulation') {

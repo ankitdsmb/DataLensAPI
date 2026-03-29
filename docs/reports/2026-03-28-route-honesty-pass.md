@@ -22,6 +22,7 @@
 | `/api/v1/seo-tools/similarweb` | `link-builder` | Relabeled honestly | Internal or beta only | Explicitly labeled report URL helper, no analytics scraping claims. |
 | `/api/v1/seo-tools/spotify` | `link-builder` | Relabeled honestly | Public lite/helper | Explicitly labeled Spotify query URL helper only. |
 | `/api/v1/seo-tools/trustpilot-plus` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches the public Trustpilot review page for resolvable identifiers and extracts aggregate rating plus review-count evidence; unresolved inputs still fall back to a helper contract. |
+| `/api/v1/seo-tools/bulk-bbb` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches public BBB search pages in bulk, parses visible business matches for each input company, and enriches the best matched BBB profile with rating evidence and complaint signals. |
 | `/api/v1/seo-tools/simple-bbb` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches the public BBB search page, parses visible business matches, and enriches the best match with BBB profile metadata, rating evidence, and complaint signals. |
 | `/api/v1/seo-tools/youtube-region-restriction-checker` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches the public watch page and parses `playabilityStatus`, `playableInEmbed`, and `availableCountries`; it still does not independently simulate playback from each country. |
 | `/api/v1/seo-tools/openpagerank-bulk-checker` | `api-key-stub` | Relabeled honestly | Internal-only until provider integration | Explicit internal provider-template contract with `provider_credentials_required` results and `not_executed` provider state. |
@@ -56,5 +57,6 @@ Follow-up QA now exists for the strongest honesty-sensitive routes:
   - verifies helper/link-builder contracts
   - verifies `youtube-region-restriction-checker` returns watch-page availability evidence
   - verifies `trustpilot-plus` returns live review-page aggregate evidence
+  - verifies `bulk-bbb` returns live BBB bulk search/profile evidence
   - verifies `simple-bbb` returns live BBB search/profile evidence
   - verifies `openpagerank-bulk-checker` and `rentcast` return the expected internal provider-template contracts

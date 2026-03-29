@@ -199,6 +199,26 @@ try {
   assert.equal(bbb.json.data.evidence.webDigitalDataParsed, true);
   assertHtmlScraperContract(bbb.json.data);
 
+  const bulkBbb = await post('/api/v1/seo-tools/bulk-bbb', {
+    companies: ['openai', 'openai']
+  });
+  assert.equal(bulkBbb.response.status, 200);
+  assert.equal(bulkBbb.json.success, true);
+  assert.equal(bulkBbb.json.data.requestedCount, 2);
+  assert.equal(bulkBbb.json.data.analyzedCount, 2);
+  assert.equal(bulkBbb.json.data.errorCount, 0);
+  assert.equal(Array.isArray(bulkBbb.json.data.results), true);
+  assert.equal(bulkBbb.json.data.results.length, 2);
+  for (const result of bulkBbb.json.data.results) {
+    assert.equal(result.status, 'analyzed');
+    assert.equal(typeof result.bestMatch?.profileUrl, 'string');
+    assert.equal(typeof result.profile?.bbbRating, 'string');
+    assert.equal(typeof result.profile?.complaintsFiledCount, 'number');
+    assert.ok(result.profile.complaintsFiledCount > 0);
+    assert.equal(result.evidence.profilePageFetched, true);
+  }
+  assertHtmlScraperContract(bulkBbb.json.data);
+
   const domainIntelligence = await post('/api/v1/seo-tools/domain-intelligence-suite', {
     domain: 'openai.com'
   });

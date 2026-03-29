@@ -22,7 +22,7 @@ route,file,forensic_category,implementation_depth,launch_recommendation,strength
 /api/v1/seo-tools/builtfirst,apps/api-gateway/app/api/v1/seo-tools/builtfirst/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/builtwith-bulk-urls,apps/api-gateway/app/api/v1/seo-tools/builtwith-bulk-urls/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/builtwith-technology-looker,apps/api-gateway/app/api/v1/seo-tools/builtwith-technology-looker/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
-/api/v1/seo-tools/bulk-bbb,apps/api-gateway/app/api/v1/seo-tools/bulk-bbb/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low
+/api/v1/seo-tools/bulk-bbb,apps/api-gateway/app/api/v1/seo-tools/bulk-bbb/route.ts,html-scraper,live,public_lite,medium,not-in-free-tier-allowlist,conditional,strengthen,medium
 /api/v1/seo-tools/business-websites-ranker,apps/api-gateway/app/api/v1/seo-tools/business-websites-ranker/route.ts,link-builder,helper,public_lite,weak,not-in-free-tier-allowlist,conditional,relabel,high
 /api/v1/seo-tools/candor,apps/api-gateway/app/api/v1/seo-tools/candor/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/canny,apps/api-gateway/app/api/v1/seo-tools/canny/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
