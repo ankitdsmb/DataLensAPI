@@ -18,6 +18,10 @@ type NumberRangeOptions = {
   max?: number;
 };
 
+type PublicUrlOptions = {
+  allowHosts?: string[];
+};
+
 export class RequestValidationError extends Error implements ApiHandlerError {
   code: string;
   status: number;
@@ -201,6 +205,111 @@ export function assertHttpUrl(value: string): string {
   }
 
   return parsed.toString();
+}
+
+function normalizeHost(host: string): string {
+  return host.trim().toLowerCase();
+}
+
+function isIpv4Host(host: string): boolean {
+  return /^\d{1,3}(?:\.\d{1,3}){3}$/.test(host);
+}
+
+function parseIpv4Host(host: string): number[] | null {
+  if (!isIpv4Host(host)) {
+    return null;
+  }
+
+  const octets = host.split('.').map((part) => Number(part));
+  if (octets.some((octet) => !Number.isInteger(octet) || octet < 0 || octet > 255)) {
+    return null;
+  }
+
+  return octets;
+}
+
+function isPrivateIpv4Host(host: string): boolean {
+  const octets = parseIpv4Host(host);
+  if (!octets) {
+    return false;
+  }
+
+  const [a, b] = octets;
+
+  return (
+    a === 0 ||
+    a === 10 ||
+    a === 127 ||
+    (a === 100 && b >= 64 && b <= 127) ||
+    (a === 169 && b === 254) ||
+    (a === 172 && b >= 16 && b <= 31) ||
+    (a === 192 && b === 0) ||
+    (a === 192 && b === 168) ||
+    (a === 198 && (b === 18 || b === 19)) ||
+    a >= 224
+  );
+}
+
+function isIpv6Host(host: string): boolean {
+  return host.includes(':');
+}
+
+function isPrivateIpv6Host(host: string): boolean {
+  const normalized = normalizeHost(host);
+
+  return (
+    normalized === '::' ||
+    normalized === '::1' ||
+    normalized.startsWith('fc') ||
+    normalized.startsWith('fd') ||
+    normalized.startsWith('fe8') ||
+    normalized.startsWith('fe9') ||
+    normalized.startsWith('fea') ||
+    normalized.startsWith('feb')
+  );
+}
+
+function isPrivateHostname(host: string): boolean {
+  const normalized = normalizeHost(host);
+
+  if (
+    normalized === 'localhost' ||
+    normalized.endsWith('.localhost') ||
+    normalized.endsWith('.local') ||
+    normalized === 'host.docker.internal' ||
+    normalized === 'gateway.docker.internal'
+  ) {
+    return true;
+  }
+
+  if (isPrivateIpv4Host(normalized) || isPrivateIpv6Host(normalized)) {
+    return true;
+  }
+
+  if (!normalized.includes('.') && !isIpv4Host(normalized) && !isIpv6Host(normalized)) {
+    return true;
+  }
+
+  return false;
+}
+
+export function assertPublicHttpUrl(value: string, options: PublicUrlOptions = {}): string {
+  const normalizedUrl = assertHttpUrl(value);
+  const hostname = normalizeHost(new URL(normalizedUrl).hostname);
+  const allowedHosts = new Set((options.allowHosts ?? []).map(normalizeHost).filter(Boolean));
+
+  if (allowedHosts.has(hostname)) {
+    return normalizedUrl;
+  }
+
+  if (isPrivateHostname(hostname)) {
+    throw new RequestValidationError('url must target a public host', {
+      value,
+      hostname
+    });
+  }
+
+  return normalizedUrl;
 }
 
 export function requireAllowedFields(body: Record<string, unknown>, allowedFields: string[]): void {

@@ -77,14 +77,17 @@ Current truth:
 
 - both routes have real job submission, status, and artifact behavior,
 - both now expose explicit preview retention policy with authenticated-only status/artifact reads,
-- both stay excluded from the free-tier profile but can run as credentialed previews outside free-tier mode,
+- both stay excluded from the free-tier profile,
+- `snapify-capture-screenshot-save-pdf` now runs as an authenticated beta outside free-tier mode with public-host validation plus page/artifact budgets,
+- `youtube-rank-checker` still runs as a credentialed preview outside free-tier mode,
 - both are useful internally,
-- neither is yet public-grade.
+- and only `snapify-capture-screenshot-save-pdf` is now close to public-grade for authenticated non-free-tier use.
 
 Recommended default:
 
 - do not widen the free-tier launch subset for either route.
-- treat both as credentialed preview routes outside free-tier mode until one earns a stronger public-grade posture.
+- keep `snapify-capture-screenshot-save-pdf` at authenticated-beta posture outside free-tier mode unless stronger browser quotas and delivery controls justify broader promotion later.
+- keep `youtube-rank-checker` at credentialed-preview posture outside free-tier mode until its evidence path is materially more stable.
 
 Suggested order:
 
@@ -92,8 +95,10 @@ Suggested order:
    - completed on `codex/origin-main-integration`,
    - now renders real browser screenshot/PDF artifacts,
    - keeps the HTML evidence path as fallback,
+   - now rejects private-host targets by default unless explicitly allowlisted for controlled environments,
+   - now enforces render-height plus screenshot/PDF byte budgets and degrades safely to HTML evidence when capture budgets are exceeded,
    - now limits preview jobs to a 6-hour TTL with 2-hour authenticated artifact retention,
-   - and now submits successfully through the gateway in non-free-tier credentialed-preview mode.
+   - and now submits successfully through the gateway in non-free-tier authenticated-beta mode.
 2. `youtube-rank-checker`
    - completed on `codex/origin-main-integration`,
    - now uses multi-strategy live result collection with provenance,
@@ -104,7 +109,7 @@ Suggested order:
 Exit criteria:
 
 - both routes remain excluded from the free-tier subset,
-- one route may later graduate beyond credentialed-preview posture,
+- `snapify-capture-screenshot-save-pdf` can remain at authenticated-beta posture while `youtube-rank-checker` stays preview-only,
 - and neither is marketed as a general public route until its evidence path is stable enough.
 
 ### Phase 3: Curated expansion only where public evidence is believable
@@ -175,7 +180,7 @@ If we start another implementation batch immediately, the best single next move 
 1. make a firm product decision on `openpagerank-bulk-checker` and `rentcast`:
    - permanent internal template, or
    - approved real provider integration with credentials and quota planning.
-2. keep `snapify-capture-screenshot-save-pdf` and `youtube-rank-checker` internal-preview while artifact delivery, browser quotas, retention policy, and evidence hardening are tightened.
+2. keep `snapify-capture-screenshot-save-pdf` at authenticated-beta posture outside free-tier mode and keep `youtube-rank-checker` preview-only while browser quotas, artifact delivery, and evidence hardening continue to tighten.
 3. avoid speculative expansion work on challenge-gated connectors unless a real provider or stable public-data path is approved first.
 
 ## Bottom line
@@ -184,7 +189,7 @@ The repo no longer needs a broad rescue pass.
 
 It now needs disciplined next-cycle choices:
 
-- finish one internal-preview async route properly,
+- keep exactly one hardened async route at authenticated-beta posture and avoid widening the rest,
 - keep shared observability trustworthy while the supported subset stabilizes,
 - keep provider templates honest unless integrations are approved,
 - avoid speculative connector work,

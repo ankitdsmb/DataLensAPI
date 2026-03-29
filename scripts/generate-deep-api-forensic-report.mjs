@@ -330,10 +330,10 @@ const routeOverrides = {
     strength: '3/5',
     coverage: '~55%',
     current:
-      'Real credentialed-preview async job submission plus browser-rendered screenshot and PDF artifacts, with HTML evidence fallback, authenticated-only status/artifact reads, and explicit TTL-based retention.',
+      'Real authenticated-beta async job submission plus browser-rendered screenshot and PDF artifacts, with HTML evidence fallback, public-host validation at the gateway, page/artifact budgets, authenticated-only status/artifact reads, and explicit TTL-based retention.',
     gap: 'Still remains excluded from the free-tier subset because browser execution limits, artifact delivery, and broader abuse safeguards are not yet hardened for broad launch.',
     upgrade:
-      'Keep it as a credentialed preview outside free-tier mode until browser quotas, artifact delivery, and abuse controls are production-grade, then re-evaluate broader public promotion.'
+      'Keep it as an authenticated beta outside free-tier mode until browser quotas, artifact delivery, and abuse controls are production-grade, then re-evaluate broader public promotion.'
   },
   'trayvmy-actor': {
     cls: 'shallow-local-utility',

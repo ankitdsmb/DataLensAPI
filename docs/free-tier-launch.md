@@ -41,7 +41,7 @@ These routes exist in code but should not be presented as part of the free-tier 
 - `POST /api/v1/seo-tools/rentcast`
   - Provider template only; returns a normalized lookup helper plus `internal_provider_template` until real credentialed integration exists.
 - `POST /api/v1/seo-tools/snapify-capture-screenshot-save-pdf`
-  - Real async job contract exists and now renders screenshot/PDF artifacts in a credentialed preview path outside free-tier mode, with authenticated-only status/artifact access, a 6-hour job TTL, and a 2-hour artifact-retention window. It remains non-public in the free-tier profile.
+  - Real async job contract exists and now renders screenshot/PDF artifacts in an authenticated beta path outside free-tier mode, with public-host validation, page/artifact budgets, authenticated-only status/artifact access, a 6-hour job TTL, and a 2-hour artifact-retention window. It remains non-public in the free-tier profile.
 - `POST /api/v1/seo-tools/youtube-rank-checker`
   - Real async job contract exists and now attempts lightweight YouTube search evidence collection in a credentialed preview path outside free-tier mode, with authenticated-only status/artifact access, a 12-hour job TTL, and a 6-hour artifact-retention window. It still falls back when live evidence cannot be collected, so it remains excluded from the free-tier profile.
 - `POST /api/v1/seo-tools/trayvmy-actor`

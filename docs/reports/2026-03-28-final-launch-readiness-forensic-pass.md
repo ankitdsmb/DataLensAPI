@@ -109,7 +109,7 @@ What this evidence now covers:
 - explicit helper-only posture for `showtimes`,
 - shared travel-helper compatibility behavior for `car-hire-rental` and `car-hire-rental-bulk`,
 - compatibility-wrapper posture for `spotify-plus` and `spyfu-bulk-urls`,
-- launch-guard free-tier blocking plus credentialed-preview gateway execution for `snapify-capture-screenshot-save-pdf` and `youtube-rank-checker`,
+- launch-guard free-tier blocking plus authenticated-beta gateway execution for `snapify-capture-screenshot-save-pdf` and credentialed-preview gateway execution for `youtube-rank-checker`,
 - deprecated internal-template quarantine for `trayvmy-actor`,
 - provider-template contract assertions for `openpagerank-bulk-checker` and `rentcast`.
 
@@ -123,12 +123,12 @@ What this evidence now covers:
 These routes are now explicitly classified as internal provider templates rather than ambiguous pending APIs.
 For the current supported subset, they are treated as deliberate internal templates by default rather than near-term public candidates.
 
-### Credentialed preview async routes remain excluded from the supported free-tier subset
+### Async capture/rank routes remain excluded from the supported free-tier subset
 
 - `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf`
 - `/api/v1/seo-tools/youtube-rank-checker`
 
-These routes now have a real async submission and job-status surface, and both have been strengthened beyond pure placeholders. `snapify-capture-screenshot-save-pdf` now renders browser-backed screenshot/PDF artifacts and can run as a credentialed preview outside free-tier mode, while `youtube-rank-checker` now uses multi-strategy search evidence parsing with provenance and can also run as a credentialed preview outside free-tier mode. Both enforce authenticated-only preview job status/artifact reads with explicit TTL windows, and both remain excluded from the supported free-tier subset because browser execution controls, artifact retention, and preview-route safeguards are still intentionally tighter than the public free-tier launch profile.
+These routes now have a real async submission and job-status surface, and both have been strengthened beyond pure placeholders. `snapify-capture-screenshot-save-pdf` now renders browser-backed screenshot/PDF artifacts, enforces public-host validation plus render/artifact budgets, and can run as an authenticated beta outside free-tier mode, while `youtube-rank-checker` now uses multi-strategy search evidence parsing with provenance and remains a credentialed preview outside free-tier mode. Both enforce authenticated-only job status/artifact reads with explicit TTL windows, and both remain excluded from the supported free-tier subset because browser execution controls and preview-route safeguards are intentionally tighter than the public free-tier launch profile.
 
 ### Rejected traffic and fake-engagement routes remain blocked by design
 

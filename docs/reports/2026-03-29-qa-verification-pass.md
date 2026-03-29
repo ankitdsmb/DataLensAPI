@@ -53,9 +53,11 @@ confirmed the shared timing path stays stable after the change.
 - Verifies `snapify-capture-screenshot-save-pdf`:
   - stays blocked from the free-tier profile by launch-guard contract checks,
   - is allowed in non-free-tier mode only with API key auth,
-  - now submits and completes successfully through the public gateway in credentialed-preview mode,
-  - now returns browser-rendered screenshot/PDF artifacts plus page-evidence reports,
-  - and keeps preview status/artifact access behind authenticated-only reads with explicit TTL metadata.
+  - now submits and completes successfully through the public gateway in authenticated-beta mode,
+  - now rejects private-host targets by default unless explicitly allowlisted for controlled environments,
+  - now returns browser-rendered screenshot/PDF artifacts plus page-evidence reports for in-budget pages,
+  - now degrades cleanly to HTML-evidence-only when a page exceeds the render/artifact budget,
+  - and keeps beta status/artifact access behind authenticated-only reads with explicit TTL metadata.
 - Confirms the smoke harness now exits cleanly after teardown.
 
 ### Regression tests

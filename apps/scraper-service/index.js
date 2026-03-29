@@ -5,6 +5,10 @@ const { chromium } = require('playwright');
 const app = express();
 const port = process.env.PORT || 3000;
 const DEFAULT_PLAYWRIGHT_BROWSERS_PATH = '/tmp/pw-cache/ms-playwright';
+const SNAPIFY_MAX_RENDER_WIDTH = 2400;
+const SNAPIFY_MAX_RENDER_HEIGHT = 12000;
+const SNAPIFY_MAX_SCREENSHOT_BYTES = 8 * 1024 * 1024;
+const SNAPIFY_MAX_PDF_BYTES = 12 * 1024 * 1024;
 const YOUTUBE_DESKTOP_UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36';
 const YOUTUBE_MOBILE_UA =
@@ -493,6 +497,24 @@ function toBase64Artifact(buffer, mimeType, filename, metadata = {}) {
   };
 }
 
+function assertSnapifyRenderBudget(metadata, screenshotBytes = 0, pdfBytes = 0) {
+  if (metadata.width > SNAPIFY_MAX_RENDER_WIDTH || metadata.height > SNAPIFY_MAX_RENDER_HEIGHT) {
+    throw new Error(
+      `page dimensions exceed capture budget (${metadata.width}x${metadata.height}, max ${SNAPIFY_MAX_RENDER_WIDTH}x${SNAPIFY_MAX_RENDER_HEIGHT})`
+    );
+  }
+
+  if (screenshotBytes > SNAPIFY_MAX_SCREENSHOT_BYTES) {
+    throw new Error(
+      `screenshot artifact exceeds byte budget (${screenshotBytes} > ${SNAPIFY_MAX_SCREENSHOT_BYTES})`
+    );
+  }
+
+  if (pdfBytes > SNAPIFY_MAX_PDF_BYTES) {
+    throw new Error(`pdf artifact exceeds byte budget (${pdfBytes} > ${SNAPIFY_MAX_PDF_BYTES})`);
+  }
+}
+
 async function renderPageArtifacts(browser, url) {
   const context = await browser.newContext({
     viewport: { width: 1440, height: 900 },
@@ -528,6 +550,10 @@ async function renderPageArtifacts(browser, url) {
     });
 
     const finalUrl = page.url() || response?.url() || url;
+    assertSnapifyRenderBudget({
+      width: metadata.width,
+      height: metadata.height
+    });
     const screenshot = await page.screenshot({ fullPage: true, type: 'png' });
     const pdf = await page.pdf({
       format: 'A4',
@@ -540,6 +566,14 @@ async function renderPageArtifacts(browser, url) {
         left: '0.4in'
       }
     });
+    assertSnapifyRenderBudget(
+      {
+        width: metadata.width,
+        height: metadata.height
+      },
+      screenshot.length,
+      pdf.length
+    );
 
     return {
       url,
@@ -899,10 +933,10 @@ async function executeJob(tool, payload) {
     return {
       execution: {
         mode: browser ? 'browser' : 'provider',
-        readyForPublicLaunch: false,
+        readyForPublicLaunch: renderedArtifactsAvailable,
         notes:
           renderedArtifactsAvailable
-            ? 'Renders real screenshots and PDFs in an internal browser worker. Keep internal-only until browser execution limits, artifact retention, and stronger public safeguards are finalized.'
+            ? 'Renders real screenshots and PDFs in a browser worker with public-host validation at the gateway, single-URL capture, authenticated access, retention TTLs, and artifact/dimension budgets. Suitable for authenticated beta use outside the free-tier subset.'
             : `Browser rendering was unavailable, so the worker fell back to live HTML evidence capture only. Reason: ${browserLaunchError || 'unknown browser launch issue'}`
       },
       result: {

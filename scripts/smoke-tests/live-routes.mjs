@@ -93,6 +93,28 @@ function createEvidenceServer() {
       <h1>Smoke Evidence</h1>
       <p>This page exists so async smoke tests can capture deterministic HTML evidence.</p>
     </main>
+      </body>
+</html>`);
+      return;
+    }
+
+    if (req.url === '/tall-page') {
+      res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+      res.end(`<!doctype html>
+<html lang="en">
+  <head>
+    <title>Tall Smoke Evidence Page</title>
+    <meta name="description" content="Tall local smoke-test page for snapify budget fallback." />
+    <style>
+      body { margin: 0; font-family: sans-serif; }
+      .tower { height: 14000px; background: linear-gradient(#f8fafc, #e2e8f0); }
+    </style>
+  </head>
+  <body>
+    <main class="tower">
+      <h1>Tall Smoke Evidence</h1>
+      <p>This page intentionally exceeds the snapify render-height budget.</p>
+    </main>
   </body>
 </html>`);
       return;
@@ -169,7 +191,8 @@ const server = spawn('npm', ['--workspace', 'api-gateway', 'run', 'dev', '--', '
     ...process.env,
     FREE_TIER_LAUNCH_MODE: 'false',
     FREE_TIER_API_KEYS: 'smoke-key',
-    SCRAPER_SERVICE_URL: SCRAPER_URL
+    SCRAPER_SERVICE_URL: SCRAPER_URL,
+    SNAPIFY_CAPTURE_HOST_ALLOWLIST: '127.0.0.1,localhost'
   }
 });
 
@@ -275,7 +298,7 @@ try {
   const snapifyJob = await waitForJob(snapifyJobId);
   assert.equal(snapifyJob.status, 'succeeded');
   assert.ok(['browser', 'provider'].includes(snapifyJob.execution?.mode));
-  assert.equal(snapifyJob.execution?.readyForPublicLaunch, false);
+  assert.equal(snapifyJob.execution?.readyForPublicLaunch, true);
   assert.equal(snapifyJob.retention?.artifactAccess, 'authenticated');
   assert.equal(snapifyJob.retention?.jobTtlSeconds, 6 * 60 * 60);
   assert.equal(snapifyJob.retention?.artifactTtlSeconds, 2 * 60 * 60);
@@ -323,6 +346,27 @@ try {
   );
   assert.ok(snapifyJob.artifacts.some((artifact) => artifact.type === 'pdf'));
   assert.ok(snapifyJob.artifacts.some((artifact) => artifact.type === 'report'));
+
+  const tallSnapifyQueued = await postJson('/api/v1/seo-tools/snapify-capture-screenshot-save-pdf', {
+    url: `${EVIDENCE_URL}/tall-page`
+  });
+  assert.equal(tallSnapifyQueued.response.status, 200);
+  assertEnvelope(tallSnapifyQueued.json);
+  const tallSnapifyJobId = tallSnapifyQueued.json.data?.job?.id;
+  assert.equal(typeof tallSnapifyJobId, 'string');
+
+  const tallSnapifyJob = await waitForJob(tallSnapifyJobId);
+  assert.equal(tallSnapifyJob.status, 'succeeded');
+  assert.equal(tallSnapifyJob.execution?.mode, 'browser');
+  assert.equal(tallSnapifyJob.execution?.readyForPublicLaunch, false);
+  assert.equal(tallSnapifyJob.result?.renderedArtifactsAvailable, false);
+  assert.equal(tallSnapifyJob.result?.captureMode, 'html-evidence-only');
+  assert.equal(tallSnapifyJob.result?.captures?.[0]?.fallbackUsed, true);
+  assert.match(
+    tallSnapifyJob.result?.captures?.[0]?.renderError ?? '',
+    /exceed capture budget|exceeds capture budget|exceeds byte budget/
+  );
+  assert.ok(tallSnapifyJob.artifacts.every((artifact) => artifact.type === 'report'));
 
   console.log('smoke-tests: live routes ok');
 } finally {

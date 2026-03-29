@@ -51,7 +51,7 @@
 | `/api/v1/seo-tools/youtube-region-restriction-checker` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches the public watch page and parses `playabilityStatus`, `playableInEmbed`, and `availableCountries`; it still does not independently simulate playback from each country. |
 | `/api/v1/seo-tools/openpagerank-bulk-checker` | `api-key-stub` | Relabeled honestly | Internal-only provider template by default | Explicit internal provider-template contract with `provider_credentials_required` results and `not_executed` provider state; reconsider only if real provider access is explicitly approved later. |
 | `/api/v1/seo-tools/rentcast` | `api-key-stub` | Relabeled honestly | Internal-only provider template by default | Explicit internal provider-template contract with normalized lookup helper and `not_executed` provider state; reconsider only if real provider access is explicitly approved later. |
-| `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | `queued-browser` | Strengthened into credentialed preview | Excluded from the free-tier subset | Real async job contract now renders screenshot/PDF artifacts in a browser worker, with live HTML evidence fallback when browser execution is unavailable, and can run in non-free-tier mode with authenticated preview access. |
+| `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | `queued-browser` | Strengthened into authenticated beta | Excluded from the free-tier subset | Real async job contract now renders screenshot/PDF artifacts in a browser worker, rejects private-host targets by default, enforces page/artifact budgets with HTML-evidence fallback for oversized pages, and can run in non-free-tier mode with authenticated beta access. |
 | `/api/v1/seo-tools/youtube-rank-checker` | `queued-simulated` | Strengthened into credentialed preview | Excluded from the free-tier subset | Real async job contract now uses multi-strategy YouTube search evidence parsing with provenance, retries across parsing strategies, deterministic fallback when live evidence still cannot be collected, and authenticated preview access outside free-tier mode. |
 | `/api/v1/seo-tools/traffic-booster` | `queued-simulated` | Deferred/de-scoped | Disabled from public launch | Real async job contract exists, but current worker only returns projection-style planning output. |
 | `/api/v1/seo-tools/quick-lh` | `queued-placeholder` | Deferred/de-scoped | Hidden from public launch | Route does not exist in current allowlist; keep out of launch surface. |
@@ -76,7 +76,7 @@ Follow-up QA now exists for the strongest honesty-sensitive routes:
 
 - `npm run smoke-tests`
   - verifies `youtube-rank-checker` credentialed preview submission, authenticated job/artifact access, and async job completion
-  - verifies `snapify-capture-screenshot-save-pdf` credentialed preview submission plus browser-rendered artifact delivery through the gateway
+  - verifies `snapify-capture-screenshot-save-pdf` authenticated-beta submission, browser-rendered artifact delivery, and safe HTML-evidence fallback for oversized pages through the gateway
 - `npm run regression-tests`
   - verifies `business-websites-ranker` returns live website discovery plus scoring evidence
   - verifies `barcode` returns live product evidence from the public OpenFoodFacts API or product-page fallback for a known UPC/EAN

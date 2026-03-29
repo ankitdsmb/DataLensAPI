@@ -92,7 +92,7 @@ Prevent scope drift while the remaining blocker work is completed.
 1. Treat the current route tree plus `docs/api-plans/route-allowlist.md` as the canonical inventory.
 2. Do not add new public families during this plan.
 3. Keep the rejected traffic and fake-engagement routes blocked in code and excluded from launch docs.
-4. Keep `openpagerank-bulk-checker`, `rentcast`, `snapify-capture-screenshot-save-pdf`, and `youtube-rank-checker` out of public launch until their phase is complete.
+4. Keep `openpagerank-bulk-checker` and `rentcast` out of public launch; keep `snapify-capture-screenshot-save-pdf` outside the free-tier subset as an authenticated beta and keep `youtube-rank-checker` outside the free-tier subset as a credentialed preview.
 
 ### Exit criteria
 
@@ -111,8 +111,8 @@ Close the items that still make the launch gate read `NO-GO`.
 | --- | --- | --- |
 | `/api/v1/seo-tools/openpagerank-bulk-checker` | blocked provider template | real provider integration or permanent internal-only |
 | `/api/v1/seo-tools/rentcast` | blocked provider template | real provider integration or permanent internal-only |
-| `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | internal-only browser-rendered preview route | decide whether to harden for broader use or keep permanent internal-only preview |
-| `/api/v1/seo-tools/youtube-rank-checker` | internal-only provenance-backed async evidence route | decide whether to harden further for broader use or keep permanent preview/internal-only |
+| `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | authenticated beta browser-rendered route outside free-tier | keep current beta posture or explicitly promote later only if abuse/ops controls stay strong |
+| `/api/v1/seo-tools/youtube-rank-checker` | credentialed preview async evidence route outside free-tier | decide whether to harden further for broader use or keep permanent preview-only posture |
 
 ### Actions
 
