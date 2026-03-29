@@ -80,7 +80,7 @@ route,file,forensic_category,implementation_depth,launch_recommendation,strength
 /api/v1/seo-tools/plagiarism-checker,apps/api-gateway/app/api/v1/seo-tools/plagiarism-checker/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low
 /api/v1/seo-tools/pricing-page-analyzer,apps/api-gateway/app/api/v1/seo-tools/pricing-page-analyzer/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/pro-seo-audit-tool-get-your-website-data-for-search-engines,apps/api-gateway/app/api/v1/seo-tools/pro-seo-audit-tool-get-your-website-data-for-search-engines/route.ts,real-scraper,medium,public,strong,not-in-free-tier-allowlist,ready,strengthen,medium
-/api/v1/seo-tools/profanity-checker,apps/api-gateway/app/api/v1/seo-tools/profanity-checker/route.ts,shallow-local-utility,shallow,public-lite,weak,fit,conditional,relabel,low
+/api/v1/seo-tools/profanity-checker,apps/api-gateway/app/api/v1/seo-tools/profanity-checker/route.ts,local-utility,live,public_lite,medium,fit,conditional,strengthen,medium
 /api/v1/seo-tools/readability-analyzer,apps/api-gateway/app/api/v1/seo-tools/readability-analyzer/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/reddit,apps/api-gateway/app/api/v1/seo-tools/reddit/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/rentcast,apps/api-gateway/app/api/v1/seo-tools/rentcast/route.ts,api-key-stub,template,internal_only_until_provider_integration,weak,blocked,blocked,strengthen,high

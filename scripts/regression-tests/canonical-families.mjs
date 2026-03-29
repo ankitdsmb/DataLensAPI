@@ -23,10 +23,13 @@ async function waitForServer(url, timeoutMs = 45000) {
   throw new Error('regression server did not become ready in time');
 }
 
-async function post(path, payload) {
+async function post(path, payload, extraHeaders = {}) {
   const response = await fetch(`${BASE_URL}${path}`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: {
+      'content-type': 'application/json',
+      ...extraHeaders
+    },
     body: JSON.stringify(payload)
   });
 
@@ -107,7 +110,8 @@ const server = spawn('npm', ['--workspace', 'api-gateway', 'run', 'dev', '--', '
   detached: true,
   env: {
     ...process.env,
-    FREE_TIER_LAUNCH_MODE: 'false'
+    FREE_TIER_LAUNCH_MODE: 'false',
+    FREE_TIER_API_KEYS: 'regression-key'
   }
 });
 
@@ -394,6 +398,33 @@ try {
   assert.equal(barcode.json.data.evidence.publicApiChecked, true);
   assert.equal(barcode.json.data.evidence.productFound, true);
   assertPublicApiWrapperContract(barcode.json.data);
+
+  const profanity = await post('/api/v1/seo-tools/profanity-checker', {
+    text: 'This sh1t feels damn rude and cruddy.',
+    customWords: ['cruddy']
+  }, {
+    'x-api-key': 'regression-key'
+  });
+  assert.equal(profanity.response.status, 200);
+  assert.equal(profanity.json.success, true);
+  assert.equal(profanity.json.data.status, 'analyzed');
+  assert.equal(typeof profanity.json.data.matchCount, 'number');
+  assert.ok(profanity.json.data.matchCount >= 3);
+  assert.equal(Array.isArray(profanity.json.data.matches), true);
+  assert.ok(profanity.json.data.matches.some((match) => match.term === 'shit'));
+  assert.ok(profanity.json.data.matches.some((match) => match.term === 'damn'));
+  assert.ok(profanity.json.data.matches.some((match) => match.term === 'cruddy'));
+  assert.equal(typeof profanity.json.data.cleaned, 'string');
+  assert.ok(profanity.json.data.cleaned.includes('****'));
+  assert.equal(typeof profanity.json.data.categoryCounts.profanity, 'number');
+  assert.ok(profanity.json.data.categoryCounts.profanity >= 2);
+  assert.equal(profanity.json.data.highestSeverity, 'high');
+  assert.equal(profanity.json.data.evidence.localLexiconUsed, true);
+  assert.equal(profanity.json.data.evidence.customTermsUsed, 1);
+  assert.equal(profanity.json.data.evidence.obfuscationNormalized, true);
+  assert.equal(profanity.json.data.contract.forensicCategory, 'local-utility');
+  assert.equal(profanity.json.data.contract.implementationDepth, 'live');
+  assert.equal(profanity.json.data.contract.launchRecommendation, 'public_lite');
 
   console.log('regression-tests: canonical families ok');
 } finally {

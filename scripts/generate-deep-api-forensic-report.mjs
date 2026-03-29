@@ -162,6 +162,15 @@ const routeOverrides = {
     upgrade: 'Promote into a canonical barcode intelligence family with multi-catalog fallback, ISBN/book enrichment, and clearer confidence/source provenance.',
     fit: 'Strong free-tier fit with tight per-request code caps and caching.'
   },
+  'profanity-checker': {
+    cls: 'local-utility',
+    strength: '3/5',
+    coverage: '~45%',
+    current: 'Runs a deterministic local moderation engine with whole-word matching, light obfuscation normalization, masking, severity, and optional custom terms.',
+    gap: 'Still relies on a compact local lexicon and does not provide broader trust-and-safety classification, multilingual moderation, or contextual false-positive control.',
+    upgrade: 'Promote into a canonical text moderation family with richer lexicons, language-aware tokenization, phrase rules, and adjacent safety signals.',
+    fit: 'Excellent free-tier fit because the logic is deterministic, fast, and local-only.'
+  },
   'cms-checker': {
     cls: 'html-scraper',
     strength: '3/5',

@@ -45,6 +45,7 @@ All three commands passed on this branch.
 - Verifies `/api/v1/seo-tools/business-websites-ranker` now returns public website discovery and lightweight quality-scoring evidence instead of only emitting a seed query URL.
 - Verifies `/api/v1/seo-tools/barcode` now returns public product evidence from the OpenFoodFacts catalog for a known UPC/EAN instead of only inferring format from string length.
 - Verifies `/api/v1/seo-tools/cms-checker` now returns lightweight CMS and site-stack fingerprint evidence from public HTML instead of only shallow generator hints.
+- Verifies `/api/v1/seo-tools/profanity-checker` now returns deterministic moderation matches, masking, severity, and custom-word handling while respecting the route’s API-key launch posture.
 - Verifies `/api/v1/seo-tools/shopify-product-search` now returns public storefront product evidence from Shopify predictive-search or products-feed endpoints when a `storeUrl` is supplied.
 - Verifies `/api/v1/seo-tools/spell-checker` now returns public spelling and grammar match evidence from the LanguageTool public endpoint instead of local suspect-word heuristics.
 - Verifies `/api/v1/seo-tools/what-site` now returns a lightweight site profile with final URL, metadata, heading counts, link counts, and content signals instead of only a title/description pair.
@@ -82,6 +83,7 @@ This QA pass materially strengthens the repo’s evidence base:
    - public business website discovery and scoring evidence extraction,
    - public barcode product evidence extraction,
    - public CMS and site-stack fingerprint extraction,
+   - deterministic profanity moderation extraction,
    - public Shopify storefront product evidence extraction,
    - public spelling and grammar evidence extraction,
    - public site-profile evidence extraction,

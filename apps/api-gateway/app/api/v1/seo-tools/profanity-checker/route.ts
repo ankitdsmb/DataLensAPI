@@ -1,8 +1,10 @@
 import {
+  analyzeProfanityText,
   createToolPolicy,
+  optionalStringArrayField,
+  optionalStringField,
   readJsonBody,
   withScrapingHandler,
-  RequestValidationError,
   requireAllowedFields
 } from '@forensic/scraping-core';
 
@@ -14,23 +16,24 @@ const profanityPolicy = createToolPolicy({
   cacheTtlSeconds: 120
 });
 
-const BLOCKLIST = ['badword', 'offensive', 'obscene'];
-
 export const POST = withScrapingHandler({ policy: profanityPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, profanityPolicy);
-  requireAllowedFields(body, ['text']);
-  const text = typeof body.text === 'string' ? body.text : '';
-  if (!text) {
-    throw new RequestValidationError('text is required', { field: 'text' });
-  }
+  requireAllowedFields(body, ['customWords', 'text']);
 
-  const lower = text.toLowerCase();
-  const matches = BLOCKLIST.filter((word) => lower.includes(word));
-  const cleaned = BLOCKLIST.reduce((current, word) => current.replace(new RegExp(word, 'gi'), '***'), text);
+  const result = analyzeProfanityText(
+    optionalStringField(body, 'text'),
+    optionalStringArrayField(body, 'customWords', { maxItems: 25, fieldLabel: 'customWords' })
+  );
 
   return {
-    matches,
-    matchCount: matches.length,
-    cleaned
+    ...result,
+    contract: {
+      productLabel: 'Profanity Checker',
+      forensicCategory: 'local-utility',
+      implementationDepth: 'live',
+      launchRecommendation: 'public_lite',
+      notes:
+        'Runs a deterministic local moderation lexicon with whole-word matching, light obfuscation normalization, position-aware masking, and optional custom terms. This is a lightweight moderation utility, not a full trust-and-safety classifier.'
+    }
   };
 });
