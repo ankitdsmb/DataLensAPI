@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
+import http from 'node:http';
 
 const PORT = process.env.REGRESSION_PORT ?? '3102';
 const BASE_URL = `http://127.0.0.1:${PORT}`;
+const FIXTURE_PORT = String(Number(PORT) + 1);
+const FIXTURE_URL = `http://127.0.0.1:${FIXTURE_PORT}/ga4-fixture`;
 
 function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -104,6 +107,61 @@ function stopProcess(child, label) {
     }
   });
 }
+
+function closeServer(server, label) {
+  return new Promise((resolve, reject) => {
+    server.close((error) => {
+      if (error) {
+        reject(new Error(`${label} shutdown failed: ${error.message}`));
+        return;
+      }
+
+      resolve();
+    });
+  });
+}
+
+const fixtureServer = http.createServer((req, res) => {
+  if (req.url !== '/ga4-fixture') {
+    res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
+    res.end('not found');
+    return;
+  }
+
+  res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+  res.end(`<!doctype html>
+<html lang="en">
+  <head>
+    <title>GA4 Fixture</title>
+    <meta name="description" content="Local GA4 regression fixture">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TEST1234"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TEST1234');
+    </script>
+    <script>
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});})(window,document,'script','dataLayer','GTM-TEST456');
+    </script>
+  </head>
+  <body>
+    <h1>GA4 Fixture</h1>
+    <p>Regression evidence page.</p>
+  </body>
+</html>`);
+});
+
+await new Promise((resolve, reject) => {
+  fixtureServer.listen(Number(FIXTURE_PORT), '127.0.0.1', (error) => {
+    if (error) {
+      reject(error);
+      return;
+    }
+
+    resolve();
+  });
+});
 
 const server = spawn('npm', ['--workspace', 'api-gateway', 'run', 'dev', '--', '-p', PORT], {
   stdio: ['ignore', 'pipe', 'pipe'],
@@ -407,6 +465,34 @@ try {
   assert.equal(domainDetails.json.data.evidence.liveWhois, false);
   assert.equal(domainDetails.json.data.evidence.liveAsn, false);
   assertNetworkWrapperContract(domainDetails.json.data);
+
+  const ga4Mcp = await post('/api/v1/seo-tools/ga4-mcp', {
+    url: FIXTURE_URL,
+    propertyId: 'G-TEST1234'
+  });
+  assert.equal(ga4Mcp.response.status, 200);
+  assert.equal(ga4Mcp.json.success, true);
+  assert.equal(ga4Mcp.json.data.status, 'analyzed');
+  assert.equal(ga4Mcp.json.data.mode, 'tag_detection');
+  assert.equal(ga4Mcp.json.data.requestedCount, 1);
+  assert.equal(ga4Mcp.json.data.analyzedCount, 1);
+  assert.equal(ga4Mcp.json.data.errorCount, 0);
+  assert.equal(ga4Mcp.json.data.requestedPropertyId, 'G-TEST1234');
+  assert.equal(Array.isArray(ga4Mcp.json.data.results), true);
+  assert.equal(ga4Mcp.json.data.results.length, 1);
+  assert.equal(ga4Mcp.json.data.results[0].status, 'analyzed');
+  assert.equal(ga4Mcp.json.data.results[0].title, 'GA4 Fixture');
+  assert.equal(ga4Mcp.json.data.results[0].ga4Detected, true);
+  assert.ok(ga4Mcp.json.data.results[0].measurementIds.includes('G-TEST1234'));
+  assert.ok(ga4Mcp.json.data.results[0].gtmContainerIds.includes('GTM-TEST456'));
+  assert.equal(ga4Mcp.json.data.results[0].signals.gtagLoaderDetected, true);
+  assert.equal(ga4Mcp.json.data.results[0].signals.gtmLoaderDetected, true);
+  assert.equal(ga4Mcp.json.data.results[0].signals.dataLayerDetected, true);
+  assert.equal(ga4Mcp.json.data.results[0].signals.ga4ConfigDetected, true);
+  assert.equal(ga4Mcp.json.data.results[0].requestedProperty?.type, 'measurement_id');
+  assert.equal(ga4Mcp.json.data.results[0].requestedProperty?.matchesDetectedMeasurementId, true);
+  assert.equal(ga4Mcp.json.data.results[0].evidence.htmlFetched, true);
+  assertHtmlScraperContract(ga4Mcp.json.data);
 
   const mozSpam = await post('/api/v1/seo-tools/moz-da-pa-spam-checker', {
     domain: 'openai.com'
@@ -749,4 +835,5 @@ try {
   console.log('regression-tests: canonical families ok');
 } finally {
   await stopProcess(server, 'api-gateway');
+  await closeServer(fixtureServer, 'fixture server');
 }

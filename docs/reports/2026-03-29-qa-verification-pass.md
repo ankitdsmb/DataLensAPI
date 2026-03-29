@@ -58,6 +58,7 @@ All three commands passed on this branch.
 - Verifies `/api/v1/seo-tools/profanity-checker` now returns deterministic moderation matches, masking, severity, and custom-word handling while respecting the route’s API-key launch posture.
 - Verifies `/api/v1/seo-tools/shopify-product-search` now returns public storefront product evidence from Shopify predictive-search or products-feed endpoints when a `storeUrl` is supplied.
 - Verifies `/api/v1/seo-tools/spell-checker` now returns public spelling and grammar match evidence from the LanguageTool public endpoint instead of local suspect-word heuristics.
+- Verifies `/api/v1/seo-tools/ga4-mcp` now returns live GA4 tag evidence from supplied public HTML, including measurement ids plus gtag/GTM detection, instead of queued placeholder responses.
 - Verifies `/api/v1/seo-tools/what-site` now returns a lightweight site profile with final URL, metadata, heading counts, link counts, and content signals instead of only a title/description pair.
 - Verifies `/api/v1/seo-tools/whatruns` now returns lightweight technology fingerprint evidence across CMS, frontend, ecommerce, analytics, and infrastructure categories instead of only shallow generator hints.
 - Verifies `/api/v1/seo-tools/woorank` now runs the shared first-party lightweight SEO audit and returns page-level findings plus a summarized site score instead of queued/pending placeholder responses.
@@ -112,6 +113,7 @@ This QA pass materially strengthens the repo’s evidence base:
    - deterministic profanity moderation extraction,
    - public Shopify storefront product evidence extraction,
    - public spelling and grammar evidence extraction,
+   - public GA4 tag evidence extraction,
    - public site-profile evidence extraction,
    - public multi-category technology fingerprint extraction,
    - public BBB bulk search and profile evidence extraction,

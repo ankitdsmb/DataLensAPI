@@ -156,6 +156,15 @@ const routeOverrides = {
     upgrade: 'Keep as a proxy-lite compatibility route and swap in provider-backed scoring when Moz integration is available.',
     fit: 'Good free-tier fit for capped HTML mode with small domain counts and caching.'
   },
+  'ga4-mcp': {
+    cls: 'html-scraper',
+    strength: '3/5',
+    coverage: '~40%',
+    current: 'Fetches public HTML and inspects GA4 measurement ids, gtag/GTM loaders, and related analytics markup signals for the supplied URLs.',
+    gap: 'Still does not access authenticated Google Analytics reporting APIs, conversions, event metrics, or reliable numeric GA4 property-id mapping.',
+    upgrade: 'Promote into a canonical analytics implementation family with GA tag detection, GTM inspection, and a separate authenticated reporting mode for real property data.',
+    fit: 'Good free-tier fit because the current public HTML inspection path is capped, deterministic, and network-light.'
+  },
   'openpagerank-bulk-checker': {
     strength: '1/5',
     coverage: '~5%',

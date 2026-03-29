@@ -56,7 +56,7 @@ route,file,forensic_category,implementation_depth,launch_recommendation,strength
 /api/v1/seo-tools/flippa,apps/api-gateway/app/api/v1/seo-tools/flippa/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/front-knowledge-base,apps/api-gateway/app/api/v1/seo-tools/front-knowledge-base/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/funnel-sniper,apps/api-gateway/app/api/v1/seo-tools/funnel-sniper/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
-/api/v1/seo-tools/ga4-mcp,apps/api-gateway/app/api/v1/seo-tools/ga4-mcp/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low
+/api/v1/seo-tools/ga4-mcp,apps/api-gateway/app/api/v1/seo-tools/ga4-mcp/route.ts,html-scraper,live,public_lite,medium,not-in-free-tier-allowlist,conditional,strengthen,medium
 /api/v1/seo-tools/gainsight-ideas,apps/api-gateway/app/api/v1/seo-tools/gainsight-ideas/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/google-autocomplete-apify,apps/api-gateway/app/api/v1/seo-tools/google-autocomplete-apify/route.ts,real-scraper,medium,public,strong,fit,ready,strengthen,medium
 /api/v1/seo-tools/google-play-keywords-discovery-tool,apps/api-gateway/app/api/v1/seo-tools/google-play-keywords-discovery-tool/route.ts,real-scraper,medium,public,strong,not-in-free-tier-allowlist,ready,strengthen,medium

@@ -3,6 +3,7 @@ export * from './bbb';
 export * from './appStoreSimilarApps';
 export * from './businessWebsiteRanker';
 export * from './domainIntelligence';
+export * from './ga4Mcp';
 export * from './keywordDiscovery';
 export * from './markdownTable';
 export * from './openGraphImage';

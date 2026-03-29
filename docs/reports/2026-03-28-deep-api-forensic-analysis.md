@@ -38,10 +38,10 @@
 | `crawler-tool` | 5 |
 | `public-api-wrapper` | 4 |
 | `network-wrapper` | 28 |
-| `html-scraper` | 50 |
+| `html-scraper` | 51 |
 | `local-utility` | 31 |
 | `link-builder` | 21 |
-| `queued-placeholder` | 5 |
+| `queued-placeholder` | 4 |
 
 ### Functional Families
 
@@ -331,6 +331,7 @@ The appendix below covers each live local route one by one. The assessments are 
 | `/api/v1/seo-tools/flippa` | Businesses for sale on Flippa. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/front-knowledge-base` | Front KB categories + articles. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/funnel-sniper` | CTA + pricing signal detection on ecommerce. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/ga4-mcp` | GA4 analysis via MCP. | 3/5 | ~40% | Fetches public HTML and inspects GA4 measurement ids, gtag/GTM loaders, and related analytics markup signals for the supplied URLs. | Still does not access authenticated Google Analytics reporting APIs, conversions, event metrics, or reliable numeric GA4 property-id mapping. | Promote into a canonical analytics implementation family with GA tag detection, GTM inspection, and a separate authenticated reporting mode for real property data. | Good free-tier fit because the current public HTML inspection path is capped, deterministic, and network-light. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/gainsight-ideas` | Ideas + statuses from Gainsight Ideas. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/mastodon` | Trends/statuses/hashtags from Mastodon. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/mastodon-bulk` | Mastodon trends in bulk. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
@@ -422,7 +423,6 @@ The appendix below covers each live local route one by one. The assessments are 
 
 | Endpoint | Promise | Strength | Coverage | Current Logic | Biggest Gap | Best-Ever Upgrade | Free-Tier Fit | GitHub Note |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `/api/v1/seo-tools/ga4-mcp` | GA4 analysis via MCP. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Not launch-ready on free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | Full-page screenshots + PDFs. | 3/5 | ~40% | Real async job submission plus live HTML evidence capture and persisted report artifacts. | Still no rendered screenshot or PDF binary generation. | Keep evidence-capture mode as fallback and add real browser/PDF rendering in the worker. | Not launch-ready on free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/top-1000-websites-worldwide-country-level` | Top 1000 websites by country. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Not launch-ready on free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/trayvmy-actor` | Generic automation actor. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Not launch-ready on free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |

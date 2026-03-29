@@ -30,8 +30,8 @@ Classification summary:
 
 - **Strength**
   - Strong: **16**
-  - Medium: **103**
-  - Weak: **35**
+  - Medium: **104**
+  - Weak: **34**
 - **Launch readiness**
   - Ready: **89**
   - Conditional: **47**
@@ -96,6 +96,7 @@ What this evidence now covers:
 - public CMS/site-stack fingerprint evidence for `cms-checker`,
 - public Shopify storefront product evidence for `shopify-product-search`,
 - public spelling and grammar evidence for `spell-checker`,
+- public GA4 tag evidence for `ga4-mcp`,
 - public site-profile evidence for `what-site`,
 - public multi-category technology fingerprint evidence for `whatruns`,
 - public BBB bulk company evidence for `bulk-bbb`,
@@ -166,6 +167,8 @@ These routes now sit in a medium-depth, evidence-backed conditional posture beca
 `/api/v1/seo-tools/simple-bbb` also no longer belongs in the weak helper bucket. It now performs public BBB search parsing plus first-match business-profile enrichment with rating and complaint signals.
 
 `/api/v1/seo-tools/shopify-product-search` also no longer belongs in the weak helper bucket when `storeUrl` is supplied. It now calls public Shopify storefront endpoints and returns normalized product evidence instead of only returning a search helper URL.
+
+`/api/v1/seo-tools/ga4-mcp` also no longer belongs in the weak helper bucket. It now fetches public HTML and inspects GA4 measurement ids plus gtag/GTM implementation evidence instead of returning queued placeholder responses.
 
 `/api/v1/seo-tools/what-site` now materially exceeds its original title/description lookup promise. It returns a lightweight site profile with metadata, heading, link, and content signals, which makes it a stronger ready route than before.
 
