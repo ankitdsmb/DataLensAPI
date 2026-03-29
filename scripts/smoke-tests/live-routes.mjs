@@ -226,8 +226,19 @@ try {
   assert.equal(youtubeJob.status, 'succeeded');
   assert.ok(['provider', 'simulated'].includes(youtubeJob.execution?.mode));
   assert.equal(youtubeJob.execution?.readyForPublicLaunch, false);
+  assert.equal(youtubeJob.execution?.provenance?.provider, 'youtube-public-search');
+  assert.equal(typeof youtubeJob.execution?.provenance?.attemptCount, 'number');
+  assert.ok(Array.isArray(youtubeJob.execution?.provenance?.attemptedStrategies));
   assert.equal(Array.isArray(youtubeJob.artifacts), true);
   assert.ok(youtubeJob.artifacts.length >= 1);
+  assert.equal(typeof youtubeJob.result?.targetMetadata, 'object');
+  if (youtubeJob.execution?.mode === 'provider') {
+    assert.equal(typeof youtubeJob.result?.strategyUsed, 'string');
+    assert.equal(typeof youtubeJob.result?.searchUrl, 'string');
+    assert.ok(Array.isArray(youtubeJob.result?.attempts));
+  } else {
+    assert.equal(youtubeJob.result?.degraded, true);
+  }
 
   const youtubeArtifact = youtubeJob.artifacts[0];
   const youtubeArtifactResponse = await getJson(youtubeArtifact.url);

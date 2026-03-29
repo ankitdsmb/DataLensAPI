@@ -41,7 +41,7 @@ export const POST = withScrapingHandler({ policy: youtubeRankPolicy }, async (re
       implementationDepth: 'live_job_submission',
       launchRecommendation: 'internal_only_preview',
       notes:
-        'Submits an internal preview job that attempts lightweight YouTube search evidence parsing with degraded fallback. It is not yet public-grade rank tracking.'
+        'Submits an internal preview job that now attempts multi-strategy YouTube search evidence parsing with provenance and degraded fallback. It is still not public-grade rank tracking.'
     }
   };
 });

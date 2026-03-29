@@ -47,7 +47,7 @@ Do not try to “fully implement everything” in the remaining weak list. The c
 | `/api/v1/seo-tools/openpagerank-bulk-checker` | Internal provider template | Implement real provider integration or keep permanently internal-only | It is still a non-product in public terms. |
 | `/api/v1/seo-tools/rentcast` | Internal provider template | Implement real provider integration or keep permanently internal-only | Same issue as above. |
 | `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | Internal-only browser-rendered preview route | Decide whether to harden for broader use or keep permanent preview-only posture | Real screenshot/PDF rendering now exists, but public launch still needs browser controls, artifact retention, and abuse safeguards. |
-| `/api/v1/seo-tools/youtube-rank-checker` | Internal-only async evidence route | Harden live rank evidence path or keep preview-only | Useful now, but still not robust enough for public-grade claims. |
+| `/api/v1/seo-tools/youtube-rank-checker` | Internal-only provenance-backed async evidence route | Decide whether to harden further or keep preview-only | Multi-strategy evidence parsing and provenance now exist, but the route still depends on fragile public search markup and degraded fallback. |
 
 ### P1: strongest remaining conditional candidates
 

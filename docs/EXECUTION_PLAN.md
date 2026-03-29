@@ -112,7 +112,7 @@ Close the items that still make the launch gate read `NO-GO`.
 | `/api/v1/seo-tools/openpagerank-bulk-checker` | blocked provider template | real provider integration or permanent internal-only |
 | `/api/v1/seo-tools/rentcast` | blocked provider template | real provider integration or permanent internal-only |
 | `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | internal-only browser-rendered preview route | decide whether to harden for broader use or keep permanent internal-only preview |
-| `/api/v1/seo-tools/youtube-rank-checker` | internal-only async evidence route | stronger live rank execution or permanent preview/internal-only |
+| `/api/v1/seo-tools/youtube-rank-checker` | internal-only provenance-backed async evidence route | decide whether to harden further for broader use or keep permanent preview/internal-only |
 
 ### Actions
 

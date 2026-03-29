@@ -29,7 +29,7 @@ All three commands passed on this branch.
 - Verifies `youtube-rank-checker`:
   - async job submission,
   - terminal job completion,
-  - execution metadata,
+  - execution metadata plus provenance,
   - artifact retrieval.
 - Verifies `snapify-capture-screenshot-save-pdf`:
   - is blocked at the public gateway because it is internal-only,

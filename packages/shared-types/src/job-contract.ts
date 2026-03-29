@@ -2,10 +2,19 @@ export type JobState = 'queued' | 'running' | 'succeeded' | 'failed' | 'expired'
 
 export type JobExecutionMode = 'provider' | 'browser' | 'simulated' | 'projection' | 'template';
 
+export type JobExecutionProvenance = {
+  provider?: string | null;
+  strategy?: string | null;
+  attemptedStrategies?: string[] | null;
+  attemptCount?: number | null;
+  degraded?: boolean | null;
+};
+
 export type JobExecutionMetadata = {
   mode: JobExecutionMode;
   readyForPublicLaunch: boolean;
   notes?: string | null;
+  provenance?: JobExecutionProvenance | null;
 };
 
 export type JobError = {

@@ -5,6 +5,10 @@ const { chromium } = require('playwright');
 const app = express();
 const port = process.env.PORT || 3000;
 const DEFAULT_PLAYWRIGHT_BROWSERS_PATH = '/tmp/pw-cache/ms-playwright';
+const YOUTUBE_DESKTOP_UA =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36';
+const YOUTUBE_MOBILE_UA =
+  'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36';
 
 app.use(express.json({ limit: '256kb' }));
 
@@ -59,24 +63,197 @@ function decodeHtmlEntities(text) {
     .replace(/&gt;/g, '>');
 }
 
-async function fetchYouTubeSearchEvidence(keyword) {
-  const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(keyword)}`;
-  const response = await fetch(searchUrl, {
-    headers: {
-      'user-agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
-      'accept-language': 'en-US,en;q=0.9'
-    }
-  });
+function buildYouTubeHeaders(profile) {
+  return {
+    'user-agent': profile === 'mobile' ? YOUTUBE_MOBILE_UA : YOUTUBE_DESKTOP_UA,
+    'accept-language': 'en-US,en;q=0.9'
+  };
+}
 
-  if (!response.ok) {
-    throw new Error(`youtube search request failed with status ${response.status}`);
+function extractBalancedJsonBlock(source, marker) {
+  const markerIndex = source.indexOf(marker);
+  if (markerIndex === -1) {
+    return null;
   }
 
-  const html = await response.text();
+  let index = markerIndex + marker.length;
+  while (index < source.length && /\s/.test(source[index])) {
+    index += 1;
+  }
+
+  const opener = source[index];
+  if (opener !== '{' && opener !== '[') {
+    return null;
+  }
+
+  const closer = opener === '{' ? '}' : ']';
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+
+  for (let cursor = index; cursor < source.length; cursor += 1) {
+    const char = source[cursor];
+
+    if (inString) {
+      if (escape) {
+        escape = false;
+        continue;
+      }
+
+      if (char === '\\') {
+        escape = true;
+        continue;
+      }
+
+      if (char === '"') {
+        inString = false;
+      }
+      continue;
+    }
+
+    if (char === '"') {
+      inString = true;
+      continue;
+    }
+
+    if (char === opener) {
+      depth += 1;
+      continue;
+    }
+
+    if (char === closer) {
+      depth -= 1;
+      if (depth === 0) {
+        return source.slice(index, cursor + 1);
+      }
+    }
+  }
+
+  return null;
+}
+
+function extractTextValue(node) {
+  if (!node) {
+    return '';
+  }
+
+  if (typeof node === 'string') {
+    return decodeHtmlEntities(node.trim());
+  }
+
+  if (typeof node.simpleText === 'string') {
+    return decodeHtmlEntities(node.simpleText.trim());
+  }
+
+  if (Array.isArray(node.runs)) {
+    return decodeHtmlEntities(
+      node.runs
+        .map((run) => (typeof run?.text === 'string' ? run.text : ''))
+        .join('')
+        .trim()
+    );
+  }
+
+  return '';
+}
+
+function extractThumbnailUrl(renderer) {
+  const thumbnails = renderer?.thumbnail?.thumbnails;
+  if (!Array.isArray(thumbnails) || !thumbnails.length) {
+    return '';
+  }
+
+  return thumbnails[thumbnails.length - 1]?.url || thumbnails[0]?.url || '';
+}
+
+function collectVideoRenderers(node, renderers = []) {
+  if (!node || typeof node !== 'object') {
+    return renderers;
+  }
+
+  if (Array.isArray(node)) {
+    for (const item of node) {
+      collectVideoRenderers(item, renderers);
+    }
+    return renderers;
+  }
+
+  if (node.videoRenderer && typeof node.videoRenderer === 'object') {
+    renderers.push(node.videoRenderer);
+  }
+
+  for (const value of Object.values(node)) {
+    collectVideoRenderers(value, renderers);
+  }
+
+  return renderers;
+}
+
+function normalizeVideoRenderer(renderer, seen) {
+  const videoId = typeof renderer?.videoId === 'string' ? renderer.videoId.trim() : '';
+  if (!videoId || seen.has(videoId)) {
+    return null;
+  }
+
+  seen.add(videoId);
+  return {
+    videoId,
+    title: extractTextValue(renderer.title),
+    url: `https://www.youtube.com/watch?v=${videoId}`,
+    channelTitle: extractTextValue(renderer.ownerText),
+    durationText: extractTextValue(renderer.lengthText),
+    publishedTimeText: extractTextValue(renderer.publishedTimeText),
+    viewCountText: extractTextValue(renderer.viewCountText),
+    thumbnailUrl: extractThumbnailUrl(renderer)
+  };
+}
+
+function parseYouTubeInitialDataResults(html) {
+  const markers = ['var ytInitialData = ', 'window["ytInitialData"] = ', 'ytInitialData = '];
+  let initialData = null;
+
+  for (const marker of markers) {
+    const jsonBlock = extractBalancedJsonBlock(html, marker);
+    if (!jsonBlock) {
+      continue;
+    }
+
+    try {
+      initialData = JSON.parse(jsonBlock);
+      break;
+    } catch {
+      // try next marker
+    }
+  }
+
+  if (!initialData) {
+    return [];
+  }
+
+  const seen = new Set();
+  const renderers = collectVideoRenderers(initialData);
+  const results = [];
+
+  for (const renderer of renderers) {
+    const normalized = normalizeVideoRenderer(renderer, seen);
+    if (!normalized) {
+      continue;
+    }
+
+    results.push(normalized);
+    if (results.length >= 25) {
+      break;
+    }
+  }
+
+  return results;
+}
+
+function parseYouTubeRegexResults(html) {
   const results = [];
   const seen = new Set();
-  const regex = /"videoRenderer":\{"videoId":"([^"]+)".{0,400}?"title":\{"runs":\[\{"text":"([^"]+)"/g;
+  const regex =
+    /"videoRenderer":\{"videoId":"([^"]+)".{0,1200}?"title":\{"(?:runs":\[\{"text":"([^"]+)"|simpleText":"([^"]+)")/g;
   let match;
 
   while ((match = regex.exec(html)) && results.length < 25) {
@@ -88,16 +265,166 @@ async function fetchYouTubeSearchEvidence(keyword) {
     seen.add(videoId);
     results.push({
       videoId,
-      title: decodeHtmlEntities(match[2]),
-      url: `https://www.youtube.com/watch?v=${videoId}`
+      title: decodeHtmlEntities((match[2] || match[3] || '').trim()),
+      url: `https://www.youtube.com/watch?v=${videoId}`,
+      channelTitle: '',
+      durationText: '',
+      publishedTimeText: '',
+      viewCountText: '',
+      thumbnailUrl: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`
     });
   }
 
-  if (!results.length) {
-    throw new Error('youtube search page did not expose parseable video results');
+  return results;
+}
+
+function parseYouTubeMobileAnchorResults(html) {
+  const results = [];
+  const seen = new Set();
+  const regex = /href="\/watch\?v=([A-Za-z0-9_-]{11})[^"]*"[^>]*title="([^"]+)"/g;
+  let match;
+
+  while ((match = regex.exec(html)) && results.length < 25) {
+    const videoId = match[1];
+    if (!videoId || seen.has(videoId)) {
+      continue;
+    }
+
+    seen.add(videoId);
+    results.push({
+      videoId,
+      title: decodeHtmlEntities(match[2].trim()),
+      url: `https://www.youtube.com/watch?v=${videoId}`,
+      channelTitle: '',
+      durationText: '',
+      publishedTimeText: '',
+      viewCountText: '',
+      thumbnailUrl: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`
+    });
   }
 
-  return { searchUrl, results };
+  return results;
+}
+
+async function fetchYouTubeVideoMetadata(videoUrl) {
+  const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(videoUrl)}&format=json`;
+  try {
+    const response = await fetch(oembedUrl, {
+      headers: buildYouTubeHeaders('desktop')
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const body = await response.json();
+    return {
+      title: typeof body?.title === 'string' ? body.title : '',
+      authorName: typeof body?.author_name === 'string' ? body.author_name : '',
+      providerName: typeof body?.provider_name === 'string' ? body.provider_name : '',
+      thumbnailUrl: typeof body?.thumbnail_url === 'string' ? body.thumbnail_url : ''
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function fetchYouTubeSearchEvidence(keyword, targetVideoId) {
+  const strategies = [
+    {
+      id: 'desktop-initial-data',
+      searchUrl: `https://www.youtube.com/results?search_query=${encodeURIComponent(keyword)}`,
+      headers: buildYouTubeHeaders('desktop'),
+      parser: parseYouTubeInitialDataResults
+    },
+    {
+      id: 'desktop-regex-fallback',
+      searchUrl: `https://www.youtube.com/results?search_query=${encodeURIComponent(keyword)}`,
+      headers: buildYouTubeHeaders('desktop'),
+      parser: parseYouTubeRegexResults
+    },
+    {
+      id: 'mobile-anchor-fallback',
+      searchUrl: `https://m.youtube.com/results?search_query=${encodeURIComponent(keyword)}`,
+      headers: buildYouTubeHeaders('mobile'),
+      parser: parseYouTubeMobileAnchorResults
+    }
+  ];
+
+  const attempts = [];
+  let best = null;
+
+  for (const strategy of strategies) {
+    try {
+      const response = await fetch(strategy.searchUrl, { headers: strategy.headers });
+      const html = await response.text();
+
+      if (!response.ok) {
+        attempts.push({
+          strategy: strategy.id,
+          searchUrl: strategy.searchUrl,
+          status: response.status,
+          success: false,
+          resultCount: 0,
+          matchedTarget: false,
+          error: `youtube search request failed with status ${response.status}`
+        });
+        continue;
+      }
+
+      const results = strategy.parser(html);
+      const matchedTarget = results.some((result) => result.videoId === targetVideoId);
+      const attempt = {
+        strategy: strategy.id,
+        searchUrl: strategy.searchUrl,
+        status: response.status,
+        success: results.length > 0,
+        resultCount: results.length,
+        matchedTarget,
+        htmlBytes: Buffer.byteLength(html, 'utf8')
+      };
+      attempts.push(attempt);
+
+      if (results.length && !best) {
+        best = {
+          strategy: strategy.id,
+          searchUrl: strategy.searchUrl,
+          results,
+          attempts
+        };
+      }
+
+      if (matchedTarget) {
+        return {
+          strategy: strategy.id,
+          searchUrl: strategy.searchUrl,
+          results,
+          attempts
+        };
+      }
+    } catch (error) {
+      attempts.push({
+        strategy: strategy.id,
+        searchUrl: strategy.searchUrl,
+        status: null,
+        success: false,
+        resultCount: 0,
+        matchedTarget: false,
+        error: error instanceof Error ? error.message : 'Unknown YouTube search failure'
+      });
+    }
+  }
+
+  if (best) {
+    return best;
+  }
+
+  const attemptSummary = attempts.map((attempt) => `${attempt.strategy}:${attempt.error || attempt.resultCount}`).join(', ');
+  throw new Error(
+    attemptSummary
+      ? `youtube search did not yield parseable results (${attemptSummary})`
+      : 'youtube search page did not expose parseable video results'
+  );
 }
 
 function extractTitle(html) {
@@ -254,18 +581,30 @@ async function executeJob(tool, payload) {
     }
 
     const checkedAt = new Date().toISOString();
+    const targetMetadata = await fetchYouTubeVideoMetadata(videoUrl);
 
     try {
-      const evidence = await fetchYouTubeSearchEvidence(keyword);
+      const evidence = await fetchYouTubeSearchEvidence(keyword, targetVideoId);
       const rankIndex = evidence.results.findIndex((result) => result.videoId === targetVideoId);
       const rank = rankIndex >= 0 ? rankIndex + 1 : null;
+      const matchedResult = rankIndex >= 0 ? evidence.results[rankIndex] : null;
+      const attemptedStrategies = evidence.attempts.map((attempt) => attempt.strategy);
 
       return {
         execution: {
           mode: 'provider',
           readyForPublicLaunch: false,
           notes:
-            'Uses lightweight public YouTube search HTML parsing. Useful for evidence gathering, but still not hardened enough for unrestricted public launch.'
+            rank !== null
+              ? 'Uses multi-strategy public YouTube search evidence parsing with provenance. Useful for internal evidence gathering, but still not hardened enough for unrestricted public launch.'
+              : 'Uses multi-strategy public YouTube search evidence parsing with provenance, but the target video was not found in the parsed result window. Keep internal-only until the evidence path is more robust.',
+          provenance: {
+            provider: 'youtube-public-search',
+            strategy: evidence.strategy,
+            attemptedStrategies,
+            attemptCount: evidence.attempts.length,
+            degraded: false
+          }
         },
         result: {
           keyword,
@@ -275,7 +614,12 @@ async function executeJob(tool, payload) {
           foundInTopResults: rank !== null,
           scannedCount: evidence.results.length,
           checkedAt,
-          method: 'youtube-search-html'
+          method: 'youtube-search-html',
+          strategyUsed: evidence.strategy,
+          searchUrl: evidence.searchUrl,
+          matchedResult,
+          targetMetadata,
+          attempts: evidence.attempts
         },
         artifacts: [
           {
@@ -285,10 +629,14 @@ async function executeJob(tool, payload) {
             content: {
               summary:
                 rank !== null
-                  ? `Video ranked #${rank} for keyword "${keyword}" in parsed YouTube search results.`
-                  : `Video not found in the first ${evidence.results.length} parsed YouTube search results for keyword "${keyword}".`,
+                  ? `Video ranked #${rank} for keyword "${keyword}" using ${evidence.strategy}.`
+                  : `Video not found in the first ${evidence.results.length} parsed YouTube search results for keyword "${keyword}" after ${evidence.attempts.length} strategy attempts.`,
               inputs: { keyword, videoUrl, targetVideoId },
+              targetMetadata,
               searchUrl: evidence.searchUrl,
+              strategyUsed: evidence.strategy,
+              attempts: evidence.attempts,
+              matchedResult,
               parsedResults: evidence.results,
               generatedAt: checkedAt
             }
@@ -303,7 +651,18 @@ async function executeJob(tool, payload) {
         execution: {
           mode: 'simulated',
           readyForPublicLaunch: false,
-          notes: `Live YouTube search evidence could not be collected; fell back to deterministic simulation. Reason: ${errorMessage}`
+          notes: `Live YouTube search evidence could not be collected after multi-strategy attempts; fell back to deterministic simulation. Reason: ${errorMessage}`,
+          provenance: {
+            provider: 'youtube-public-search',
+            strategy: 'deterministic-simulation-fallback',
+            attemptedStrategies: [
+              'desktop-initial-data',
+              'desktop-regex-fallback',
+              'mobile-anchor-fallback'
+            ],
+            attemptCount: 3,
+            degraded: true
+          }
         },
         result: {
           keyword,
@@ -314,7 +673,8 @@ async function executeJob(tool, payload) {
           scannedCount: 0,
           checkedAt,
           method: 'deterministic-simulation-fallback',
-          degraded: true
+          degraded: true,
+          targetMetadata
         },
         artifacts: [
           {
@@ -324,6 +684,7 @@ async function executeJob(tool, payload) {
             content: {
               summary: `Live search evidence was unavailable, so a deterministic fallback rank of #${fallbackRank} was produced for keyword "${keyword}".`,
               inputs: { keyword, videoUrl, targetVideoId },
+              targetMetadata,
               degraded: true,
               fallbackReason: errorMessage,
               generatedAt: checkedAt

@@ -423,10 +423,10 @@ const routeOverrides = {
   },
   'youtube-rank-checker': {
     strength: '3/5',
-    coverage: '~45%',
-    current: 'Real internal-preview async job submission plus lightweight YouTube search evidence parsing with deterministic fallback.',
-    gap: 'Current parsing path is fragile and degrades to simulation when live evidence is unavailable, so the route remains internal-only for the supported public subset.',
-    upgrade: 'Promote into a canonical rank-tracker family with retries, provenance, and hardened evidence capture before any public graduation.'
+    coverage: '~55%',
+    current: 'Real internal-preview async job submission plus multi-strategy YouTube search evidence parsing, provenance, and deterministic fallback.',
+    gap: 'The worker still depends on public search-page parsing and can degrade to simulation when YouTube markup shifts or live evidence is unavailable, so the route remains internal-only for the supported public subset.',
+    upgrade: 'Promote into a canonical rank-tracker family with stronger retries, result-window expansion, artifact provenance, and eventually a more stable provider-backed evidence path before any public graduation.'
   },
   'youtube-region-restriction-checker': {
     strength: '3/5',

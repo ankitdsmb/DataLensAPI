@@ -90,9 +90,9 @@ Suggested order:
    - now renders real browser screenshot/PDF artifacts,
    - keeps the HTML evidence path as fallback.
 2. `youtube-rank-checker`
-   - harden live result collection,
-   - add retries and provenance,
-   - reduce degraded fallback frequency before any public promotion.
+   - completed on `codex/origin-main-integration`,
+   - now uses multi-strategy live result collection with provenance,
+   - still needs a decision on further hardening versus permanent preview-only posture.
 
 Exit criteria:
 
