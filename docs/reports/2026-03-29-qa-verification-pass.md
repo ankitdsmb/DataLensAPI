@@ -42,6 +42,8 @@ confirmed the shared timing path stays stable after the change.
 - Starts both `api-gateway` and `scraper-service`.
 - Verifies validation failure envelopes for representative live routes.
 - Verifies `youtube-rank-checker`:
+  - stays blocked from the free-tier profile by launch-guard contract checks,
+  - is allowed in non-free-tier mode only with API key auth,
   - async job submission,
   - authenticated-only job status access,
   - terminal job completion,
@@ -49,8 +51,9 @@ confirmed the shared timing path stays stable after the change.
   - authenticated-only artifact retrieval,
   - explicit retention metadata on the preview job/artifact envelope.
 - Verifies `snapify-capture-screenshot-save-pdf`:
-  - is blocked at the public gateway because it is internal-only,
-  - still executes successfully through the internal worker path,
+  - stays blocked from the free-tier profile by launch-guard contract checks,
+  - is allowed in non-free-tier mode only with API key auth,
+  - now submits and completes successfully through the public gateway in credentialed-preview mode,
   - now returns browser-rendered screenshot/PDF artifacts plus page-evidence reports,
   - and keeps preview status/artifact access behind authenticated-only reads with explicit TTL metadata.
 - Confirms the smoke harness now exits cleanly after teardown.

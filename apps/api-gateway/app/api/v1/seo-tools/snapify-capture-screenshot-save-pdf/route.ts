@@ -10,8 +10,11 @@ import { jobToEnvelope, submitJob } from '@/lib/jobs/runtime';
 const snapifyPolicy = createToolPolicy({
   timeoutMs: 10000,
   maxPayloadBytes: 64 * 1024,
-  maxUrlCount: 10,
-  anonymous: true,
+  maxUrlCount: 1,
+  anonymous: false,
+  authRequired: true,
+  rateLimitPerMinute: 2,
+  maxConcurrentRequests: 1,
   cacheTtlSeconds: 60
 });
 
@@ -35,12 +38,12 @@ export const POST = withScrapingHandler({ policy: snapifyPolicy }, async (req: R
     urls,
     job: jobToEnvelope(job),
     contract: {
-      productLabel: 'Snapify Capture Screenshot / Save PDF (Internal Preview)',
+      productLabel: 'Snapify Capture Screenshot / Save PDF (Credentialed Preview)',
       forensicCategory: 'queued-browser',
       implementationDepth: 'live_job_submission',
-      launchRecommendation: 'internal_only_preview',
+      launchRecommendation: 'credentialed_preview',
       notes:
-        'Submits an internal preview job to a browser-backed worker that now renders real screenshot and PDF artifacts. Status and artifact access are authenticated-only, with a 6-hour job TTL and 2-hour artifact retention window.'
+        'Submits a credentialed preview job to a browser-backed worker that now renders real screenshot and PDF artifacts. In free-tier launch mode this route stays blocked, but in non-free-tier mode it is available with API key auth, a single-URL limit, and authenticated-only status/artifact reads with a 6-hour job TTL and 2-hour artifact retention window.'
     }
   };
 });

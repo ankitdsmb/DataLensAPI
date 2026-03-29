@@ -11,7 +11,10 @@ const youtubeRankPolicy = createToolPolicy({
   timeoutMs: 10000,
   maxPayloadBytes: 64 * 1024,
   maxUrlCount: 1,
-  anonymous: true,
+  anonymous: false,
+  authRequired: true,
+  rateLimitPerMinute: 4,
+  maxConcurrentRequests: 1,
   cacheTtlSeconds: 60
 });
 
@@ -44,12 +47,12 @@ export const POST = withScrapingHandler({ policy: youtubeRankPolicy }, async (re
     videoUrl,
     job: jobToEnvelope(job),
     contract: {
-      productLabel: 'YouTube Rank Checker (Internal Preview)',
+      productLabel: 'YouTube Rank Checker (Credentialed Preview)',
       forensicCategory: 'queued-simulated',
       implementationDepth: 'live_job_submission',
-      launchRecommendation: 'internal_only_preview',
+      launchRecommendation: 'credentialed_preview',
       notes:
-        'Submits an internal preview job that now attempts multi-strategy YouTube search evidence parsing with provenance and degraded fallback. Status and artifact access are authenticated-only, with a 12-hour job TTL and 6-hour artifact retention window.'
+        'Submits a credentialed preview job that now attempts multi-strategy YouTube search evidence parsing with provenance and degraded fallback. In free-tier launch mode this route stays blocked, but in non-free-tier mode it is available with API key auth and authenticated-only status/artifact reads, using a 12-hour job TTL and 6-hour artifact retention window.'
     }
   };
 });

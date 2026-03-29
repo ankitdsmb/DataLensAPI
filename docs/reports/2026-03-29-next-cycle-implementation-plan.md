@@ -66,7 +66,7 @@ Exit criteria:
 
 all agree that these are deliberate internal templates unless a later provider approval changes the plan.
 
-### Phase 2: Decide whether the two internal-preview async routes will graduate
+### Phase 2: Decide whether the two async preview routes should stay preview-only or graduate further
 
 Routes:
 
@@ -77,13 +77,14 @@ Current truth:
 
 - both routes have real job submission, status, and artifact behavior,
 - both now expose explicit preview retention policy with authenticated-only status/artifact reads,
+- both stay excluded from the free-tier profile but can run as credentialed previews outside free-tier mode,
 - both are useful internally,
 - neither is yet public-grade.
 
 Recommended default:
 
-- do not graduate both at once.
-- pick one route and finish it properly.
+- do not widen the free-tier launch subset for either route.
+- treat both as credentialed preview routes outside free-tier mode until one earns a stronger public-grade posture.
 
 Suggested order:
 
@@ -91,17 +92,20 @@ Suggested order:
    - completed on `codex/origin-main-integration`,
    - now renders real browser screenshot/PDF artifacts,
    - keeps the HTML evidence path as fallback,
-   - and now limits preview jobs to a 6-hour TTL with 2-hour authenticated artifact retention.
+   - now limits preview jobs to a 6-hour TTL with 2-hour authenticated artifact retention,
+   - and now submits successfully through the gateway in non-free-tier credentialed-preview mode.
 2. `youtube-rank-checker`
    - completed on `codex/origin-main-integration`,
    - now uses multi-strategy live result collection with provenance,
-   - and now limits preview jobs to a 12-hour TTL with 6-hour authenticated artifact retention,
+    - and now limits preview jobs to a 12-hour TTL with 6-hour authenticated artifact retention,
+   - and now runs as a credentialed preview outside free-tier mode,
    - but still needs a decision on further hardening versus permanent preview-only posture.
 
 Exit criteria:
 
-- one route reaches public-grade execution,
-- the other stays clearly internal-preview until it is ready.
+- both routes remain excluded from the free-tier subset,
+- one route may later graduate beyond credentialed-preview posture,
+- and neither is marketed as a general public route until its evidence path is stable enough.
 
 ### Phase 3: Curated expansion only where public evidence is believable
 

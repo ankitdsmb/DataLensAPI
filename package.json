@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "turbo run build",
-    "contract-tests": "npm run build --workspace @forensic/scraping-core && node scripts/contract-tests/envelope.mjs && node scripts/contract-tests/validation.mjs",
+    "contract-tests": "npm run build --workspace @forensic/scraping-core && node scripts/contract-tests/envelope.mjs && node scripts/contract-tests/validation.mjs && node scripts/contract-tests/launch-guard.mjs",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "test": "turbo run test",

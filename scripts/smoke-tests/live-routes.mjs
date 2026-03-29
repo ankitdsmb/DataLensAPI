@@ -41,17 +41,6 @@ async function postJson(path, body) {
   return { response, json };
 }
 
-async function postExternalJson(baseUrl, path, body) {
-  const response = await fetch(`${baseUrl}${path}`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-
-  const json = await response.json();
-  return { response, json };
-}
-
 async function getJson(path, options = {}) {
   const headers = options.withApiKey ? { 'x-api-key': 'smoke-key' } : {};
   const response = await fetch(`${BASE_URL}${path}`, {
@@ -267,57 +256,73 @@ try {
   assert.equal(typeof youtubeArtifactResponse.json.data?.artifact?.summary, 'string');
   assert.equal(typeof youtubeArtifactResponse.json.data?.metadata?.expiresAt, 'string');
 
-  const snapifyBlocked = await postJson('/api/v1/seo-tools/snapify-capture-screenshot-save-pdf', {
+  const snapifyQueued = await postJson('/api/v1/seo-tools/snapify-capture-screenshot-save-pdf', {
     url: `${EVIDENCE_URL}/page`
   });
-  assert.equal(snapifyBlocked.response.status, 400);
-  assertEnvelope(snapifyBlocked.json);
-  assert.equal(snapifyBlocked.json.error?.code, 'validation_error');
+  assert.equal(snapifyQueued.response.status, 200);
+  assertEnvelope(snapifyQueued.json);
+  const snapifyJobId = snapifyQueued.json.data?.job?.id;
+  assert.equal(typeof snapifyJobId, 'string');
+  assert.equal(snapifyQueued.json.data?.job?.retention?.artifactAccess, 'authenticated');
+  assert.equal(snapifyQueued.json.data?.job?.retention?.jobTtlSeconds, 6 * 60 * 60);
+  assert.equal(snapifyQueued.json.data?.job?.retention?.artifactTtlSeconds, 2 * 60 * 60);
 
-  const snapifyWorker = await postExternalJson(SCRAPER_URL, '/jobs/execute', {
-    jobId: 'smoke-snapify',
-    tool: 'snapify-capture-screenshot-save-pdf',
-    payload: {
-      urls: [`${EVIDENCE_URL}/page`]
-    }
-  });
-  assert.equal(snapifyWorker.response.status, 200);
-  assert.equal(snapifyWorker.json.execution?.mode, 'browser');
-  assert.equal(snapifyWorker.json.execution?.readyForPublicLaunch, false);
+  const snapifyUnauthorizedStatus = await getJson(`/api/v1/jobs/${snapifyJobId}`);
+  assert.equal(snapifyUnauthorizedStatus.response.status, 401);
+  assertEnvelope(snapifyUnauthorizedStatus.json);
+  assert.equal(snapifyUnauthorizedStatus.json.error?.code, 'unauthorized');
+
+  const snapifyJob = await waitForJob(snapifyJobId);
+  assert.equal(snapifyJob.status, 'succeeded');
+  assert.ok(['browser', 'provider'].includes(snapifyJob.execution?.mode));
+  assert.equal(snapifyJob.execution?.readyForPublicLaunch, false);
+  assert.equal(snapifyJob.retention?.artifactAccess, 'authenticated');
+  assert.equal(snapifyJob.retention?.jobTtlSeconds, 6 * 60 * 60);
+  assert.equal(snapifyJob.retention?.artifactTtlSeconds, 2 * 60 * 60);
+  assert.equal(Array.isArray(snapifyJob.artifacts), true);
+  assert.ok(snapifyJob.artifacts.length >= 1);
+  assert.equal(typeof snapifyJob.artifacts[0]?.expiresAt, 'string');
   assert.ok(
     ['browser-rendered', 'browser-rendered-with-fallback'].includes(
-      snapifyWorker.json.result?.captureMode
+      snapifyJob.result?.captureMode
     )
   );
-  assert.equal(snapifyWorker.json.result?.renderedArtifactsAvailable, true);
-  assert.equal(snapifyWorker.json.result?.browserRuntimeAvailable, true);
-  assert.equal(Array.isArray(snapifyWorker.json.result?.captures), true);
-  assert.equal(snapifyWorker.json.result?.captures?.[0]?.success, true);
-  assert.equal(snapifyWorker.json.result?.captures?.[0]?.renderMode, 'browser');
-  assert.equal(snapifyWorker.json.result?.captures?.[0]?.renderedArtifactsAvailable, true);
+  assert.equal(snapifyJob.result?.renderedArtifactsAvailable, true);
+  assert.equal(snapifyJob.result?.browserRuntimeAvailable, true);
+  assert.equal(Array.isArray(snapifyJob.result?.captures), true);
+  assert.equal(snapifyJob.result?.captures?.[0]?.success, true);
+  assert.equal(snapifyJob.result?.captures?.[0]?.renderMode, 'browser');
+  assert.equal(snapifyJob.result?.captures?.[0]?.renderedArtifactsAvailable, true);
   assert.equal(
-    typeof snapifyWorker.json.result?.captures?.[0]?.artifacts?.screenshotId,
+    typeof snapifyJob.result?.captures?.[0]?.artifacts?.screenshotId,
     'string'
   );
-  assert.equal(typeof snapifyWorker.json.result?.captures?.[0]?.artifacts?.pdfId, 'string');
-  assert.equal(snapifyWorker.json.result?.captures?.[0]?.evidence?.title, 'Smoke Evidence Page');
+  assert.equal(typeof snapifyJob.result?.captures?.[0]?.artifacts?.pdfId, 'string');
+  assert.equal(snapifyJob.result?.captures?.[0]?.evidence?.title, 'Smoke Evidence Page');
   assert.equal(
-    snapifyWorker.json.result?.captures?.[0]?.evidence?.description,
+    snapifyJob.result?.captures?.[0]?.evidence?.description,
     'Local smoke-test evidence page for snapify.'
   );
-  assert.equal(snapifyWorker.json.result?.captures?.[0]?.evidence?.status, 200);
-  assert.equal(Array.isArray(snapifyWorker.json.artifacts), true);
+  assert.equal(snapifyJob.result?.captures?.[0]?.evidence?.status, 200);
+
+  const snapifyArtifact = snapifyJob.artifacts.find((artifact) => artifact.type === 'report');
+  assert.ok(snapifyArtifact);
+
+  const snapifyArtifactUnauthorized = await getJson(snapifyArtifact.url);
+  assert.equal(snapifyArtifactUnauthorized.response.status, 401);
+  assertEnvelope(snapifyArtifactUnauthorized.json);
+  assert.equal(snapifyArtifactUnauthorized.json.error?.code, 'unauthorized');
+
+  const snapifyArtifactResponse = await getJson(snapifyArtifact.url, { withApiKey: true });
+  assert.equal(snapifyArtifactResponse.response.status, 200);
+  assertEnvelope(snapifyArtifactResponse.json);
+  assert.equal(typeof snapifyArtifactResponse.json.data?.metadata?.expiresAt, 'string');
+
   assert.ok(
-    snapifyWorker.json.artifacts.some(
-      (artifact) => artifact.type === 'screenshot' && artifact.content?.mimeType === 'image/png'
-    )
+    snapifyJob.artifacts.some((artifact) => artifact.type === 'screenshot')
   );
-  assert.ok(
-    snapifyWorker.json.artifacts.some(
-      (artifact) => artifact.type === 'pdf' && artifact.content?.mimeType === 'application/pdf'
-    )
-  );
-  assert.ok(snapifyWorker.json.artifacts.some((artifact) => artifact.type === 'report'));
+  assert.ok(snapifyJob.artifacts.some((artifact) => artifact.type === 'pdf'));
+  assert.ok(snapifyJob.artifacts.some((artifact) => artifact.type === 'report'));
 
   console.log('smoke-tests: live routes ok');
 } finally {

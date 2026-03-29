@@ -34,13 +34,13 @@ Classification summary:
   - Weak: **32**
 - **Launch readiness**
   - Ready: **89**
-  - Conditional: **46**
-  - Internal-only: **5**
+  - Conditional: **48**
+  - Internal-only: **3**
   - Blocked: **14**
 - **Free-tier fit**
   - Fit (in explicit safe allowlist): **10**
-  - Blocked: **19** (12 rejected traffic/fake-engagement routes + 5 internal-only routes + 2 api-key-stub routes)
-  - Not in free-tier allowlist: **125**
+  - Blocked: **17** (12 rejected traffic/fake-engagement routes + 3 internal-only routes + 2 api-key-stub routes)
+  - Not in free-tier allowlist: **127**
 
 ## Route tree vs allowlist verification
 
@@ -109,7 +109,7 @@ What this evidence now covers:
 - explicit helper-only posture for `showtimes`,
 - shared travel-helper compatibility behavior for `car-hire-rental` and `car-hire-rental-bulk`,
 - compatibility-wrapper posture for `spotify-plus` and `spyfu-bulk-urls`,
-- public gateway blocking plus internal worker execution for `snapify-capture-screenshot-save-pdf`,
+- launch-guard free-tier blocking plus credentialed-preview gateway execution for `snapify-capture-screenshot-save-pdf` and `youtube-rank-checker`,
 - deprecated internal-template quarantine for `trayvmy-actor`,
 - provider-template contract assertions for `openpagerank-bulk-checker` and `rentcast`.
 
@@ -123,12 +123,12 @@ What this evidence now covers:
 These routes are now explicitly classified as internal provider templates rather than ambiguous pending APIs.
 For the current supported subset, they are treated as deliberate internal templates by default rather than near-term public candidates.
 
-### Internal-preview async routes remain intentionally non-public
+### Credentialed preview async routes remain excluded from the supported free-tier subset
 
 - `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf`
 - `/api/v1/seo-tools/youtube-rank-checker`
 
-These routes now have a real async submission and job-status surface, and both have been strengthened beyond pure placeholders. `snapify-capture-screenshot-save-pdf` now renders browser-backed screenshot/PDF artifacts internally, while `youtube-rank-checker` now uses multi-strategy search evidence parsing with provenance but still degrades to simulation when live evidence is unavailable. Both now enforce authenticated-only preview job status/artifact reads with explicit TTL windows, and they remain internal-only because browser execution controls, artifact retention, and preview-route safeguards are still intentionally tighter than the public subset.
+These routes now have a real async submission and job-status surface, and both have been strengthened beyond pure placeholders. `snapify-capture-screenshot-save-pdf` now renders browser-backed screenshot/PDF artifacts and can run as a credentialed preview outside free-tier mode, while `youtube-rank-checker` now uses multi-strategy search evidence parsing with provenance and can also run as a credentialed preview outside free-tier mode. Both enforce authenticated-only preview job status/artifact reads with explicit TTL windows, and both remain excluded from the supported free-tier subset because browser execution controls, artifact retention, and preview-route safeguards are still intentionally tighter than the public free-tier launch profile.
 
 ### Rejected traffic and fake-engagement routes remain blocked by design
 

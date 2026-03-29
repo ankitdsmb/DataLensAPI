@@ -60,8 +60,25 @@ const launchProfiles: LaunchProfile[] = [
   })),
   {
     route: '/api/v1/seo-tools/snapify-capture-screenshot-save-pdf',
-    freeTierEligible: false,
-    visibility: 'internal' as const
+    freeTierEligible: true,
+    visibility: 'public' as const,
+    authRequired: true,
+    timeoutMs: 10000,
+    maxUrlCount: 1,
+    maxPayloadBytes: 64 * 1024,
+    rateLimitPerMinute: 2,
+    maxConcurrentRequests: 1
+  },
+  {
+    route: '/api/v1/seo-tools/youtube-rank-checker',
+    freeTierEligible: true,
+    visibility: 'public' as const,
+    authRequired: true,
+    timeoutMs: 10000,
+    maxUrlCount: 1,
+    maxPayloadBytes: 64 * 1024,
+    rateLimitPerMinute: 4,
+    maxConcurrentRequests: 1
   },
   {
     route: '/api/v1/seo-tools/trayvmy-actor',

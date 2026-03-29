@@ -104,7 +104,7 @@ route,file,forensic_category,implementation_depth,launch_recommendation,strength
 /api/v1/seo-tools/skyscanner-cars,apps/api-gateway/app/api/v1/seo-tools/skyscanner-cars/route.ts,shallow-local-utility,helper,public_lite,weak,not-in-free-tier-allowlist,conditional,relabel,medium
 /api/v1/seo-tools/skyscanner-hotels,apps/api-gateway/app/api/v1/seo-tools/skyscanner-hotels/route.ts,shallow-local-utility,helper,public_lite,weak,not-in-free-tier-allowlist,conditional,relabel,medium
 /api/v1/seo-tools/smart-website-traffic,apps/api-gateway/app/api/v1/seo-tools/smart-website-traffic/route.ts,traffic-simulation,template,rejected_from_public_catalog,weak,blocked,blocked,internal-only,high
-/api/v1/seo-tools/snapify-capture-screenshot-save-pdf,apps/api-gateway/app/api/v1/seo-tools/snapify-capture-screenshot-save-pdf/route.ts,queued-browser,live_job_submission,internal_only_preview,medium,blocked,internal-only,internal-only,high
+/api/v1/seo-tools/snapify-capture-screenshot-save-pdf,apps/api-gateway/app/api/v1/seo-tools/snapify-capture-screenshot-save-pdf/route.ts,queued-browser,live_job_submission,credentialed_preview,medium,not-in-free-tier-allowlist,conditional,strengthen,high
 /api/v1/seo-tools/social-media-hashtag-generator,apps/api-gateway/app/api/v1/seo-tools/social-media-hashtag-generator/route.ts,local-utility,live,public_lite,medium,fit,conditional,strengthen,medium
 /api/v1/seo-tools/software-advice,apps/api-gateway/app/api/v1/seo-tools/software-advice/route.ts,link-builder,helper,internal_or_beta_only,weak,not-in-free-tier-allowlist,conditional,relabel,high
 /api/v1/seo-tools/spell-checker,apps/api-gateway/app/api/v1/seo-tools/spell-checker/route.ts,public-api-wrapper,live,public_lite,medium,not-in-free-tier-allowlist,conditional,strengthen,medium
@@ -146,7 +146,7 @@ route,file,forensic_category,implementation_depth,launch_recommendation,strength
 /api/v1/seo-tools/x-twitter,apps/api-gateway/app/api/v1/seo-tools/x-twitter/route.ts,link-builder,helper,public_lite,weak,not-in-free-tier-allowlist,conditional,relabel,high
 /api/v1/seo-tools/youtube-keywords-discovery-tool,apps/api-gateway/app/api/v1/seo-tools/youtube-keywords-discovery-tool/route.ts,real-scraper,medium,public,strong,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/youtube-music-autocomplete,apps/api-gateway/app/api/v1/seo-tools/youtube-music-autocomplete/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
-/api/v1/seo-tools/youtube-rank-checker,apps/api-gateway/app/api/v1/seo-tools/youtube-rank-checker/route.ts,queued-simulated,live_job_submission,internal_only_preview,medium,blocked,internal-only,internal-only,high
+/api/v1/seo-tools/youtube-rank-checker,apps/api-gateway/app/api/v1/seo-tools/youtube-rank-checker/route.ts,queued-simulated,live_job_submission,credentialed_preview,medium,not-in-free-tier-allowlist,conditional,strengthen,high
 /api/v1/seo-tools/youtube-region-restriction-checker,apps/api-gateway/app/api/v1/seo-tools/youtube-region-restriction-checker/route.ts,html-scraper,live,public_lite,medium,not-in-free-tier-allowlist,conditional,strengthen,medium
 /api/v1/seo-tools/youtube-suggester,apps/api-gateway/app/api/v1/seo-tools/youtube-suggester/route.ts,real-scraper,medium,public,strong,fit,ready,strengthen,medium
 /api/v1/seo-tools/youtube-view-generator,apps/api-gateway/app/api/v1/seo-tools/youtube-view-generator/route.ts,fake-engagement,template,rejected_from_public_catalog,weak,blocked,blocked,internal-only,high
