@@ -105,7 +105,7 @@ confirmed the shared timing path stays stable after the change.
   - `status: internal_provider_template`
   - provider metadata
   - `api-key-stub` contract classification
-  - `launchRecommendation: internal_only_until_provider_integration`
+  - `launchRecommendation: internal_only_provider_template`
 - Verifies `/api/v1/seo-tools/trayvmy-actor` is quarantined from the supported public subset as a deprecated internal compatibility stub.
 - Confirms the regression harness now exits cleanly after teardown.
 

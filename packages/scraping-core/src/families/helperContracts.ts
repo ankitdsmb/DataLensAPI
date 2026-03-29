@@ -46,7 +46,7 @@ export function createProviderTemplateResponse<T extends Record<string, unknown>
       productLabel: options.productLabel,
       forensicCategory: 'api-key-stub',
       implementationDepth: 'template',
-      launchRecommendation: 'internal_only_until_provider_integration',
+      launchRecommendation: 'internal_only_provider_template',
       notes: options.notes
     }
   };

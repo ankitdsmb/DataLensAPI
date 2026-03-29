@@ -88,7 +88,7 @@ function assertProviderTemplateContract(data, expectedProviderName) {
   }
   assert.equal(data.contract?.forensicCategory, 'api-key-stub');
   assert.equal(data.contract?.implementationDepth, 'template');
-  assert.equal(data.contract?.launchRecommendation, 'internal_only_until_provider_integration');
+  assert.equal(data.contract?.launchRecommendation, 'internal_only_provider_template');
   assert.equal(typeof data.contract?.notes, 'string');
 }
 

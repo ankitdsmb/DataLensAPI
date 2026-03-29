@@ -170,7 +170,8 @@ const routeOverrides = {
     coverage: '~5%',
     current: 'Normalizes domains and returns an explicit internal provider-template contract with non-executed provider state.',
     gap: 'No live provider data exists yet.',
-    upgrade: 'Either integrate the provider or keep it internal-only as a provider template.'
+    upgrade:
+      'Keep it internal-only as a provider template by default. Reconsider only if a real provider integration is explicitly approved later.'
   },
   'moz-domain-authority-checker': {
     strength: '1/5',
@@ -184,7 +185,8 @@ const routeOverrides = {
     coverage: '~10%',
     current: 'Builds a normalized lookup URL and returns an explicit internal provider-template contract.',
     gap: 'No live provider data.',
-    upgrade: 'Either integrate the provider or keep it internal-only as a provider template.'
+    upgrade:
+      'Keep it internal-only as a provider template by default. Reconsider only if a real provider integration is explicitly approved later.'
   },
   'top-1000-websites-worldwide-country-level': {
     cls: 'public-api-wrapper',

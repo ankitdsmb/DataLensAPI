@@ -44,21 +44,18 @@ The next cycle should focus only on the residual backlog that still matters:
 
 ## Next-cycle phases
 
-### Phase 1: Decide the fate of the two provider templates
+### Phase 1: Hold the two provider templates internal-only by default
 
 Routes:
 
 - `/api/v1/seo-tools/openpagerank-bulk-checker`
 - `/api/v1/seo-tools/rentcast`
 
-Required decision:
+Current decision on this branch:
 
-- either implement real provider-backed execution,
-- or keep them permanently internal-only and stop treating them as near-term public candidates.
-
-Recommended default:
-
-- Keep them internal-only unless credentials, quotas, and a stable provider integration plan are approved.
+- Keep both routes as internal-only provider templates by default.
+- Do not treat them as near-term public candidates.
+- Reconsider only if credentials, quotas, and a stable provider integration plan are explicitly approved later.
 
 Exit criteria:
 
@@ -67,7 +64,7 @@ Exit criteria:
 - planning docs,
 - and launch classification
 
-all agree that these are either real products or permanent internal templates.
+all agree that these are deliberate internal templates unless a later provider approval changes the plan.
 
 ### Phase 2: Decide whether the two internal-preview async routes will graduate
 

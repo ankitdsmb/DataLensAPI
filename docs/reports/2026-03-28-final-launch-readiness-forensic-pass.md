@@ -121,6 +121,7 @@ What this evidence now covers:
 - `/api/v1/seo-tools/rentcast` (`api-key-stub`)
 
 These routes are now explicitly classified as internal provider templates rather than ambiguous pending APIs.
+For the current supported subset, they are treated as deliberate internal templates by default rather than near-term public candidates.
 
 ### Internal-preview async routes remain intentionally non-public
 

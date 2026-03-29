@@ -49,7 +49,7 @@ export const POST = withScrapingHandler({ policy: openPageRankPolicy }, async (r
     providerName: 'OpenPageRank',
     productLabel: 'OpenPageRank Bulk Checker (Template)',
     notes:
-      'Normalizes domain inputs and returns a provider-template contract only. No OpenPageRank API call is executed until real credentialed provider integration is added.',
+      'Normalizes domain inputs and returns a provider-template contract only. No OpenPageRank API call is executed in the supported subset; reconsider only if a real credentialed integration is explicitly approved later.',
     fields: { results }
   });
 });

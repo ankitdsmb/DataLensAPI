@@ -30,7 +30,7 @@ export const POST = withScrapingHandler({ policy: rentcastPolicy }, async (req: 
     providerName: 'RentCast',
     productLabel: 'RentCast Address Lookup Template',
     notes:
-      'Generates a normalized lookup URL and returns a provider-template contract only. No RentCast API request is executed until real credentialed provider integration is added.',
+      'Generates a normalized lookup URL and returns a provider-template contract only. No RentCast API request is executed in the supported subset; reconsider only if a real credentialed integration is explicitly approved later.',
     fields: {
       address,
       lookupUrl
