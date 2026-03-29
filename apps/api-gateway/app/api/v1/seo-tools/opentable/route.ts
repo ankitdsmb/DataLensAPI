@@ -1,4 +1,5 @@
 import {
+  createHelperResponse,
   createToolPolicy,
   searchOpenTableRestaurants,
   readJsonBody,
@@ -31,23 +32,47 @@ export const POST = withScrapingHandler({ policy: openTablePolicy }, async (req:
     });
   }
 
-  const liveSearch = await searchOpenTableRestaurants({
-    term,
-    limit,
-    timeoutMs: Math.min(openTablePolicy.timeoutMs, 6000)
-  });
+  try {
+    const liveSearch = await searchOpenTableRestaurants({
+      term,
+      limit,
+      timeoutMs: Math.min(openTablePolicy.timeoutMs, 6000)
+    });
 
-  return {
-    ...liveSearch,
-    location: location || null,
-    query: query || null,
-    contract: {
-      productLabel: 'OpenTable Search',
-      forensicCategory: 'html-scraper',
-      implementationDepth: 'live',
-      launchRecommendation: 'public_lite',
-      notes:
-        'Fetches the public OpenTable search page and parses embedded search-state restaurant data such as names, profile URLs, cuisine, neighborhood, ratings, and reservation signals. It does not access private booking APIs.'
-    }
-  };
+    return {
+      ...liveSearch,
+      location: location || null,
+      query: query || null,
+      contract: {
+        productLabel: 'OpenTable Search',
+        forensicCategory: 'html-scraper',
+        implementationDepth: 'live',
+        launchRecommendation: 'public_lite',
+        notes:
+          'Fetches the public OpenTable search page and parses embedded search-state restaurant data such as names, profile URLs, cuisine, neighborhood, ratings, and reservation signals. It does not access private booking APIs.'
+      }
+    };
+  } catch {
+    const searchUrl = `https://www.opentable.com/s/?term=${encodeURIComponent(term)}`;
+
+    return createHelperResponse({
+      status: 'helper_only',
+      source: 'opentable_search_helper',
+      fields: {
+        term,
+        searchUrl,
+        location: location || null,
+        query: query || null,
+        helperMode: 'search_page_only'
+      },
+      contract: {
+        productLabel: 'OpenTable Search Helper',
+        forensicCategory: 'link-builder',
+        implementationDepth: 'helper',
+        launchRecommendation: 'public_lite',
+        notes:
+          'Builds a public OpenTable search URL and degrades to helper mode when the live search page cannot be fetched or parsed reliably.'
+      }
+    });
+  }
 });

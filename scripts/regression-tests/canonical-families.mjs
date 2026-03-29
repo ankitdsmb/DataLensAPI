@@ -79,10 +79,13 @@ function assertShallowHelperContract(data) {
   assert.equal(typeof data.contract.notes, 'string');
 }
 
-function assertProviderTemplateContract(data) {
+function assertProviderTemplateContract(data, expectedProviderName) {
   assert.equal(data.status, 'internal_provider_template');
   assert.equal(data.provider?.credentialsRequired, true);
   assert.equal(data.provider?.executionState, 'not_executed');
+  if (expectedProviderName) {
+    assert.equal(data.provider?.name, expectedProviderName);
+  }
   assert.equal(data.contract?.forensicCategory, 'api-key-stub');
   assert.equal(data.contract?.implementationDepth, 'template');
   assert.equal(data.contract?.launchRecommendation, 'internal_only_until_provider_integration');
@@ -373,7 +376,7 @@ try {
   });
   assert.equal(openPageRank.response.status, 200);
   assert.equal(openPageRank.json.success, true);
-  assertProviderTemplateContract(openPageRank.json.data);
+  assertProviderTemplateContract(openPageRank.json.data, 'OpenPageRank');
   assert.equal(Array.isArray(openPageRank.json.data.results), true);
   assert.equal(openPageRank.json.data.results.length, 2);
   assert.equal(openPageRank.json.data.results[0].status, 'provider_credentials_required');
@@ -383,7 +386,7 @@ try {
   });
   assert.equal(rentcast.response.status, 200);
   assert.equal(rentcast.json.success, true);
-  assertProviderTemplateContract(rentcast.json.data);
+  assertProviderTemplateContract(rentcast.json.data, 'RentCast');
   assert.equal(typeof rentcast.json.data.lookupUrl, 'string');
   assert.ok(rentcast.json.data.lookupUrl.includes('rentcast.io'));
 
@@ -743,21 +746,27 @@ try {
   });
   assert.equal(openTable.response.status, 200);
   assert.equal(openTable.json.success, true);
-  assert.equal(openTable.json.data.status, 'analyzed');
-  assert.equal(openTable.json.data.source, 'opentable_search_state');
+  assert.ok(['analyzed', 'helper_only'].includes(openTable.json.data.status));
   assert.equal(typeof openTable.json.data.searchUrl, 'string');
   assert.ok(openTable.json.data.searchUrl.includes('opentable.com/s/'));
-  assert.equal(typeof openTable.json.data.restaurantCount, 'number');
-  assert.ok(openTable.json.data.restaurantCount >= 1);
-  assert.equal(Array.isArray(openTable.json.data.restaurants), true);
-  assert.ok(openTable.json.data.restaurants.length >= 1);
-  assert.equal(typeof openTable.json.data.restaurants[0].name, 'string');
-  assert.equal(typeof openTable.json.data.restaurants[0].profileUrl, 'string');
-  assert.ok(openTable.json.data.restaurants[0].profileUrl.includes('opentable.com/r/'));
-  assert.equal(openTable.json.data.evidence.pageFetched, true);
-  assert.equal(openTable.json.data.evidence.embeddedStateParsed, true);
-  assert.equal(openTable.json.data.evidence.restaurantArrayParsed, true);
-  assertHtmlScraperContract(openTable.json.data);
+  if (openTable.json.data.status === 'analyzed') {
+    assert.equal(openTable.json.data.source, 'opentable_search_state');
+    assert.equal(typeof openTable.json.data.restaurantCount, 'number');
+    assert.ok(openTable.json.data.restaurantCount >= 1);
+    assert.equal(Array.isArray(openTable.json.data.restaurants), true);
+    assert.ok(openTable.json.data.restaurants.length >= 1);
+    assert.equal(typeof openTable.json.data.restaurants[0].name, 'string');
+    assert.equal(typeof openTable.json.data.restaurants[0].profileUrl, 'string');
+    assert.ok(openTable.json.data.restaurants[0].profileUrl.includes('opentable.com/r/'));
+    assert.equal(openTable.json.data.evidence.pageFetched, true);
+    assert.equal(openTable.json.data.evidence.embeddedStateParsed, true);
+    assert.equal(openTable.json.data.evidence.restaurantArrayParsed, true);
+    assertHtmlScraperContract(openTable.json.data);
+  } else {
+    assert.equal(openTable.json.data.source, 'opentable_search_helper');
+    assert.equal(openTable.json.data.helperMode, 'search_page_only');
+    assertLinkBuilderContract(openTable.json.data);
+  }
 
   const zapier = await post('/api/v1/seo-tools/zapier', {
     query: 'slack',

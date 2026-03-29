@@ -1,4 +1,5 @@
 import {
+  createProviderTemplateResponse,
   createToolPolicy,
   optionalStringArrayField,
   readJsonBody,
@@ -44,20 +45,11 @@ export const POST = withScrapingHandler({ policy: openPageRankPolicy }, async (r
     status: 'provider_credentials_required'
   }));
 
-  return {
-    status: 'internal_provider_template',
-    results,
-    provider: {
-      name: 'OpenPageRank',
-      credentialsRequired: true,
-      executionState: 'not_executed'
-    },
-    contract: {
-      productLabel: 'OpenPageRank Bulk Checker (Template)',
-      forensicCategory: 'api-key-stub',
-      implementationDepth: 'template',
-      launchRecommendation: 'internal_only_until_provider_integration',
-      notes: 'Normalizes domain inputs and returns a provider-template contract only. No OpenPageRank API call is executed until real credentialed provider integration is added.'
-    }
-  };
+  return createProviderTemplateResponse({
+    providerName: 'OpenPageRank',
+    productLabel: 'OpenPageRank Bulk Checker (Template)',
+    notes:
+      'Normalizes domain inputs and returns a provider-template contract only. No OpenPageRank API call is executed until real credentialed provider integration is added.',
+    fields: { results }
+  });
 });

@@ -6,6 +6,13 @@ export type HelperContract = {
   notes: string;
 };
 
+export type ProviderTemplateResponseOptions<T extends Record<string, unknown>> = {
+  providerName: string;
+  productLabel: string;
+  notes: string;
+  fields?: T;
+};
+
 type HelperResponseOptions<T extends Record<string, unknown>> = {
   status?: string;
   source: string;
@@ -21,6 +28,27 @@ export function createHelperResponse<T extends Record<string, unknown>>(
     source: options.source,
     ...options.fields,
     contract: options.contract
+  };
+}
+
+export function createProviderTemplateResponse<T extends Record<string, unknown>>(
+  options: ProviderTemplateResponseOptions<T>
+) {
+  return {
+    status: 'internal_provider_template',
+    ...(options.fields ?? ({} as T)),
+    provider: {
+      name: options.providerName,
+      credentialsRequired: true,
+      executionState: 'not_executed'
+    },
+    contract: {
+      productLabel: options.productLabel,
+      forensicCategory: 'api-key-stub',
+      implementationDepth: 'template',
+      launchRecommendation: 'internal_only_until_provider_integration',
+      notes: options.notes
+    }
   };
 }
 
