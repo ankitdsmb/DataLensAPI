@@ -147,7 +147,7 @@ route,file,forensic_category,implementation_depth,launch_recommendation,strength
 /api/v1/seo-tools/youtube-keywords-discovery-tool,apps/api-gateway/app/api/v1/seo-tools/youtube-keywords-discovery-tool/route.ts,real-scraper,medium,public,strong,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/youtube-music-autocomplete,apps/api-gateway/app/api/v1/seo-tools/youtube-music-autocomplete/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium
 /api/v1/seo-tools/youtube-rank-checker,apps/api-gateway/app/api/v1/seo-tools/youtube-rank-checker/route.ts,queued-simulated,medium,internal-only,medium,blocked,internal-only,strengthen,medium
-/api/v1/seo-tools/youtube-region-restriction-checker,apps/api-gateway/app/api/v1/seo-tools/youtube-region-restriction-checker/route.ts,link-builder,helper,public_lite,weak,not-in-free-tier-allowlist,conditional,relabel,high
+/api/v1/seo-tools/youtube-region-restriction-checker,apps/api-gateway/app/api/v1/seo-tools/youtube-region-restriction-checker/route.ts,html-scraper,live,public_lite,medium,not-in-free-tier-allowlist,conditional,strengthen,medium
 /api/v1/seo-tools/youtube-suggester,apps/api-gateway/app/api/v1/seo-tools/youtube-suggester/route.ts,real-scraper,medium,public,strong,fit,ready,strengthen,medium
 /api/v1/seo-tools/youtube-view-generator,apps/api-gateway/app/api/v1/seo-tools/youtube-view-generator/route.ts,fake-engagement,template,rejected_from_public_catalog,weak,blocked,blocked,internal-only,high
 /api/v1/seo-tools/youtube-view-generator-124-test-events-124-0001,apps/api-gateway/app/api/v1/seo-tools/youtube-view-generator-124-test-events-124-0001/route.ts,fake-engagement,template,rejected_from_public_catalog,weak,blocked,blocked,internal-only,high

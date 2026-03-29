@@ -180,11 +180,11 @@ const routeOverrides = {
     upgrade: 'Promote into a canonical rank-tracker family with retries, provenance, and hardened evidence capture.'
   },
   'youtube-region-restriction-checker': {
-    strength: '1/5',
-    coverage: '~10%',
-    current: 'Echoes a video URL and returns pending.',
-    gap: 'No region matrix or restriction verification exists.',
-    upgrade: 'Either remove or implement against real metadata sources.'
+    strength: '3/5',
+    coverage: '~45%',
+    current: 'Fetches the public YouTube watch page and parses playability plus availableCountries evidence.',
+    gap: 'Still depends on watch-page HTML and does not independently verify playback from each market.',
+    upgrade: 'Promote into a canonical YouTube availability tool with stronger extraction, retries, and optional country-by-country probe modes.'
   }
 };
 

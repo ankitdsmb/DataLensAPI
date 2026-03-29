@@ -30,8 +30,8 @@ Classification summary:
 
 - **Strength**
   - Strong: **15**
-  - Medium: **78**
-  - Weak: **61**
+  - Medium: **79**
+  - Weak: **60**
 - **Launch readiness**
   - Ready: **89**
   - Conditional: **47**
@@ -76,6 +76,7 @@ What this evidence now covers:
 
 - shared response envelope and validation behavior,
 - async job submission/completion/artifact retrieval for `youtube-rank-checker`,
+- public watch-page availability evidence for `youtube-region-restriction-checker`,
 - public gateway blocking plus internal worker execution for `snapify-capture-screenshot-save-pdf`,
 - provider-template contract assertions for `openpagerank-bulk-checker` and `rentcast`.
 
@@ -118,8 +119,8 @@ The repo is past the original route-count drift problem, but launch-facing docs 
 
 All weak routes now have a concrete next action in the CSV:
 
-- `relabel`: **61** routes (primarily `link-builder` + `shallow-local-utility`)
-- `strengthen`: **2** routes (`api-key-stub`)
+- `relabel`: **60** routes (primarily `link-builder` + `shallow-local-utility`)
+- `strengthen`: **3** routes (2 `api-key-stub` routes + `youtube-region-restriction-checker`)
 
 Action policy for remaining weak routes:
 

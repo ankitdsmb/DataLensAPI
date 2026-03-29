@@ -22,7 +22,7 @@
 | `/api/v1/seo-tools/similarweb` | `link-builder` | Relabeled honestly | Internal or beta only | Explicitly labeled report URL helper, no analytics scraping claims. |
 | `/api/v1/seo-tools/spotify` | `link-builder` | Relabeled honestly | Public lite/helper | Explicitly labeled Spotify query URL helper only. |
 | `/api/v1/seo-tools/trustpilot-plus` | `link-builder` | Relabeled honestly | Public lite/helper | Explicitly labeled company lookup helper only. |
-| `/api/v1/seo-tools/youtube-region-restriction-checker` | `link-builder` | Relabeled honestly | Public lite/helper | Explicitly labeled watch URL helper, no restriction telemetry claim. |
+| `/api/v1/seo-tools/youtube-region-restriction-checker` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches the public watch page and parses `playabilityStatus`, `playableInEmbed`, and `availableCountries`; it still does not independently simulate playback from each country. |
 | `/api/v1/seo-tools/openpagerank-bulk-checker` | `api-key-stub` | Relabeled honestly | Internal-only until provider integration | Explicit internal provider-template contract with `provider_credentials_required` results and `not_executed` provider state. |
 | `/api/v1/seo-tools/rentcast` | `api-key-stub` | Relabeled honestly | Internal-only until provider integration | Explicit internal provider-template contract with normalized lookup helper and `not_executed` provider state. |
 | `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | `queued-simulated` | Strengthened, but still deferred | Deferred from public launch | Real async job contract now captures live page HTML evidence and metadata, but still does not render screenshot/PDF binaries. |
@@ -53,4 +53,5 @@ Follow-up QA now exists for the strongest honesty-sensitive routes:
   - verifies `snapify-capture-screenshot-save-pdf` is blocked at the public gateway but succeeds through the internal worker path
 - `npm run regression-tests`
   - verifies helper/link-builder contracts
+  - verifies `youtube-region-restriction-checker` returns watch-page availability evidence
   - verifies `openpagerank-bulk-checker` and `rentcast` return the expected internal provider-template contracts

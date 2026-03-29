@@ -40,6 +40,14 @@ function assertLinkBuilderContract(data) {
   assert.equal(typeof data.contract.notes, 'string');
 }
 
+function assertHtmlScraperContract(data) {
+  assert.equal(data.contract.forensicCategory, 'html-scraper');
+  assert.equal(data.contract.implementationDepth, 'live');
+  assert.equal(data.contract.launchRecommendation, 'public_lite');
+  assert.equal(typeof data.contract.productLabel, 'string');
+  assert.equal(typeof data.contract.notes, 'string');
+}
+
 function assertProviderTemplateContract(data) {
   assert.equal(data.status, 'internal_provider_template');
   assert.equal(data.provider?.credentialsRequired, true);
@@ -97,8 +105,7 @@ try {
     ['/api/v1/seo-tools/business-websites-ranker', { keyword: 'coffee', location: 'austin' }, 'searchUrl'],
     ['/api/v1/seo-tools/similarweb', { domain: 'example.com' }, 'reportUrl'],
     ['/api/v1/seo-tools/spotify', { query: 'indie jazz' }, 'searchUrl'],
-    ['/api/v1/seo-tools/trustpilot-plus', { company: 'acme' }, 'searchUrl'],
-    ['/api/v1/seo-tools/youtube-region-restriction-checker', { videoId: 'dQw4w9WgXcQ' }, 'videoUrl']
+    ['/api/v1/seo-tools/trustpilot-plus', { company: 'acme' }, 'searchUrl']
   ];
 
   for (const [path, payload, field] of cases) {
@@ -127,6 +134,21 @@ try {
   assertProviderTemplateContract(rentcast.json.data);
   assert.equal(typeof rentcast.json.data.lookupUrl, 'string');
   assert.ok(rentcast.json.data.lookupUrl.includes('rentcast.io'));
+
+  const youtubeRegion = await post('/api/v1/seo-tools/youtube-region-restriction-checker', {
+    videoId: 'dQw4w9WgXcQ'
+  });
+  assert.equal(youtubeRegion.response.status, 200);
+  assert.equal(youtubeRegion.json.success, true);
+  assert.equal(youtubeRegion.json.data.status, 'analyzed');
+  assert.equal(youtubeRegion.json.data.source, 'youtube_watch_player_response');
+  assert.equal(youtubeRegion.json.data.playabilityStatus, 'OK');
+  assert.equal(Array.isArray(youtubeRegion.json.data.availableCountries), true);
+  assert.ok(youtubeRegion.json.data.availableCountries.length > 50);
+  assert.ok(youtubeRegion.json.data.availableCountries.includes('US'));
+  assert.equal(youtubeRegion.json.data.evidence.watchPageFetched, true);
+  assert.equal(youtubeRegion.json.data.evidence.playerResponseParsed, true);
+  assertHtmlScraperContract(youtubeRegion.json.data);
 
   console.log('regression-tests: canonical families ok');
 } finally {

@@ -27,7 +27,7 @@
 | Rows marked Created = No | 91 |
 | Live local route directories | 152 |
 | Routes using `readJsonBody` | 152 |
-| Routes still using raw `JSON.parse` locally | 0 |
+| Routes still using raw `JSON.parse` locally | 1 |
 | Routes with local strict allowed-field checks | 152 |
 
 ### Implementation Classes
@@ -37,11 +37,11 @@
 | `audit-suite` | 8 |
 | `crawler-tool` | 5 |
 | `network-wrapper` | 22 |
-| `html-scraper` | 41 |
+| `html-scraper` | 42 |
 | `local-utility` | 38 |
 | `link-builder` | 28 |
 | `template-link-builder` | 1 |
-| `queued-placeholder` | 9 |
+| `queued-placeholder` | 8 |
 
 ### Functional Families
 
@@ -104,7 +104,7 @@
 ### 4. Contract / Validation Gap
 
 - All live routes use `readJsonBody`, which is a good baseline.
-- Raw `JSON.parse` usage across live SEO routes is now down to 0.
+- Raw `JSON.parse` usage across live SEO routes is now down to 1.
 - Strict allowed-field validation is present on 152 live SEO routes.
 - The next contract task is to keep route metadata and route promises aligned with those stronger contracts.
 
@@ -330,6 +330,7 @@ The appendix below covers each live local route one by one. The assessments are 
 | `/api/v1/seo-tools/web-design-grader` | Design effectiveness evaluation + recommendations. | 2/5 | ~20% | Simple heuristic scoring based on hero/image/button presence. | Far below the promised design/conversion intelligence. | Replace with screenshot-backed rubric and recommendation engine. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/what-site` | Site title + description lookup. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/whatruns` | Tech stack detection via Whatruns. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/youtube-region-restriction-checker` | Region restrictions for videos. | 3/5 | ~45% | Fetches the public YouTube watch page and parses playability plus availableCountries evidence. | Still depends on watch-page HTML and does not independently verify playback from each market. | Promote into a canonical YouTube availability tool with stronger extraction, retries, and optional country-by-country probe modes. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/zoho-help-center` | Zoho Desk help center categories + articles. | 3/5 | ~45% | Fetches live HTML and extracts a narrow set of visible fields. | Selectors are shallow and usually miss pagination, schema, or deep entity normalization. | Push repeated extraction into shared provider adapters and normalized DTOs. | Usually fine on free serverless if inputs stay capped. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 
 ## Local Utility Routes
@@ -426,5 +427,4 @@ The appendix below covers each live local route one by one. The assessments are 
 | `/api/v1/seo-tools/trayvmy-actor` | Generic automation actor. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Not launch-ready on free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/woorank` | Full SEO analysis with Woorank. | 1/5 | ~5% | Returns queued/pending placeholder responses only. | No job system, artifact store, or worker exists behind the response. | Do not expose publicly until the async platform exists. | Not launch-ready on free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/youtube-rank-checker` | Check video ranks by keyword. | 3/5 | ~45% | Real async job submission plus lightweight YouTube search evidence parsing with deterministic fallback. | Current parsing path is fragile and degrades to simulation when live evidence is unavailable. | Promote into a canonical rank-tracker family with retries, provenance, and hardened evidence capture. | Not launch-ready on free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
-| `/api/v1/seo-tools/youtube-region-restriction-checker` | Region restrictions for videos. | 1/5 | ~10% | Echoes a video URL and returns pending. | No region matrix or restriction verification exists. | Either remove or implement against real metadata sources. | Not launch-ready on free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 

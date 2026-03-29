@@ -181,7 +181,7 @@ If a route appears in planning docs but is not listed here, it is considered **n
 | `/api/v1/seo-tools/similarweb` | `link-builder` | Keep internal/beta only until real metrics extraction exists. |
 | `/api/v1/seo-tools/spotify` | `link-builder` | Keep public only as a **lite helper** (query URL builder). |
 | `/api/v1/seo-tools/trustpilot-plus` | `link-builder` | Keep public only as a **lite helper** (company lookup helper). |
-| `/api/v1/seo-tools/youtube-region-restriction-checker` | `link-builder` | Keep public only as a **lite helper** until restriction telemetry exists. |
+| `/api/v1/seo-tools/youtube-region-restriction-checker` | `html-scraper` | Keep public as a **lite evidence scrape**; it parses watch-page availability data but does not independently test playback from each country. |
 | `/api/v1/seo-tools/openpagerank-bulk-checker` | `api-key-stub` | Keep internal-only as a provider template until real OpenPageRank integration is implemented. |
 | `/api/v1/seo-tools/rentcast` | `api-key-stub` | Keep internal-only as a provider template until real RentCast integration is implemented. |
 | `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | `queued-placeholder` | Keep deferred from public launch until browser/PDF rendering exists; current worker captures live HTML evidence only. |

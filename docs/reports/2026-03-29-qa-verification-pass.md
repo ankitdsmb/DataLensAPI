@@ -40,6 +40,7 @@ All three commands passed on this branch.
 ### Regression tests
 
 - Verifies the canonical link-builder/helper family still returns the expected helper contracts.
+- Verifies `/api/v1/seo-tools/youtube-region-restriction-checker` now returns public watch-page availability evidence, including `playabilityStatus` and `availableCountries`.
 - Verifies the two provider-template routes:
   - `/api/v1/seo-tools/openpagerank-bulk-checker`
   - `/api/v1/seo-tools/rentcast`
@@ -61,6 +62,7 @@ This QA pass materially strengthens the repo’s evidence base:
    - launch guard behavior,
    - async job lifecycle,
    - artifact serving,
+   - public watch-page availability evidence extraction,
    - provider-template route contracts.
 
 ## Remaining gaps
