@@ -144,13 +144,6 @@ const routeOverrides = {
     gap: 'No track, artist, album, playlist, or pagination data.',
     upgrade: 'Implement a real provider-backed media connector.'
   },
-  'trustpilot-plus': {
-    strength: '1/5',
-    coverage: '~10%',
-    current: 'Returns a Trustpilot search URL only.',
-    gap: 'No reviews or sentiment are collected.',
-    upgrade: 'Move into a marketplace-review connector family.'
-  },
   'business-websites-ranker': {
     cls: 'html-scraper',
     strength: '3/5',
@@ -231,6 +224,15 @@ const routeOverrides = {
     gap: 'Still caps batch size, does not paginate customer reviews, and does not normalize complaint timelines across all matched businesses.',
     upgrade: 'Promote into a marketplace-review connector with reusable BBB parsers, bulk enrichment, and structured complaint/review timelines.',
     fit: 'Usually fine on free serverless if inputs stay capped.'
+  },
+  'shopify-product-search': {
+    cls: 'public-api-wrapper',
+    strength: '3/5',
+    coverage: '~45%',
+    current: 'Uses public Shopify storefront predictive search or products-feed endpoints to return normalized product evidence for the supplied store.',
+    gap: 'Coverage still depends on public storefront endpoints and does not yet normalize variants, pagination, or collection context.',
+    upgrade: 'Promote into a reusable ecommerce storefront connector with variant normalization, pagination, richer product DTOs, and store capability detection.',
+    fit: 'Strong free-tier fit with per-store caps and caching.'
   },
   'simple-bbb': {
     strength: '3/5',

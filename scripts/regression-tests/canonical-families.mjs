@@ -56,6 +56,14 @@ function assertNetworkWrapperContract(data) {
   assert.equal(typeof data.contract.notes, 'string');
 }
 
+function assertPublicApiWrapperContract(data) {
+  assert.equal(data.contract.forensicCategory, 'public-api-wrapper');
+  assert.equal(data.contract.implementationDepth, 'live');
+  assert.equal(data.contract.launchRecommendation, 'public_lite');
+  assert.equal(typeof data.contract.productLabel, 'string');
+  assert.equal(typeof data.contract.notes, 'string');
+}
+
 function assertProviderTemplateContract(data) {
   assert.equal(data.status, 'internal_provider_template');
   assert.equal(data.provider?.credentialsRequired, true);
@@ -238,6 +246,28 @@ try {
     assert.equal(result.evidence.profilePageFetched, true);
   }
   assertHtmlScraperContract(bulkBbb.json.data);
+
+  const shopify = await post('/api/v1/seo-tools/shopify-product-search', {
+    storeUrl: 'https://colourpop.com',
+    query: 'lip'
+  });
+  assert.equal(shopify.response.status, 200);
+  assert.equal(shopify.json.success, true);
+  assert.equal(shopify.json.data.status, 'live_search');
+  assert.equal(typeof shopify.json.data.source, 'string');
+  assert.ok(shopify.json.data.source.startsWith('shopify_'));
+  assert.equal(typeof shopify.json.data.sourceUrl, 'string');
+  assert.ok(shopify.json.data.sourceUrl.includes('colourpop.com'));
+  assert.equal(typeof shopify.json.data.productCount, 'number');
+  assert.ok(shopify.json.data.productCount >= 1);
+  assert.equal(Array.isArray(shopify.json.data.products), true);
+  assert.ok(shopify.json.data.products.length >= 1);
+  assert.equal(typeof shopify.json.data.products[0].title, 'string');
+  assert.equal(typeof shopify.json.data.products[0].productUrl, 'string');
+  assert.ok(shopify.json.data.products[0].productUrl.includes('colourpop.com'));
+  assert.equal(typeof shopify.json.data.evidence.liveProductsFeedFallback, 'boolean');
+  assert.equal(typeof shopify.json.data.evidence.livePredictiveSearch, 'boolean');
+  assertPublicApiWrapperContract(shopify.json.data);
 
   const domainIntelligence = await post('/api/v1/seo-tools/domain-intelligence-suite', {
     domain: 'openai.com'

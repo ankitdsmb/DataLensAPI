@@ -36,10 +36,11 @@
 | --- | ---: |
 | `audit-suite` | 8 |
 | `crawler-tool` | 5 |
+| `public-api-wrapper` | 1 |
 | `network-wrapper` | 28 |
 | `html-scraper` | 45 |
 | `local-utility` | 33 |
-| `link-builder` | 24 |
+| `link-builder` | 23 |
 | `template-link-builder` | 1 |
 | `queued-placeholder` | 8 |
 
@@ -259,6 +260,12 @@ The appendix below covers each live local route one by one. The assessments are 
 | `/api/v1/seo-tools/website-broken-links-redirects-checker` | Broken links + redirects analysis. | 3/5 | ~55% | Real crawl/graph logic over a constrained number of pages. | Synchronous in-memory crawling will not scale without async jobs and storage. | Move larger crawl workflows behind a queue and artifact layer. | Borderline on free serverless; use strict page caps. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/website-links-graph-generator` | Link graph + JSON export. | 3/5 | ~55% | Real crawl/graph logic over a constrained number of pages. | Synchronous in-memory crawling will not scale without async jobs and storage. | Move larger crawl workflows behind a queue and artifact layer. | Borderline on free serverless; use strict page caps. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 
+## Public API Wrapper Routes
+
+| Endpoint | Promise | Strength | Coverage | Current Logic | Biggest Gap | Best-Ever Upgrade | Free-Tier Fit | GitHub Note |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `/api/v1/seo-tools/shopify-product-search` | Search products with metadata. | 3/5 | ~45% | Uses public Shopify storefront predictive search or products-feed endpoints to return normalized product evidence for the supplied store. | Coverage still depends on public storefront endpoints and does not yet normalize variants, pagination, or collection context. | Promote into a reusable ecommerce storefront connector with variant normalization, pagination, richer product DTOs, and store capability detection. | Strong free-tier fit with per-store caps and caching. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+
 ## Network and Lookup Wrapper Routes
 
 | Endpoint | Promise | Strength | Coverage | Current Logic | Biggest Gap | Best-Ever Upgrade | Free-Tier Fit | GitHub Note |
@@ -388,7 +395,6 @@ The appendix below covers each live local route one by one. The assessments are 
 | `/api/v1/seo-tools/car-hire-rental-bulk` | Car rental prices in bulk. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/opentable` | OpenTable search + availability. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/rentcast` | Rent estimates for US properties. | 1/5 | ~10% | Builds a normalized lookup URL and returns an explicit internal provider-template contract. | No live provider data. | Either integrate the provider or keep it internal-only as a provider template. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
-| `/api/v1/seo-tools/shopify-product-search` | Search products with metadata. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/showtimes` | Showtimes data extraction. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/similarweb` | Website analytics (public data). | 1/5 | ~10% | Returns a Similarweb report URL only. | No analytics extraction or normalization. | Rebuild as real traffic intelligence or relabel honestly. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/skyscanner-cars` | Car rental prices + filters. | 1/5 | ~10% | Mostly validates input and returns an external search/report URL. | No first-party data extraction or enrichment occurs. | Either relabel honestly or rebuild behind a real provider adapter. | Technically trivial to host, commercially thin. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |

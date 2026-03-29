@@ -30,8 +30,8 @@ Classification summary:
 
 - **Strength**
   - Strong: **15**
-  - Medium: **87**
-  - Weak: **52**
+  - Medium: **88**
+  - Weak: **51**
 - **Launch readiness**
   - Ready: **89**
   - Conditional: **47**
@@ -78,6 +78,7 @@ What this evidence now covers:
 - async job submission/completion/artifact retrieval for `youtube-rank-checker`,
 - public watch-page availability evidence for `youtube-region-restriction-checker`,
 - public Trustpilot review-page aggregate evidence for `trustpilot-plus`,
+- public Shopify storefront product evidence for `shopify-product-search`,
 - public BBB bulk company evidence for `bulk-bbb`,
 - public business website discovery/scoring evidence for `business-websites-ranker`,
 - public BBB company-profile evidence for `simple-bbb`,
@@ -144,6 +145,8 @@ These routes now sit in a medium-depth, evidence-backed conditional posture beca
 `/api/v1/seo-tools/business-websites-ranker` also no longer belongs in the weak helper bucket. It now discovers public websites from search results and applies lightweight website-quality scoring instead of only emitting a seed query URL.
 
 `/api/v1/seo-tools/simple-bbb` also no longer belongs in the weak helper bucket. It now performs public BBB search parsing plus first-match business-profile enrichment with rating and complaint signals.
+
+`/api/v1/seo-tools/shopify-product-search` also no longer belongs in the weak helper bucket when `storeUrl` is supplied. It now calls public Shopify storefront endpoints and returns normalized product evidence instead of only returning a search helper URL.
 
 Action policy for the remaining weak routes:
 

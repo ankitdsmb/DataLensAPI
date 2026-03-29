@@ -1,5 +1,6 @@
 import {
   createToolPolicy,
+  searchShopifyProducts,
   readJsonBody,
   RequestValidationError,
   withScrapingHandler,
@@ -27,14 +28,49 @@ export const POST = withScrapingHandler({ policy: shopifyPolicy }, async (req: R
     });
   }
 
-  const baseUrl = storeUrl || 'https://www.shopify.com';
-  const searchUrl = query
-    ? `${baseUrl.replace(/\/$/, '')}/search?q=${encodeURIComponent(query)}`
-    : `${baseUrl.replace(/\/$/, '')}/search`;
+  if (!storeUrl) {
+    const searchUrl = query
+      ? `https://www.shopify.com/search?query=${encodeURIComponent(query)}`
+      : 'https://www.shopify.com';
+
+    return {
+      status: 'store_url_required_for_live_search',
+      query: query || null,
+      storeUrl: null,
+      searchUrl,
+      contract: {
+        productLabel: 'Shopify Product Search (Helper Fallback)',
+        forensicCategory: 'link-builder',
+        implementationDepth: 'helper',
+        launchRecommendation: 'public_lite',
+        notes: 'Provide storeUrl to run live storefront product extraction. Without storeUrl this route only returns a generic Shopify helper URL.'
+      }
+    };
+  }
+
+  const liveSearch = await searchShopifyProducts({
+    storeUrl,
+    query: query || null,
+    timeoutMs: Math.min(shopifyPolicy.timeoutMs, 5000),
+    limit: 5
+  });
 
   return {
-    query: query || null,
-    storeUrl: storeUrl || null,
-    searchUrl
+    status: 'live_search',
+    query: liveSearch.query,
+    storeUrl: liveSearch.storeUrl,
+    source: liveSearch.source,
+    sourceUrl: liveSearch.sourceUrl,
+    productCount: liveSearch.products.length,
+    products: liveSearch.products,
+    evidence: liveSearch.evidence,
+    contract: {
+      productLabel: 'Shopify Product Search',
+      forensicCategory: 'public-api-wrapper',
+      implementationDepth: 'live',
+      launchRecommendation: 'public_lite',
+      notes:
+        'Uses public Shopify storefront search/feed endpoints on the supplied storeUrl. If storeUrl is omitted, the route falls back to a generic helper URL only.'
+    }
   };
 });

@@ -178,9 +178,10 @@ If a route appears in planning docs but is not listed here, it is considered **n
 | Route | Forensic category | Public launch recommendation |
 | --- | --- | --- |
 | `/api/v1/seo-tools/business-websites-ranker` | `html-scraper` | Keep public as **lite evidence**; it discovers likely business websites from public search results and applies lightweight website-quality scoring, but it is not an authoritative Google Places feed. |
+| `/api/v1/seo-tools/shopify-product-search` | `public-api-wrapper` | Keep public as **lite evidence** when `storeUrl` is supplied; it uses public Shopify storefront endpoints and falls back to a generic helper URL when `storeUrl` is omitted. |
 | `/api/v1/seo-tools/similarweb` | `link-builder` | Keep internal/beta only until real metrics extraction exists. |
 | `/api/v1/seo-tools/spotify` | `link-builder` | Keep public only as a **lite helper** (query URL builder). |
-| `/api/v1/seo-tools/trustpilot-plus` | `link-builder` | Keep public only as a **lite helper** (company lookup helper). |
+| `/api/v1/seo-tools/trustpilot-plus` | `html-scraper` | Keep public as **lite evidence** for resolvable identifiers; it extracts public aggregate review-page evidence but still does not paginate individual reviews or compute sentiment. |
 | `/api/v1/seo-tools/youtube-region-restriction-checker` | `html-scraper` | Keep public as a **lite evidence scrape**; it parses watch-page availability data but does not independently test playback from each country. |
 | `/api/v1/seo-tools/openpagerank-bulk-checker` | `api-key-stub` | Keep internal-only as a provider template until real OpenPageRank integration is implemented. |
 | `/api/v1/seo-tools/rentcast` | `api-key-stub` | Keep internal-only as a provider template until real RentCast integration is implemented. |

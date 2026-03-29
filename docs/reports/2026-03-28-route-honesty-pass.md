@@ -2,12 +2,13 @@
 
 - Date: 2026-03-28
 - Scope: weak-route over-promise cleanup for prioritized SEO tools.
-- Mission outcome: all prioritized routes are now either explicitly **lite/helper/template** in response contracts or **deferred** for public launch.
+- Mission outcome: prioritized weak routes are now either explicitly **lite/helper/template** in response contracts, strengthened with honest public evidence, or **deferred** for public launch.
 - Follow-up governance outcome: rejected traffic and fake-engagement routes now return explicit `rejected_for_public_catalog` contracts instead of generic queued/test placeholders.
 
 ## Forensic category definitions used
 
 - `link-builder`: validates input and builds canonical external links only.
+- `public-api-wrapper`: calls a public JSON endpoint and returns lightly normalized first-party evidence.
 - `api-key-stub`: contract is a provider template that requires credentials not wired in the route.
 - `queued-placeholder`: route accepts payload but does not execute the underlying heavy workflow.
 - `queued-simulated`: route submits into the real job runtime, but current worker output is synthetic, deterministic, or projection-based rather than provider-grade execution.
@@ -19,6 +20,7 @@
 | Route | Forensic category | Action taken | Public launch recommendation | Notes |
 | --- | --- | --- | --- | --- |
 | `/api/v1/seo-tools/business-websites-ranker` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Discovers public websites from DuckDuckGo HTML search results and applies lightweight website-quality scoring; still heuristic, but no longer just a seed URL builder. |
+| `/api/v1/seo-tools/shopify-product-search` | `public-api-wrapper` | Strengthened with public evidence | Public lite/evidence | Uses public Shopify storefront predictive-search or products-feed endpoints to return normalized product evidence for a supplied `storeUrl`; without `storeUrl` it falls back honestly to a helper URL. |
 | `/api/v1/seo-tools/similarweb` | `link-builder` | Relabeled honestly | Internal or beta only | Explicitly labeled report URL helper, no analytics scraping claims. |
 | `/api/v1/seo-tools/spotify` | `link-builder` | Relabeled honestly | Public lite/helper | Explicitly labeled Spotify query URL helper only. |
 | `/api/v1/seo-tools/trustpilot-plus` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches the public Trustpilot review page for resolvable identifiers and extracts aggregate rating plus review-count evidence; unresolved inputs still fall back to a helper contract. |
@@ -55,6 +57,7 @@ Follow-up QA now exists for the strongest honesty-sensitive routes:
   - verifies `snapify-capture-screenshot-save-pdf` is blocked at the public gateway but succeeds through the internal worker path
 - `npm run regression-tests`
   - verifies `business-websites-ranker` returns live website discovery plus scoring evidence
+  - verifies `shopify-product-search` returns live storefront product evidence from a supplied public Shopify store
   - verifies helper/link-builder contracts
   - verifies `youtube-region-restriction-checker` returns watch-page availability evidence
   - verifies `trustpilot-plus` returns live review-page aggregate evidence
