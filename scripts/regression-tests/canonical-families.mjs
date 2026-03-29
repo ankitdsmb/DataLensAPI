@@ -48,6 +48,14 @@ function assertHtmlScraperContract(data) {
   assert.equal(typeof data.contract.notes, 'string');
 }
 
+function assertNetworkWrapperContract(data) {
+  assert.equal(data.contract.forensicCategory, 'network-wrapper');
+  assert.equal(data.contract.implementationDepth, 'live');
+  assert.equal(data.contract.launchRecommendation, 'public_lite');
+  assert.equal(typeof data.contract.productLabel, 'string');
+  assert.equal(typeof data.contract.notes, 'string');
+}
+
 function assertProviderTemplateContract(data) {
   assert.equal(data.status, 'internal_provider_template');
   assert.equal(data.provider?.credentialsRequired, true);
@@ -149,6 +157,24 @@ try {
   assert.equal(youtubeRegion.json.data.evidence.watchPageFetched, true);
   assert.equal(youtubeRegion.json.data.evidence.playerResponseParsed, true);
   assertHtmlScraperContract(youtubeRegion.json.data);
+
+  const domainIntelligence = await post('/api/v1/seo-tools/domain-intelligence-suite', {
+    domain: 'openai.com'
+  });
+  assert.equal(domainIntelligence.response.status, 200);
+  assert.equal(domainIntelligence.json.success, true);
+  assert.equal(domainIntelligence.json.data.mode, 'light');
+  assert.equal(domainIntelligence.json.data.evidence.liveDns, true);
+  assert.equal(domainIntelligence.json.data.evidence.liveHttp, true);
+  assert.equal(Array.isArray(domainIntelligence.json.data.domains), true);
+  assert.equal(domainIntelligence.json.data.domains.length, 1);
+  assert.equal(domainIntelligence.json.data.domains[0].domain, 'openai.com');
+  assert.equal(Array.isArray(domainIntelligence.json.data.domains[0].dns.aRecords), true);
+  assert.ok(domainIntelligence.json.data.domains[0].dns.aRecords.length >= 1);
+  assert.equal(Array.isArray(domainIntelligence.json.data.domains[0].dns.matrix), true);
+  assert.ok(domainIntelligence.json.data.domains[0].dns.matrix.length >= 4);
+  assert.equal(typeof domainIntelligence.json.data.domains[0].http.finalUrl, 'string');
+  assertNetworkWrapperContract(domainIntelligence.json.data);
 
   console.log('regression-tests: canonical families ok');
 } finally {

@@ -185,6 +185,34 @@ const routeOverrides = {
     current: 'Fetches the public YouTube watch page and parses playability plus availableCountries evidence.',
     gap: 'Still depends on watch-page HTML and does not independently verify playback from each market.',
     upgrade: 'Promote into a canonical YouTube availability tool with stronger extraction, retries, and optional country-by-country probe modes.'
+  },
+  'domain-intelligence-suite': {
+    strength: '3/5',
+    coverage: '~50%',
+    current: 'Runs live DNS lookups plus an HTTPS reachability snapshot and returns normalized light-mode evidence.',
+    gap: 'WHOIS, ASN, and SSL certificate inspection are still null in light mode.',
+    upgrade: 'Promote into the full canonical domain intelligence family with WHOIS/RDAP, SSL parsing, and registrar enrichment.'
+  },
+  'domain-inspector': {
+    strength: '3/5',
+    coverage: '~45%',
+    current: 'Performs live DNS and HTTP inspection for a single domain.',
+    gap: 'WHOIS and SSL posture are still not implemented despite the broader product promise.',
+    upgrade: 'Share the canonical domain suite DTOs and add optional WHOIS/SSL enrichment.'
+  },
+  'domain-checker': {
+    strength: '3/5',
+    coverage: '~35%',
+    current: 'Performs a live DNS availability check against public resolvers.',
+    gap: 'Market value, suggestions, and enrichment remain unimplemented.',
+    upgrade: 'Either keep it as a lite DNS availability tool or fold it into the canonical domain suite.'
+  },
+  'domain-availability-checker': {
+    strength: '3/5',
+    coverage: '~35%',
+    current: 'Performs a live DNS availability check against public resolvers.',
+    gap: 'Only checks resolver status; registrar-grade availability evidence is still missing.',
+    upgrade: 'Keep public as a lite availability signal or deepen with registrar/RDAP evidence.'
   }
 };
 
@@ -226,6 +254,7 @@ function parsePlan() {
 function classify(slug, src) {
   if (/pending_api_key/.test(src)) return 'api-key-stub';
   if (/status:\s*['"](queued|pending)['"]|job_id|jobId|processing/i.test(src)) return 'queued-placeholder';
+  if (/(lookupDomainARecord|fetchDomainHttpSnapshot|runDnsMatrixLookup|lookupDnsRecord)\(/.test(src)) return 'network-wrapper';
   if (!/stealthGet\(|stealthMobileGet\(|fetchHtmlDocument\(/.test(src) && /dummyimage\.com/.test(src)) return 'template-link-builder';
   if (!/stealthGet\(|stealthMobileGet\(|fetchHtmlDocument\(/.test(src) && /(searchUrl|reportUrl|lookupUrl|videoUrl)\s*[:=]/.test(src)) return 'link-builder';
   if (/fetchHtmlDocument\(/.test(src) && /(analyzeMetaTagsSection|analyzeHeadingsSection|analyzeImageSeoSection|analyzeKeywordDensitySection|buildScoreFromIssues)/.test(src)) return 'audit-suite';

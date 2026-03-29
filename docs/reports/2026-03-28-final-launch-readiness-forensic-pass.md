@@ -30,8 +30,8 @@ Classification summary:
 
 - **Strength**
   - Strong: **15**
-  - Medium: **79**
-  - Weak: **60**
+  - Medium: **83**
+  - Weak: **56**
 - **Launch readiness**
   - Ready: **89**
   - Conditional: **47**
@@ -77,6 +77,7 @@ What this evidence now covers:
 - shared response envelope and validation behavior,
 - async job submission/completion/artifact retrieval for `youtube-rank-checker`,
 - public watch-page availability evidence for `youtube-region-restriction-checker`,
+- live DNS and HTTPS evidence extraction for `domain-intelligence-suite`,
 - public gateway blocking plus internal worker execution for `snapify-capture-screenshot-save-pdf`,
 - provider-template contract assertions for `openpagerank-bulk-checker` and `rentcast`.
 
@@ -117,17 +118,27 @@ The repo is past the original route-count drift problem, but launch-facing docs 
 
 ## Weak-route action plan (concrete)
 
-All weak routes now have a concrete next action in the CSV:
+The remaining weak routes are now concentrated mostly in:
 
-- `relabel`: **60** routes (primarily `link-builder` + `shallow-local-utility`)
-- `strengthen`: **3** routes (2 `api-key-stub` routes + `youtube-region-restriction-checker`)
+- `link-builder` helpers
+- very small local transform utilities
+- provider templates that are still blocked from public launch
 
-Action policy for remaining weak routes:
+Notably, the domain family no longer belongs in that bucket:
+
+- `/api/v1/seo-tools/domain-availability-checker`
+- `/api/v1/seo-tools/domain-checker`
+- `/api/v1/seo-tools/domain-inspector`
+- `/api/v1/seo-tools/domain-intelligence-suite`
+
+These routes now sit in a medium-depth, evidence-backed conditional posture because they perform live DNS and/or HTTP inspection, even though product depth is still incomplete relative to their broader marketing promises.
+
+Action policy for the remaining weak routes:
 
 1. **Relabel** as helper/lite utilities where output is URL generation or minimal transformation.
-2. **Strengthen** where the product promise requires real external retrieval/analysis.
+2. **Strengthen** where the product promise requires real external retrieval or analysis.
 3. **Internal-only** for risky or abuse-prone classes until hardening is complete.
-4. **Remove** if route has low product value and no hardening path.
+4. **Remove** if a route has low product value and no believable hardening path.
 
 (Per-route action assignment is in `docs/reports/2026-03-28-launch-readiness-route-classification.csv`.)
 
