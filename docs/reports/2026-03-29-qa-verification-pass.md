@@ -14,6 +14,21 @@
 
 All three commands passed on this branch.
 
+## Post-QA observability follow-up
+
+After the main QA pass, the shared timing path was hardened in commit `0ec2fb0`.
+
+- Shared API and provider timing now use a monotonic clock for:
+  - `metadata.execution_time_ms`
+  - `api.request.completed` / `api.request.failed`
+  - `provider.request.completed` / `provider.request.failed`
+- This closes the previously observed negative-duration glitch that could appear when wall-clock time shifted during long regression runs.
+- A full rerun of:
+  - `npm run contract-tests`
+  - `npm run regression-tests`
+
+confirmed the shared timing path stays stable after the change.
+
 ## Coverage provided
 
 ### Contract tests
@@ -138,6 +153,9 @@ This QA pass materially strengthens the repo’s evidence base:
    - shared travel-helper compatibility behavior,
    - deprecated internal-template quarantine behavior,
    - provider-template route contracts.
+4. Shared observability timing is now more trustworthy:
+   - API/provider `duration_ms` and envelope `execution_time_ms` are measured with a monotonic clock,
+   - so forensic timing evidence is no longer vulnerable to wall-clock skew during long runs.
 
 ## Remaining gaps
 

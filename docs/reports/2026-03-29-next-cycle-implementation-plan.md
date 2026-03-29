@@ -22,6 +22,10 @@ The current branch is now in this state:
 - Launch decision:
   - `GO FOR THE SUPPORTED SUBSET`
 
+Operational note:
+
+- Shared API/provider timing has now been hardened to use a monotonic clock, so the earlier negative-duration observability glitch is no longer an active next-cycle blocker.
+
 This means the next cycle should not repeat the broad remediation work we just finished.
 
 The next cycle should focus only on the residual backlog that still matters:
@@ -164,9 +168,11 @@ Additionally:
 
 If we start another implementation batch immediately, the best single next move is:
 
-1. continue with `youtube-rank-checker` as the next async route to harden,
-2. keep `snapify-capture-screenshot-save-pdf` internal-preview while artifact delivery, browser quotas, and retention policy are tightened,
-3. avoid spending the next cycle on blocked provider templates unless credentials and provider access are actually ready.
+1. make a firm product decision on `openpagerank-bulk-checker` and `rentcast`:
+   - permanent internal template, or
+   - approved real provider integration with credentials and quota planning.
+2. keep `snapify-capture-screenshot-save-pdf` and `youtube-rank-checker` internal-preview while artifact delivery, browser quotas, retention policy, and evidence hardening are tightened.
+3. avoid speculative expansion work on challenge-gated connectors unless a real provider or stable public-data path is approved first.
 
 ## Bottom line
 
@@ -175,6 +181,7 @@ The repo no longer needs a broad rescue pass.
 It now needs disciplined next-cycle choices:
 
 - finish one internal-preview async route properly,
+- keep shared observability trustworthy while the supported subset stabilizes,
 - keep provider templates honest unless integrations are approved,
 - avoid speculative connector work,
 - and protect the supported public subset we now actually have.

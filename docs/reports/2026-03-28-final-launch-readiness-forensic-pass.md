@@ -202,6 +202,7 @@ Rationale:
 2. The phase-plan routes that were ambiguous are now explicitly classified as helper-only, compatibility-only, internal-preview, provider-template, or deprecated internal-only.
 3. Contract, smoke, and regression suites now exercise the relevant public subset plus the intentionally non-public exclusions.
 4. Blocked/internal-only routes remain excluded by design instead of by ambiguity.
+5. Shared API/provider timing has been hardened onto a monotonic clock, so launch-facing observability no longer inherits the earlier negative-duration wall-clock glitch.
 
 This is **not** a GO for every live route. It is a GO for the intentionally supported public subset, with blocked/internal-only routes excluded from launch by policy and documentation.
 
