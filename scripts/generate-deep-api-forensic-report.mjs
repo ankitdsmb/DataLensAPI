@@ -218,6 +218,15 @@ const routeOverrides = {
     upgrade: 'Promote into a canonical news-intelligence family with feed adapters, article resolution, deduplication, and optional deeper content extraction layered on top of the current RSS evidence path.',
     fit: 'Good free-tier fit because the current feed lookup is capped, deterministic, and network-light.'
   },
+  'similar-app-store-applications-finder': {
+    cls: 'html-scraper',
+    strength: '3/5',
+    coverage: '~40%',
+    current: 'Fetches the public App Store app page and parses the visible “You Might Also Like” shelf plus source-app metadata for the supplied app id.',
+    gap: 'Still depends on storefront-visible HTML and does not access private recommendation APIs, cross-market inventory, or deeper recommendation rationale.',
+    upgrade: 'Promote into a canonical app-store intelligence family with storefront selection, developer adjacency, category clustering, and optional cross-market comparison layered on top of the current shelf parser.',
+    fit: 'Good free-tier fit because the current page fetch is capped, deterministic, and relatively lightweight.'
+  },
   'markdown-table-generator': {
     cls: 'local-utility',
     strength: '3/5',

@@ -96,7 +96,7 @@ route,file,forensic_category,implementation_depth,launch_recommendation,strength
 /api/v1/seo-tools/serp-meta-title-generator,apps/api-gateway/app/api/v1/seo-tools/serp-meta-title-generator/route.ts,local-utility,live,public_lite,medium,not-in-free-tier-allowlist,conditional,strengthen,medium
 /api/v1/seo-tools/shopify-product-search,apps/api-gateway/app/api/v1/seo-tools/shopify-product-search/route.ts,public-api-wrapper,live,public_lite,medium,not-in-free-tier-allowlist,conditional,strengthen,medium
 /api/v1/seo-tools/showtimes,apps/api-gateway/app/api/v1/seo-tools/showtimes/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low
-/api/v1/seo-tools/similar-app-store-applications-finder,apps/api-gateway/app/api/v1/seo-tools/similar-app-store-applications-finder/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low
+/api/v1/seo-tools/similar-app-store-applications-finder,apps/api-gateway/app/api/v1/seo-tools/similar-app-store-applications-finder/route.ts,html-scraper,live,public_lite,medium,not-in-free-tier-allowlist,conditional,strengthen,medium
 /api/v1/seo-tools/similarweb,apps/api-gateway/app/api/v1/seo-tools/similarweb/route.ts,link-builder,helper,internal_or_beta_only,weak,not-in-free-tier-allowlist,conditional,relabel,high
 /api/v1/seo-tools/simple-bbb,apps/api-gateway/app/api/v1/seo-tools/simple-bbb/route.ts,html-scraper,live,public_lite,medium,not-in-free-tier-allowlist,conditional,strengthen,medium
 /api/v1/seo-tools/site-audit-suite,apps/api-gateway/app/api/v1/seo-tools/site-audit-suite/route.ts,real-scraper,medium,public,strong,not-in-free-tier-allowlist,ready,strengthen,medium

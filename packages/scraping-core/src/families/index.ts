@@ -1,5 +1,6 @@
 export * from './barcodeLookup';
 export * from './bbb';
+export * from './appStoreSimilarApps';
 export * from './businessWebsiteRanker';
 export * from './domainIntelligence';
 export * from './keywordDiscovery';

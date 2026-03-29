@@ -431,6 +431,30 @@ try {
   assert.equal(trendingNews.json.data.evidence.itemsParsed, true);
   assertPublicApiWrapperContract(trendingNews.json.data);
 
+  const similarApps = await post('/api/v1/seo-tools/similar-app-store-applications-finder', {
+    appId: '6448311069'
+  });
+  assert.equal(similarApps.response.status, 200);
+  assert.equal(similarApps.json.success, true);
+  assert.equal(similarApps.json.data.status, 'analyzed');
+  assert.equal(similarApps.json.data.source, 'app_store_similar_items_html');
+  assert.equal(similarApps.json.data.appId, '6448311069');
+  assert.equal(typeof similarApps.json.data.appUrl, 'string');
+  assert.ok(similarApps.json.data.appUrl.includes('/id6448311069'));
+  assert.equal(typeof similarApps.json.data.app.name, 'string');
+  assert.ok(similarApps.json.data.app.name.length >= 1);
+  assert.equal(typeof similarApps.json.data.shelfTitle, 'string');
+  assert.ok(/might also like/i.test(similarApps.json.data.shelfTitle));
+  assert.equal(typeof similarApps.json.data.similarAppCount, 'number');
+  assert.ok(similarApps.json.data.similarAppCount >= 1);
+  assert.equal(Array.isArray(similarApps.json.data.similarApps), true);
+  assert.ok(similarApps.json.data.similarApps.length >= 1);
+  assert.equal(typeof similarApps.json.data.similarApps[0].title, 'string');
+  assert.equal(typeof similarApps.json.data.similarApps[0].appUrl, 'string');
+  assert.equal(similarApps.json.data.evidence.pageFetched, true);
+  assert.equal(similarApps.json.data.evidence.similarShelfParsed, true);
+  assertHtmlScraperContract(similarApps.json.data);
+
   const barcode = await post('/api/v1/seo-tools/barcode', {
     code: '737628064502'
   });
