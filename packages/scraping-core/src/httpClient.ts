@@ -54,18 +54,24 @@ async function requestWithProfile(
 ): Promise<StealthResponse> {
   const startTime = Date.now();
   const provider = options.provider ?? new URL(url).hostname;
+  const method =
+    typeof options.method === 'string' && options.method.trim().length > 0
+      ? options.method.toUpperCase()
+      : 'GET';
 
   logEvent('info', 'provider.request.started', {
     provider,
     profile,
+    method,
     url
   });
 
   try {
-    const response = (await gotScraping.get(url, buildStealthOptions(profile, options))) as StealthResponse;
+    const response = (await gotScraping(url, buildStealthOptions(profile, options))) as StealthResponse;
     logTiming('provider.request.completed', startTime, {
       provider,
       profile,
+      method,
       url,
       status_code: response.statusCode
     });
@@ -75,6 +81,7 @@ async function requestWithProfile(
     logEvent('error', 'provider.request.failed', {
       provider,
       profile,
+      method,
       url,
       duration_ms: Date.now() - startTime,
       error_message: normalized.message
@@ -84,9 +91,34 @@ async function requestWithProfile(
 }
 
 export function stealthGet(url: string, options: StealthRequestOptions = {}) {
-  return requestWithProfile(url, 'desktop', options);
+  return requestWithProfile(url, 'desktop', {
+    ...options,
+    method: 'GET'
+  });
 }
 
 export function stealthMobileGet(url: string, options: StealthRequestOptions = {}) {
-  return requestWithProfile(url, 'mobile', options);
+  return requestWithProfile(url, 'mobile', {
+    ...options,
+    method: 'GET'
+  });
+}
+
+export function stealthPostForm(
+  url: string,
+  fields: Record<string, string>,
+  options: StealthRequestOptions = {}
+) {
+  const body = new URLSearchParams(fields).toString();
+
+  return requestWithProfile(url, 'desktop', {
+    ...options,
+    method: 'POST',
+    headers: {
+      accept: 'application/json',
+      'content-type': 'application/x-www-form-urlencoded',
+      ...(options.headers ?? {})
+    },
+    body
+  });
 }

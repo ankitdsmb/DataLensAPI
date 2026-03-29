@@ -4,5 +4,6 @@ export * from './domainIntelligence';
 export * from './keywordDiscovery';
 export * from './shopifyProductSearch';
 export * from './siteAudit';
+export * from './spellChecker';
 export * from './techFingerprint';
 export * from './whatSite';

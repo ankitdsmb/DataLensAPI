@@ -36,10 +36,10 @@
 | --- | ---: |
 | `audit-suite` | 8 |
 | `crawler-tool` | 5 |
-| `public-api-wrapper` | 1 |
+| `public-api-wrapper` | 2 |
 | `network-wrapper` | 28 |
 | `html-scraper` | 45 |
-| `local-utility` | 33 |
+| `local-utility` | 32 |
 | `link-builder` | 23 |
 | `template-link-builder` | 1 |
 | `queued-placeholder` | 8 |
@@ -265,6 +265,7 @@ The appendix below covers each live local route one by one. The assessments are 
 | Endpoint | Promise | Strength | Coverage | Current Logic | Biggest Gap | Best-Ever Upgrade | Free-Tier Fit | GitHub Note |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `/api/v1/seo-tools/shopify-product-search` | Search products with metadata. | 3/5 | ~45% | Uses public Shopify storefront predictive search or products-feed endpoints to return normalized product evidence for the supplied store. | Coverage still depends on public storefront endpoints and does not yet normalize variants, pagination, or collection context. | Promote into a reusable ecommerce storefront connector with variant normalization, pagination, richer product DTOs, and store capability detection. | Strong free-tier fit with per-store caps and caching. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
+| `/api/v1/seo-tools/spell-checker` | Spell/grammar check for many languages. | 3/5 | ~45% | Calls the public LanguageTool endpoint and returns real spelling and grammar match evidence with suggested replacements for capped text inputs. | Still depends on the public LanguageTool surface and does not yet support batching, richer writing-quality scoring, or style rewrite workflows. | Promote into a canonical writing-quality family with batching, language normalization, caching, and adjacent grammar/readability/profanity capabilities. | Strong free-tier fit with strict text caps, caching, and throttling. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 
 ## Network and Lookup Wrapper Routes
 
@@ -375,7 +376,6 @@ The appendix below covers each live local route one by one. The assessments are 
 | `/api/v1/seo-tools/site-audit-suite` | Canonical light site-audit suite route added after upstream family consolidation. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/smart-website-traffic` | Targeted traffic + crawl/stress test. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/social-media-hashtag-generator` | Multi-keyword hashtag generator. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
-| `/api/v1/seo-tools/spell-checker` | Spell/grammar check for many languages. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/topic-trend-aggregator` | Aggregates multi-pipeline news topics. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Excellent technical fit for free hosting. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/traffic-booster` | Quick traffic boosts for analytics/tests. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |
 | `/api/v1/seo-tools/traffic-generator-youtube-web-etsy-behance-and-many-more` | Traffic generation across platforms. | 2/5 | ~25% | Implements a local heuristic or convenience transform without a real provider. | Many are useful as lite helpers but not strong enough for the current product promise. | Relabel as lite utilities or back them with stronger engines/providers. | Poor public fit: policy-conflicted, abuse-prone, and not compliant for public launch. | No route-specific GitHub delta observed beyond the repo-wide branch lag. |

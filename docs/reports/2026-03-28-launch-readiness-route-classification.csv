@@ -107,7 +107,7 @@ route,file,forensic_category,implementation_depth,launch_recommendation,strength
 /api/v1/seo-tools/snapify-capture-screenshot-save-pdf,apps/api-gateway/app/api/v1/seo-tools/snapify-capture-screenshot-save-pdf/route.ts,queued-simulated,medium,internal-only,medium,blocked,internal-only,strengthen,medium
 /api/v1/seo-tools/social-media-hashtag-generator,apps/api-gateway/app/api/v1/seo-tools/social-media-hashtag-generator/route.ts,shallow-local-utility,shallow,public-lite,weak,fit,conditional,relabel,low
 /api/v1/seo-tools/software-advice,apps/api-gateway/app/api/v1/seo-tools/software-advice/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low
-/api/v1/seo-tools/spell-checker,apps/api-gateway/app/api/v1/seo-tools/spell-checker/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low
+/api/v1/seo-tools/spell-checker,apps/api-gateway/app/api/v1/seo-tools/spell-checker/route.ts,public-api-wrapper,live,public_lite,medium,not-in-free-tier-allowlist,conditional,strengthen,medium
 /api/v1/seo-tools/spotify,apps/api-gateway/app/api/v1/seo-tools/spotify/route.ts,link-builder,helper,public_lite,weak,not-in-free-tier-allowlist,conditional,relabel,high
 /api/v1/seo-tools/spotify-plus,apps/api-gateway/app/api/v1/seo-tools/spotify-plus/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low
 /api/v1/seo-tools/spyfu,apps/api-gateway/app/api/v1/seo-tools/spyfu/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low

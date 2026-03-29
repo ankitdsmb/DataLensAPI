@@ -23,6 +23,7 @@
 | `/api/v1/seo-tools/cms-checker` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches public HTML and applies lightweight technology fingerprinting to identify likely CMS and related site-stack signals instead of only shallow generator hints. |
 | `/api/v1/seo-tools/cms-checker-bulk` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches public HTML in bulk and applies the same lightweight technology fingerprinting across multiple supplied URLs. |
 | `/api/v1/seo-tools/shopify-product-search` | `public-api-wrapper` | Strengthened with public evidence | Public lite/evidence | Uses public Shopify storefront predictive-search or products-feed endpoints to return normalized product evidence for a supplied `storeUrl`; without `storeUrl` it falls back honestly to a helper URL. |
+| `/api/v1/seo-tools/spell-checker` | `public-api-wrapper` | Strengthened with public evidence | Public lite/evidence | Calls the public LanguageTool endpoint and returns real spelling/grammar matches with suggested replacements for capped text input instead of local suspect-word heuristics. |
 | `/api/v1/seo-tools/what-site` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches public HTML and returns a lightweight site profile with final URL, metadata, heading, link, and content signals instead of only a title/description pair. |
 | `/api/v1/seo-tools/whatruns` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches public HTML and returns lightweight technology fingerprints across CMS, frontend, ecommerce, analytics, and infrastructure categories instead of only shallow generator hints. |
 | `/api/v1/seo-tools/similarweb` | `link-builder` | Relabeled honestly | Internal or beta only | Explicitly labeled report URL helper, no analytics scraping claims. |
@@ -63,6 +64,7 @@ Follow-up QA now exists for the strongest honesty-sensitive routes:
   - verifies `business-websites-ranker` returns live website discovery plus scoring evidence
   - verifies `cms-checker` returns live technology fingerprint evidence for a supplied public site
   - verifies `shopify-product-search` returns live storefront product evidence from a supplied public Shopify store
+  - verifies `spell-checker` returns live spelling and grammar match evidence from the public LanguageTool endpoint
   - verifies `what-site` returns live site-profile evidence from a supplied public URL
   - verifies `whatruns` returns live technology fingerprint evidence across multiple categories for a supplied public site
   - verifies helper/link-builder contracts

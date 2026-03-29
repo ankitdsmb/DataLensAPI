@@ -270,6 +270,15 @@ const routeOverrides = {
     upgrade: 'Promote into a reusable ecommerce storefront connector with variant normalization, pagination, richer product DTOs, and store capability detection.',
     fit: 'Strong free-tier fit with per-store caps and caching.'
   },
+  'spell-checker': {
+    cls: 'public-api-wrapper',
+    strength: '3/5',
+    coverage: '~45%',
+    current: 'Calls the public LanguageTool endpoint and returns real spelling and grammar match evidence with suggested replacements for capped text inputs.',
+    gap: 'Still depends on the public LanguageTool surface and does not yet support batching, richer writing-quality scoring, or style rewrite workflows.',
+    upgrade: 'Promote into a canonical writing-quality family with batching, language normalization, caching, and adjacent grammar/readability/profanity capabilities.',
+    fit: 'Strong free-tier fit with strict text caps, caching, and throttling.'
+  },
   'simple-bbb': {
     strength: '3/5',
     coverage: '~45%',

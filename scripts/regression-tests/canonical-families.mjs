@@ -269,6 +269,28 @@ try {
   assert.equal(typeof shopify.json.data.evidence.livePredictiveSearch, 'boolean');
   assertPublicApiWrapperContract(shopify.json.data);
 
+  const spellChecker = await post('/api/v1/seo-tools/spell-checker', {
+    text: 'Ths is a speling test',
+    language: 'en-US'
+  });
+  assert.equal(spellChecker.response.status, 200);
+  assert.equal(spellChecker.json.success, true);
+  assert.equal(spellChecker.json.data.status, 'analyzed');
+  assert.equal(spellChecker.json.data.source, 'languagetool_public_api');
+  assert.equal(spellChecker.json.data.language, 'en-US');
+  assert.equal(typeof spellChecker.json.data.textLength, 'number');
+  assert.ok(spellChecker.json.data.textLength >= 10);
+  assert.equal(typeof spellChecker.json.data.matchCount, 'number');
+  assert.ok(spellChecker.json.data.matchCount >= 1);
+  assert.equal(Array.isArray(spellChecker.json.data.matches), true);
+  assert.ok(spellChecker.json.data.matches.length >= 1);
+  assert.equal(typeof spellChecker.json.data.matches[0].message, 'string');
+  assert.equal(Array.isArray(spellChecker.json.data.matches[0].replacements), true);
+  assert.ok(spellChecker.json.data.matches.some((match) => match.replacements.length > 0));
+  assert.equal(spellChecker.json.data.evidence.publicApiChecked, true);
+  assert.equal(typeof spellChecker.json.data.evidence.replacementsIncluded, 'boolean');
+  assertPublicApiWrapperContract(spellChecker.json.data);
+
   const whatSite = await post('/api/v1/seo-tools/what-site', {
     url: 'https://openai.com'
   });

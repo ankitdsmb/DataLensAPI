@@ -30,8 +30,8 @@ Classification summary:
 
 - **Strength**
   - Strong: **16**
-  - Medium: **87**
-  - Weak: **51**
+  - Medium: **88**
+  - Weak: **50**
 - **Launch readiness**
   - Ready: **89**
   - Conditional: **47**
@@ -80,6 +80,7 @@ What this evidence now covers:
 - public Trustpilot review-page aggregate evidence for `trustpilot-plus`,
 - public CMS/site-stack fingerprint evidence for `cms-checker`,
 - public Shopify storefront product evidence for `shopify-product-search`,
+- public spelling and grammar evidence for `spell-checker`,
 - public site-profile evidence for `what-site`,
 - public multi-category technology fingerprint evidence for `whatruns`,
 - public BBB bulk company evidence for `bulk-bbb`,
