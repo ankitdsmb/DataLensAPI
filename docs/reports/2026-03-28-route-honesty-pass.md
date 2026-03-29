@@ -20,7 +20,7 @@
 | Route | Forensic category | Action taken | Public launch recommendation | Notes |
 | --- | --- | --- | --- | --- |
 | `/api/v1/seo-tools/business-websites-ranker` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Discovers public websites from DuckDuckGo HTML search results and applies lightweight website-quality scoring; still heuristic, but no longer just a seed URL builder. |
-| `/api/v1/seo-tools/barcode` | `public-api-wrapper` | Strengthened with public evidence | Public lite/evidence | Calls the public OpenFoodFacts product API and returns real barcode product evidence for codes found in that public catalog instead of only inferring format from string length. |
+| `/api/v1/seo-tools/barcode` | `public-api-wrapper` | Strengthened with public evidence | Public lite/evidence | Calls the public OpenFoodFacts product API and falls back to the public product page when the API is rate-limited, returning real barcode product evidence instead of only inferring format from string length. |
 | `/api/v1/seo-tools/cms-checker` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches public HTML and applies lightweight technology fingerprinting to identify likely CMS and related site-stack signals instead of only shallow generator hints. |
 | `/api/v1/seo-tools/cms-checker-bulk` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches public HTML in bulk and applies the same lightweight technology fingerprinting across multiple supplied URLs. |
 | `/api/v1/seo-tools/open-graph-image-generator` | `local-utility` | Strengthened with deterministic local evidence | Public lite/evidence | Generates first-party SVG open graph artwork with theme presets, wrapped text, deterministic layout, and previewable data URIs instead of returning a `dummyimage.com` URL. |
@@ -30,6 +30,7 @@
 | `/api/v1/seo-tools/trending-news` | `public-api-wrapper` | Strengthened with public evidence | Public lite/evidence | Uses the public Google News RSS search feed to return live article metadata, source names, publication times, and feed-level evidence instead of only emitting a search URL. |
 | `/api/v1/seo-tools/similar-app-store-applications-finder` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches the public App Store app page and parses the visible “You Might Also Like” shelf plus source-app metadata instead of only returning a queued app URL. |
 | `/api/v1/seo-tools/opentable` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches the public OpenTable search page and parses embedded restaurant search-state data instead of only returning a raw search URL. |
+| `/api/v1/seo-tools/zapier` | `html-scraper` | Strengthened with public evidence | Public lite/evidence | Fetches the public Zapier app integrations page for a resolvable app slug and extracts app metadata plus visible integration-card evidence instead of only returning a search helper URL. |
 | `/api/v1/seo-tools/domain-availability-expiry-whois-dns-ip-asn-70-tld` | `network-wrapper` | Strengthened with live network evidence | Public lite/evidence | Returns live DNS availability, A-record summaries, DNS matrix results, and HTTPS reachability evidence instead of only a single A-record payload with null WHOIS/IP placeholders. |
 | `/api/v1/seo-tools/markdown-table-generator` | `local-utility` | Strengthened with deterministic local evidence | Public lite/evidence | Generates markdown tables from explicit rows or parsed CSV/TSV-style input, with alignment control, markdown escaping, and ragged-row normalization instead of only requiring pre-structured headers and rows. |
 | `/api/v1/seo-tools/social-media-hashtag-generator` | `local-utility` | Strengthened with deterministic local evidence | Public lite/evidence | Generates platform-aware hashtag suggestions with keyword normalization, grouping, ranking, duplicate control, and cross-keyword combinations instead of only emitting raw joined-token tags. |
@@ -78,7 +79,7 @@ Follow-up QA now exists for the strongest honesty-sensitive routes:
   - verifies `snapify-capture-screenshot-save-pdf` is blocked at the public gateway but succeeds through the internal worker path
 - `npm run regression-tests`
   - verifies `business-websites-ranker` returns live website discovery plus scoring evidence
-  - verifies `barcode` returns live product evidence from the public OpenFoodFacts catalog for a known UPC/EAN
+  - verifies `barcode` returns live product evidence from the public OpenFoodFacts API or product-page fallback for a known UPC/EAN
   - verifies `cms-checker` returns live technology fingerprint evidence for a supplied public site
   - verifies `open-graph-image-generator` returns first-party SVG open graph artwork with a previewable data URI and deterministic theme/layout metadata
   - verifies `plagiarism-checker` returns deterministic local n-gram overlap analysis with pairwise similarity scoring, repeated-phrase evidence, and shared-phrase excerpts
@@ -87,6 +88,7 @@ Follow-up QA now exists for the strongest honesty-sensitive routes:
   - verifies `trending-news` returns live Google News RSS article metadata, source names, publication times, and feed evidence for a supplied keyword
   - verifies `similar-app-store-applications-finder` returns live App Store shelf evidence and source-app metadata for a supplied app id
   - verifies `opentable` returns live restaurant search-state evidence with profile links, cuisine, neighborhood, ratings, and reservation signals
+  - verifies `zapier` returns live public app-integrations page evidence with app metadata and visible integration-card extraction
   - verifies `domain-availability-expiry-whois-dns-ip-asn-70-tld` returns live DNS availability, A-record summaries, DNS matrix evidence, and HTTPS reachability
   - verifies `markdown-table-generator` returns deterministic markdown table output with parsed delimited input, alignment control, escaping, and ragged-row normalization under the route’s API-key launch posture
   - verifies `social-media-hashtag-generator` returns deterministic platform-aware hashtag suggestions with grouping, ranking, duplicate control, and cross-keyword combinations under the route’s API-key launch posture

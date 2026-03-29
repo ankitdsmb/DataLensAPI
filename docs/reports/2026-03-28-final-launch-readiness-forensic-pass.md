@@ -30,8 +30,8 @@ Classification summary:
 
 - **Strength**
   - Strong: **16**
-  - Medium: **104**
-  - Weak: **34**
+  - Medium: **105**
+  - Weak: **33**
 - **Launch readiness**
   - Ready: **89**
   - Conditional: **47**
@@ -78,7 +78,7 @@ What this evidence now covers:
 - async job submission/completion/artifact retrieval for `youtube-rank-checker`,
 - public watch-page availability evidence for `youtube-region-restriction-checker`,
 - public Trustpilot review-page aggregate evidence for `trustpilot-plus`,
-- public barcode product evidence for `barcode`,
+- public barcode product evidence for `barcode` (with product-page fallback when the API rate-limits),
 - deterministic markdown table generation evidence for `markdown-table-generator`,
 - deterministic platform-aware hashtag generation evidence for `social-media-hashtag-generator`,
 - first-party SVG open graph generation evidence for `open-graph-image-generator`,
@@ -89,6 +89,7 @@ What this evidence now covers:
 - public Google News RSS article evidence for `trending-news`,
 - public App Store similar-app shelf evidence for `similar-app-store-applications-finder`,
 - public OpenTable restaurant search-state evidence for `opentable`,
+- public Zapier app-integrations page evidence for `zapier`,
 - shared first-party light SEO audit evidence for `woorank`,
 - shared first-party homepage audit plus live domain-check evidence for `seobility-ranking-seo`,
 - first-party proxy authority and spam-risk evidence for `moz-da-pa-spam-checker`,
@@ -169,6 +170,8 @@ These routes now sit in a medium-depth, evidence-backed conditional posture beca
 `/api/v1/seo-tools/shopify-product-search` also no longer belongs in the weak helper bucket when `storeUrl` is supplied. It now calls public Shopify storefront endpoints and returns normalized product evidence instead of only returning a search helper URL.
 
 `/api/v1/seo-tools/ga4-mcp` also no longer belongs in the weak helper bucket. It now fetches public HTML and inspects GA4 measurement ids plus gtag/GTM implementation evidence instead of returning queued placeholder responses.
+
+`/api/v1/seo-tools/zapier` also no longer belongs in the weak helper bucket. It now fetches the public Zapier app integrations page for a resolvable app slug and extracts app metadata plus visible integration-card evidence instead of only returning a search helper URL.
 
 `/api/v1/seo-tools/what-site` now materially exceeds its original title/description lookup promise. It returns a lightweight site profile with metadata, heading, link, and content signals, which makes it a stronger ready route than before.
 

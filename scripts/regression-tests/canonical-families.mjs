@@ -604,6 +604,40 @@ try {
   assert.equal(openTable.json.data.evidence.restaurantArrayParsed, true);
   assertHtmlScraperContract(openTable.json.data);
 
+  const zapier = await post('/api/v1/seo-tools/zapier', {
+    query: 'slack',
+    limit: 4
+  });
+  assert.equal(zapier.response.status, 200);
+  assert.equal(zapier.json.success, true);
+  assert.equal(zapier.json.data.status, 'analyzed');
+  assert.equal(zapier.json.data.source, 'zapier_app_integrations_html');
+  assert.equal(zapier.json.data.requestedSlug, 'slack');
+  assert.equal(zapier.json.data.resolvedSlug, 'slack');
+  assert.equal(typeof zapier.json.data.canonicalUrl, 'string');
+  assert.ok(zapier.json.data.canonicalUrl.includes('/apps/slack/integrations'));
+  assert.equal(zapier.json.data.app.name, 'Slack');
+  assert.equal(typeof zapier.json.data.app.description, 'string');
+  assert.ok(zapier.json.data.app.description.length >= 20);
+  assert.equal(typeof zapier.json.data.app.installUrl, 'string');
+  assert.ok(zapier.json.data.app.installUrl.includes('zapier.com/webintent'));
+  assert.equal(typeof zapier.json.data.app.integrationCount, 'number');
+  assert.ok(zapier.json.data.app.integrationCount >= 1000);
+  assert.equal(Array.isArray(zapier.json.data.app.featureList), true);
+  assert.ok(zapier.json.data.app.featureList.length >= 1);
+  assert.equal(typeof zapier.json.data.integrationCardCount, 'number');
+  assert.ok(zapier.json.data.integrationCardCount >= 1);
+  assert.equal(Array.isArray(zapier.json.data.integrations), true);
+  assert.ok(zapier.json.data.integrations.length >= 1);
+  assert.equal(typeof zapier.json.data.integrations[0].appName, 'string');
+  assert.equal(typeof zapier.json.data.integrations[0].detailsUrl, 'string');
+  assert.ok(zapier.json.data.integrations[0].detailsUrl.includes('zapier.com/apps/'));
+  assert.equal(zapier.json.data.evidence.pageFetched, true);
+  assert.equal(zapier.json.data.evidence.metadataParsed, true);
+  assert.equal(zapier.json.data.evidence.jsonLdParsed, true);
+  assert.equal(zapier.json.data.evidence.integrationCardsParsed, true);
+  assertHtmlScraperContract(zapier.json.data);
+
   const woorank = await post('/api/v1/seo-tools/woorank', {
     url: 'https://openai.com',
     keyword: 'openai'
@@ -627,7 +661,7 @@ try {
   assert.equal(barcode.response.status, 200);
   assert.equal(barcode.json.success, true);
   assert.equal(barcode.json.data.status, 'found');
-  assert.equal(barcode.json.data.source, 'openfoodfacts_public_api');
+  assert.ok(['openfoodfacts_public_api', 'openfoodfacts_product_page_html'].includes(barcode.json.data.source));
   assert.equal(barcode.json.data.code, '737628064502');
   assert.equal(barcode.json.data.format, 'UPC-A');
   assert.equal(typeof barcode.json.data.lookupUrl, 'string');
@@ -640,6 +674,7 @@ try {
   assert.ok(barcode.json.data.product.productUrl.includes('openfoodfacts.org/product/'));
   assert.equal(barcode.json.data.evidence.publicApiChecked, true);
   assert.equal(barcode.json.data.evidence.productFound, true);
+  assert.equal(typeof barcode.json.data.evidence.productPageFallbackUsed, 'boolean');
   assertPublicApiWrapperContract(barcode.json.data);
 
   const profanity = await post('/api/v1/seo-tools/profanity-checker', {

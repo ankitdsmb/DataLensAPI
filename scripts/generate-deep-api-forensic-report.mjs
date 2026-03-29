@@ -200,6 +200,15 @@ const routeOverrides = {
     gap: 'No track, artist, album, playlist, or pagination data.',
     upgrade: 'Implement a real provider-backed media connector.'
   },
+  'zapier': {
+    cls: 'html-scraper',
+    strength: '3/5',
+    coverage: '~40%',
+    current: 'Fetches the public Zapier app integrations page for a resolvable app slug and extracts app metadata plus visible integration-card evidence.',
+    gap: 'Still depends on resolvable public app slugs and does not yet support generic search discovery, authenticated workflow execution, or richer app taxonomy normalization.',
+    upgrade: 'Promote into a canonical SaaS-integration connector with slug discovery, app metadata normalization, and optional public template/workflow enrichment.',
+    fit: 'Good free-tier fit because the current path is capped, HTML-only, and network-light.'
+  },
   'business-websites-ranker': {
     cls: 'html-scraper',
     strength: '3/5',
@@ -213,8 +222,8 @@ const routeOverrides = {
     cls: 'public-api-wrapper',
     strength: '3/5',
     coverage: '~40%',
-    current: 'Calls the public OpenFoodFacts product API and returns real barcode product evidence for codes found in that public catalog.',
-    gap: 'Coverage depends on products present in OpenFoodFacts and does not yet aggregate additional barcode catalogs or ISBN-specific book metadata providers.',
+    current: 'Calls the public OpenFoodFacts product API and falls back to the public product page when the API is rate-limited, returning real barcode product evidence for codes found in that catalog.',
+    gap: 'Coverage still depends on products present in OpenFoodFacts and does not yet aggregate additional barcode catalogs or ISBN-specific book metadata providers.',
     upgrade: 'Promote into a canonical barcode intelligence family with multi-catalog fallback, ISBN/book enrichment, and clearer confidence/source provenance.',
     fit: 'Strong free-tier fit with tight per-request code caps and caching.'
   },

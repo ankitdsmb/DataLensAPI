@@ -43,7 +43,7 @@ All three commands passed on this branch.
 - Verifies `/api/v1/seo-tools/youtube-region-restriction-checker` now returns public watch-page availability evidence, including `playabilityStatus` and `availableCountries`.
 - Verifies `/api/v1/seo-tools/trustpilot-plus` now returns public review-page evidence, including aggregate TrustScore-style rating data and total review count for a resolvable company identifier.
 - Verifies `/api/v1/seo-tools/business-websites-ranker` now returns public website discovery and lightweight quality-scoring evidence instead of only emitting a seed query URL.
-- Verifies `/api/v1/seo-tools/barcode` now returns public product evidence from the OpenFoodFacts catalog for a known UPC/EAN instead of only inferring format from string length.
+- Verifies `/api/v1/seo-tools/barcode` now returns public product evidence from the OpenFoodFacts API, with a public product-page fallback when the API is rate-limited, instead of only inferring format from string length.
 - Verifies `/api/v1/seo-tools/cms-checker` now returns lightweight CMS and site-stack fingerprint evidence from public HTML instead of only shallow generator hints.
 - Verifies `/api/v1/seo-tools/markdown-table-generator` now returns deterministic markdown table output with parsed delimited input, alignment control, escaping, and ragged-row normalization under the route’s API-key launch posture.
 - Verifies `/api/v1/seo-tools/social-media-hashtag-generator` now returns deterministic platform-aware hashtag suggestions with grouped output, ranking, duplicate control, and cross-keyword combinations under the route’s API-key launch posture.
@@ -54,6 +54,7 @@ All three commands passed on this branch.
 - Verifies `/api/v1/seo-tools/trending-news` now returns live Google News RSS article metadata, source names, publication times, and feed-level evidence instead of only a search URL.
 - Verifies `/api/v1/seo-tools/similar-app-store-applications-finder` now returns public App Store “You Might Also Like” shelf evidence plus source-app metadata instead of only returning a queued app URL.
 - Verifies `/api/v1/seo-tools/opentable` now returns public OpenTable restaurant search-state evidence with profile URLs, cuisine, neighborhood, ratings, and reservation signals instead of only returning a search URL.
+- Verifies `/api/v1/seo-tools/zapier` now returns public Zapier app-integrations page evidence with app metadata, canonical page details, feature examples, and visible integration-card extraction instead of only returning a search helper URL.
 - Verifies `/api/v1/seo-tools/domain-availability-expiry-whois-dns-ip-asn-70-tld` now returns live DNS availability, normalized A-record summaries, DNS matrix evidence, and HTTPS reachability instead of a single thin A-record response.
 - Verifies `/api/v1/seo-tools/profanity-checker` now returns deterministic moderation matches, masking, severity, and custom-word handling while respecting the route’s API-key launch posture.
 - Verifies `/api/v1/seo-tools/shopify-product-search` now returns public storefront product evidence from Shopify predictive-search or products-feed endpoints when a `storeUrl` is supplied.
@@ -95,7 +96,7 @@ This QA pass materially strengthens the repo’s evidence base:
    - public watch-page availability evidence extraction,
    - public Trustpilot review-page aggregate evidence extraction,
    - public business website discovery and scoring evidence extraction,
-   - public barcode product evidence extraction,
+   - public barcode product evidence extraction with API-rate-limit fallback,
    - public CMS and site-stack fingerprint extraction,
    - deterministic markdown table generation,
    - deterministic platform-aware hashtag generation,
@@ -109,6 +110,7 @@ This QA pass materially strengthens the repo’s evidence base:
    - public trending news feed evidence extraction,
    - public App Store similar-app shelf evidence extraction,
    - public OpenTable restaurant search-state evidence extraction,
+   - public Zapier app-integrations page evidence extraction,
    - live light domain availability evidence,
    - deterministic profanity moderation extraction,
    - public Shopify storefront product evidence extraction,

@@ -151,5 +151,5 @@ route,file,forensic_category,implementation_depth,launch_recommendation,strength
 /api/v1/seo-tools/youtube-suggester,apps/api-gateway/app/api/v1/seo-tools/youtube-suggester/route.ts,real-scraper,medium,public,strong,fit,ready,strengthen,medium
 /api/v1/seo-tools/youtube-view-generator,apps/api-gateway/app/api/v1/seo-tools/youtube-view-generator/route.ts,fake-engagement,template,rejected_from_public_catalog,weak,blocked,blocked,internal-only,high
 /api/v1/seo-tools/youtube-view-generator-124-test-events-124-0001,apps/api-gateway/app/api/v1/seo-tools/youtube-view-generator-124-test-events-124-0001/route.ts,fake-engagement,template,rejected_from_public_catalog,weak,blocked,blocked,internal-only,high
-/api/v1/seo-tools/zapier,apps/api-gateway/app/api/v1/seo-tools/zapier/route.ts,shallow-local-utility,shallow,public-lite,weak,not-in-free-tier-allowlist,conditional,relabel,low
+/api/v1/seo-tools/zapier,apps/api-gateway/app/api/v1/seo-tools/zapier/route.ts,html-scraper,live,public_lite,medium,not-in-free-tier-allowlist,conditional,strengthen,medium
 /api/v1/seo-tools/zoho-help-center,apps/api-gateway/app/api/v1/seo-tools/zoho-help-center/route.ts,network-wrapper,medium,public,medium,not-in-free-tier-allowlist,ready,strengthen,medium

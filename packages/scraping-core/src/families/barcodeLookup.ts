@@ -1,3 +1,4 @@
+import { fetchHtmlDocument, getElementText, getMetaContent } from '../html';
 import { stealthGet } from '../httpClient';
 import { RequestValidationError, safeJsonParse, UpstreamApiError } from '../validation';
 
@@ -62,6 +63,61 @@ function normalizeProductUrl(code: string, upstreamUrl: string | undefined) {
   return `https://world.openfoodfacts.org/product/${code}`;
 }
 
+async function lookupBarcodeProductPage(code: string, timeoutMs: number) {
+  const productUrl = normalizeProductUrl(code, undefined);
+  const { $, html } = await fetchHtmlDocument(productUrl, { timeoutMs });
+
+  const name =
+    getElementText($, 'h1[property="food:name"]') ??
+    getElementText($, 'h1[itemprop="name"]') ??
+    getMetaContent($, 'meta[property="og:title"]');
+  const brands =
+    $('#field_brands_value')
+      .find('[itemprop="brand"], a')
+      .toArray()
+      .map((element) => $(element).text().trim())
+      .filter(Boolean)
+      .join(', ') || null;
+  const categories = getMetaContent($, 'meta[name="x:data2"]');
+  const imageUrl = getMetaContent($, 'meta[property="og:image"]');
+  const description = getMetaContent($, 'meta[name="description"]');
+  const allergens = $('#panel_allergens_content').text().replace(/\s+/g, ' ').trim() || null;
+  const nutriScoreMatch = html.match(/nutriscore-([a-e])-new/i);
+  const ecoScoreMatch = html.match(/ecoscore-([a-e])/i);
+
+  if (!name) {
+    return null;
+  }
+
+  return {
+    status: 'found' as const,
+    source: 'openfoodfacts_product_page_html' as const,
+    code,
+    format: detectFormat(code),
+    lookupUrl: productUrl,
+    statusVerbose: 'product found via product page fallback',
+    product: {
+      name,
+      genericName: null,
+      brands,
+      categories,
+      quantity: null,
+      packaging: null,
+      countries: null,
+      imageUrl,
+      productUrl,
+      nutriScore: nutriScoreMatch?.[1]?.toLowerCase() ?? null,
+      ecoScore: ecoScoreMatch?.[1]?.toLowerCase() ?? null,
+      allergens: allergens || description || null
+    },
+    evidence: {
+      publicApiChecked: true,
+      productFound: true,
+      productPageFallbackUsed: true
+    }
+  };
+}
+
 export async function lookupBarcodeProduct(request: BarcodeLookupRequest) {
   const code = normalizeCode(request.code);
   const lookupUrl = `${OPEN_FOOD_FACTS_BASE_URL}/${encodeURIComponent(code)}.json`;
@@ -80,8 +136,20 @@ export async function lookupBarcodeProduct(request: BarcodeLookupRequest) {
     });
   }
 
+  if (response.statusCode === 429) {
+    const fallback = await lookupBarcodeProductPage(code, request.timeoutMs);
+    if (fallback) {
+      return fallback;
+    }
+  }
+
   const parsed = safeJsonParse<OpenFoodFactsResponse>(response.body, null);
   if (!parsed) {
+    const fallback = await lookupBarcodeProductPage(code, request.timeoutMs);
+    if (fallback) {
+      return fallback;
+    }
+
     throw new UpstreamApiError('OpenFoodFacts public API returned an empty response', 502, {
       provider: 'world.openfoodfacts.org'
     });
@@ -98,13 +166,14 @@ export async function lookupBarcodeProduct(request: BarcodeLookupRequest) {
       format,
       lookupUrl,
       statusVerbose: parsed.status_verbose ?? 'product not found',
-      product: null,
-      evidence: {
-        publicApiChecked: true,
-        productFound: false
-      }
-    };
-  }
+    product: null,
+    evidence: {
+      publicApiChecked: true,
+      productFound: false,
+      productPageFallbackUsed: false
+    }
+  };
+}
 
   return {
     status: 'found' as const,
@@ -129,7 +198,8 @@ export async function lookupBarcodeProduct(request: BarcodeLookupRequest) {
     },
     evidence: {
       publicApiChecked: true,
-      productFound: true
+      productFound: true,
+      productPageFallbackUsed: false
     }
   };
 }

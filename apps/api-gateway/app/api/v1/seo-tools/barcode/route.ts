@@ -31,7 +31,7 @@ export const POST = withScrapingHandler({ policy: barcodePolicy }, async (req: R
       implementationDepth: 'live',
       launchRecommendation: 'public_lite',
       notes:
-        'Uses the public OpenFoodFacts product API for barcode evidence. Coverage depends on products present in that public catalog, so missing items return an honest not_found response.'
+        'Uses the public OpenFoodFacts product API for barcode evidence and falls back to the public product page when the API is rate-limited. Coverage still depends on products present in that public catalog, so missing items return an honest not_found response.'
     }
   };
 });
