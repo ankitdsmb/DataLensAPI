@@ -1,5 +1,7 @@
 import {
+  buildTripadvisorHotelsUrl,
   createToolPolicy,
+  createTravelSearchHelper,
   readJsonBody,
   RequestValidationError,
   withScrapingHandler,
@@ -23,10 +25,13 @@ export const POST = withScrapingHandler({ policy: tripadvisorHotelsPolicy }, asy
     throw new RequestValidationError('location is required', { field: 'location' });
   }
 
-  const searchUrl = `https://www.tripadvisor.com/Search?q=${encodeURIComponent(location)}+hotels`;
-
-  return {
+  return createTravelSearchHelper({
+    provider: 'tripadvisor',
+    vertical: 'hotels',
     location,
-    searchUrl
-  };
+    searchUrl: buildTripadvisorHotelsUrl(location),
+    productLabel: 'Tripadvisor Hotels Helper (Lite)',
+    notes:
+      'Builds a normalized Tripadvisor hotels search URL only. This route does not scrape live hotel inventory or challenge-gated Tripadvisor pages.'
+  });
 });

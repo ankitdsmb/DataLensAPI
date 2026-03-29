@@ -34,6 +34,14 @@ export const POST = withScrapingHandler({ policy: youtubeRankPolicy }, async (re
     status: 'queued',
     keyword,
     videoUrl,
-    job: jobToEnvelope(job)
+    job: jobToEnvelope(job),
+    contract: {
+      productLabel: 'YouTube Rank Checker (Internal Preview)',
+      forensicCategory: 'queued-simulated',
+      implementationDepth: 'live_job_submission',
+      launchRecommendation: 'internal_only_preview',
+      notes:
+        'Submits an internal preview job that attempts lightweight YouTube search evidence parsing with degraded fallback. It is not yet public-grade rank tracking.'
+    }
   };
 });

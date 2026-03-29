@@ -1,5 +1,7 @@
 import {
+  buildSkyscannerHotelUrl,
   createToolPolicy,
+  createTravelSearchHelper,
   readJsonBody,
   RequestValidationError,
   withScrapingHandler,
@@ -23,10 +25,13 @@ export const POST = withScrapingHandler({ policy: skyscannerHotelsPolicy }, asyn
     throw new RequestValidationError('location is required', { field: 'location' });
   }
 
-  const searchUrl = `https://www.skyscanner.com/hotels/search?query=${encodeURIComponent(location)}`;
-
-  return {
+  return createTravelSearchHelper({
+    provider: 'skyscanner',
+    vertical: 'hotels',
     location,
-    searchUrl
-  };
+    searchUrl: buildSkyscannerHotelUrl(location),
+    productLabel: 'Skyscanner Hotels Helper (Lite)',
+    notes:
+      'Builds a normalized Skyscanner hotels search URL only. This route does not fetch live hotel listings, rates, or availability.'
+  });
 });

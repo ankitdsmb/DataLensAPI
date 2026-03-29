@@ -64,6 +64,11 @@ const launchProfiles: LaunchProfile[] = [
     visibility: 'internal' as const
   },
   {
+    route: '/api/v1/seo-tools/trayvmy-actor',
+    freeTierEligible: false,
+    visibility: 'internal' as const
+  },
+  {
     route: '/api/v1/seo-tools/web-traffic-boots',
     freeTierEligible: false,
     visibility: 'disabled' as const

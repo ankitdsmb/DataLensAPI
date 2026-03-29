@@ -44,6 +44,8 @@ These routes exist in code but should not be presented as part of the free-tier 
   - Real async job contract exists and now captures live page HTML evidence, but still does not render screenshot/PDF binaries.
 - `POST /api/v1/seo-tools/youtube-rank-checker`
   - Real async job contract exists and now attempts lightweight YouTube search evidence collection, but still falls back when live evidence cannot be collected.
+- `POST /api/v1/seo-tools/trayvmy-actor`
+  - Deprecated internal compatibility stub only; performs no automation and is intentionally excluded from the public product story.
 - `POST /api/v1/seo-tools/traffic-booster`
   - Real async job contract exists, but current worker returns projection-style planning output and the route is quarantined by policy.
 - Rejected from the public catalog entirely because they are traffic/fake-engagement tools:

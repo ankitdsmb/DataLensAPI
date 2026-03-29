@@ -5,7 +5,8 @@ import http from 'node:http';
 const PORT = process.env.REGRESSION_PORT ?? '3102';
 const BASE_URL = `http://127.0.0.1:${PORT}`;
 const FIXTURE_PORT = String(Number(PORT) + 1);
-const FIXTURE_URL = `http://127.0.0.1:${FIXTURE_PORT}/ga4-fixture`;
+const FIXTURE_BASE = `http://127.0.0.1:${FIXTURE_PORT}`;
+const FIXTURE_URL = `${FIXTURE_BASE}/ga4-fixture`;
 
 function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -70,6 +71,14 @@ function assertPublicApiWrapperContract(data) {
   assert.equal(typeof data.contract.notes, 'string');
 }
 
+function assertShallowHelperContract(data) {
+  assert.equal(data.contract.forensicCategory, 'shallow-local-utility');
+  assert.equal(data.contract.implementationDepth, 'helper');
+  assert.equal(data.contract.launchRecommendation, 'public_lite');
+  assert.equal(typeof data.contract.productLabel, 'string');
+  assert.equal(typeof data.contract.notes, 'string');
+}
+
 function assertProviderTemplateContract(data) {
   assert.equal(data.status, 'internal_provider_template');
   assert.equal(data.provider?.credentialsRequired, true);
@@ -122,6 +131,29 @@ function closeServer(server, label) {
 }
 
 const fixtureServer = http.createServer((req, res) => {
+  if (req.url === '/tranco/api/lists/date/latest') {
+    res.writeHead(200, { 'content-type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({
+      list_id: 'TEST-LATEST',
+      available: true,
+      download: `${FIXTURE_BASE}/tranco/download/latest.csv`,
+      created_on: '2026-03-29T00:00:00.000000'
+    }));
+    return;
+  }
+
+  if (req.url === '/tranco/download/latest.csv') {
+    res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' });
+    res.end([
+      '1,google.com',
+      '2,youtube.com',
+      '3,facebook.com',
+      '4,openai.com',
+      '5,wikipedia.org'
+    ].join('\n'));
+    return;
+  }
+
   if (req.url !== '/ga4-fixture') {
     res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
     res.end('not found');
@@ -169,7 +201,8 @@ const server = spawn('npm', ['--workspace', 'api-gateway', 'run', 'dev', '--', '
   env: {
     ...process.env,
     FREE_TIER_LAUNCH_MODE: 'false',
-    FREE_TIER_API_KEYS: 'regression-key'
+    FREE_TIER_API_KEYS: 'regression-key',
+    TRANCO_API_BASE_URL: `${FIXTURE_BASE}/tranco/api`
   }
 });
 
@@ -191,6 +224,128 @@ try {
     assert.ok(result.json.data[field], `${path} expected field ${field}`);
     assertLinkBuilderContract(result.json.data);
   }
+
+  const topSites = await post('/api/v1/seo-tools/top-1000-websites-worldwide-country-level', {
+    country: 'US',
+    limit: 3
+  });
+  assert.equal(topSites.response.status, 200);
+  assert.equal(topSites.json.success, true);
+  assert.equal(topSites.json.data.status, 'global_rank_snapshot');
+  assert.equal(topSites.json.data.scope, 'global');
+  assert.equal(topSites.json.data.requestedCountry, 'US');
+  assert.equal(topSites.json.data.countryScopeApplied, false);
+  assert.equal(topSites.json.data.listId, 'TEST-LATEST');
+  assert.equal(topSites.json.data.siteCount, 3);
+  assert.equal(Array.isArray(topSites.json.data.sites), true);
+  assert.deepEqual(topSites.json.data.sites.map((item) => item.domain), [
+    'google.com',
+    'youtube.com',
+    'facebook.com'
+  ]);
+  assert.equal(topSites.json.data.evidence.metadataFetched, true);
+  assert.equal(topSites.json.data.evidence.listDownloaded, true);
+  assert.equal(topSites.json.data.evidence.rowsParsed, true);
+  assertPublicApiWrapperContract(topSites.json.data);
+
+  const xProfile = await post('/api/v1/seo-tools/x-twitter', {
+    username: '@OpenAI'
+  });
+  assert.equal(xProfile.response.status, 200);
+  assert.equal(xProfile.json.success, true);
+  assert.equal(xProfile.json.data.status, 'profile_lite');
+  assert.equal(xProfile.json.data.username, 'openai');
+  assert.equal(xProfile.json.data.profileUrl, 'https://x.com/openai');
+  assert.equal(xProfile.json.data.helperMode, 'profile_lite_only');
+  assertLinkBuilderContract(xProfile.json.data);
+
+  const xFallback = await post('/api/v1/seo-tools/x-twitter', {
+    query: 'latest ai news'
+  });
+  assert.equal(xFallback.response.status, 200);
+  assert.equal(xFallback.json.success, true);
+  assert.equal(xFallback.json.data.status, 'profile_target_required');
+  assert.equal(typeof xFallback.json.data.searchUrl, 'string');
+  assert.ok(xFallback.json.data.searchUrl.includes('x.com/search'));
+  assert.equal(xFallback.json.data.helperMode, 'profile_lite_only');
+  assertLinkBuilderContract(xFallback.json.data);
+
+  const showtimes = await post('/api/v1/seo-tools/showtimes', {
+    movie: 'Dune',
+    location: 'New York'
+  });
+  assert.equal(showtimes.response.status, 200);
+  assert.equal(showtimes.json.success, true);
+  assert.equal(showtimes.json.data.status, 'helper_only');
+  assert.equal(showtimes.json.data.query, 'Dune showtimes New York');
+  assert.equal(typeof showtimes.json.data.searchUrl, 'string');
+  assert.ok(showtimes.json.data.searchUrl.includes('google.com/search'));
+  assertShallowHelperContract(showtimes.json.data);
+
+  const carHire = await post('/api/v1/seo-tools/car-hire-rental', {
+    location: 'Paris'
+  });
+  assert.equal(carHire.response.status, 200);
+  assert.equal(carHire.json.success, true);
+  assert.equal(carHire.json.data.status, 'helper_only');
+  assert.equal(carHire.json.data.provider, 'skyscanner');
+  assert.equal(carHire.json.data.vertical, 'car_hire');
+  assert.equal(carHire.json.data.helperFamily, 'travel-search-helpers');
+  assert.equal(typeof carHire.json.data.searchUrl, 'string');
+  assert.ok(carHire.json.data.searchUrl.includes('skyscanner.com/carhire/search'));
+  assertShallowHelperContract(carHire.json.data);
+
+  const carHireBulk = await post('/api/v1/seo-tools/car-hire-rental-bulk', {
+    locations: ['Paris', 'Berlin']
+  });
+  assert.equal(carHireBulk.response.status, 200);
+  assert.equal(carHireBulk.json.success, true);
+  assert.equal(carHireBulk.json.data.status, 'compatibility_wrapper');
+  assert.equal(carHireBulk.json.data.provider, 'skyscanner');
+  assert.equal(carHireBulk.json.data.vertical, 'car_hire');
+  assert.equal(carHireBulk.json.data.resultCount, 2);
+  assert.equal(carHireBulk.json.data.compatibilityTarget, '/api/v1/seo-tools/car-hire-rental');
+  assert.equal(Array.isArray(carHireBulk.json.data.results), true);
+  assert.ok(carHireBulk.json.data.results[0].searchUrl.includes('skyscanner.com/carhire/search'));
+  assertShallowHelperContract(carHireBulk.json.data);
+
+  const spotifyPlus = await post('/api/v1/seo-tools/spotify-plus', {
+    query: 'indie jazz'
+  });
+  assert.equal(spotifyPlus.response.status, 200);
+  assert.equal(spotifyPlus.json.success, true);
+  assert.equal(spotifyPlus.json.data.status, 'compatibility_wrapper');
+  assert.equal(spotifyPlus.json.data.compatibilityTarget, '/api/v1/seo-tools/spotify');
+  assert.equal(spotifyPlus.json.data.tier, 'plus');
+  assert.equal(typeof spotifyPlus.json.data.searchUrl, 'string');
+  assertLinkBuilderContract(spotifyPlus.json.data);
+
+  const spyfu = await post('/api/v1/seo-tools/spyfu', {
+    domain: 'openai.com'
+  });
+  assert.equal(spyfu.response.status, 200);
+  assert.equal(spyfu.json.success, true);
+  assert.equal(spyfu.json.data.status, 'helper_only');
+  assert.equal(typeof spyfu.json.data.reportUrl, 'string');
+  assert.ok(spyfu.json.data.reportUrl.includes('spyfu.com/overview/domain'));
+  assertLinkBuilderContract(spyfu.json.data);
+
+  const spyfuBulk = await post('/api/v1/seo-tools/spyfu-bulk-urls', {
+    domains: ['openai.com', 'example.com']
+  });
+  assert.equal(spyfuBulk.response.status, 200);
+  assert.equal(spyfuBulk.json.success, true);
+  assert.equal(spyfuBulk.json.data.status, 'compatibility_wrapper');
+  assert.equal(spyfuBulk.json.data.compatibilityTarget, '/api/v1/seo-tools/spyfu');
+  assert.equal(spyfuBulk.json.data.resultCount, 2);
+  assert.equal(Array.isArray(spyfuBulk.json.data.results), true);
+  assert.ok(spyfuBulk.json.data.results[0].reportUrl.includes('spyfu.com/overview/domain'));
+  assertLinkBuilderContract(spyfuBulk.json.data);
+
+  const trayvmy = await post('/api/v1/seo-tools/trayvmy-actor', {});
+  assert.equal(trayvmy.response.status, 400);
+  assert.equal(trayvmy.json.success, false);
+  assert.equal(trayvmy.json.error?.code, 'validation_error');
 
   const businessRanker = await post('/api/v1/seo-tools/business-websites-ranker', {
     keyword: 'openai',

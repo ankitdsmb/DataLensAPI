@@ -186,6 +186,15 @@ const routeOverrides = {
     gap: 'No live provider data.',
     upgrade: 'Either integrate the provider or keep it internal-only as a provider template.'
   },
+  'top-1000-websites-worldwide-country-level': {
+    cls: 'public-api-wrapper',
+    strength: '3/5',
+    coverage: '~35%',
+    current: 'Uses the public Tranco latest-list API to return a capped global popularity snapshot with evidence about list metadata and parsed rows.',
+    gap: 'The legacy country parameter is compatibility-only, so country-level ranking is still not implemented despite the older route name.',
+    upgrade: 'Keep the route honest as a global popularity snapshot or split country-level ranking into a separate provider-backed product later.',
+    fit: 'Good free-tier fit because the current path is capped, cacheable, and network-light.'
+  },
   'similarweb': {
     strength: '1/5',
     coverage: '~10%',
@@ -318,16 +327,106 @@ const routeOverrides = {
   'snapify-capture-screenshot-save-pdf': {
     strength: '3/5',
     coverage: '~40%',
-    current: 'Real async job submission plus live HTML evidence capture and persisted report artifacts.',
-    gap: 'Still no rendered screenshot or PDF binary generation.',
-    upgrade: 'Keep evidence-capture mode as fallback and add real browser/PDF rendering in the worker.'
+    current: 'Real internal-preview async job submission plus live HTML evidence capture and persisted report artifacts.',
+    gap: 'Still no rendered screenshot or PDF binary generation, so the route remains internal-only for the supported public subset.',
+    upgrade: 'Keep evidence-capture mode as the internal fallback and add real browser/PDF rendering before any public graduation.'
+  },
+  'trayvmy-actor': {
+    cls: 'shallow-local-utility',
+    strength: '1/5',
+    coverage: '~5%',
+    current: 'Returns an explicit deprecated internal-template contract retained only for compatibility.',
+    gap: 'No automation, no job submission, and no meaningful product identity remain behind the route.',
+    upgrade: 'Keep internal-only as a deprecated compatibility stub or remove once callers no longer depend on the path.',
+    fit: 'Do not include in any public launch profile.'
+  },
+  'x-twitter': {
+    cls: 'link-builder',
+    strength: '1/5',
+    coverage: '~10%',
+    current: 'Normalizes public X profile targets and returns a profile-lite helper response, with a degraded search URL only when a profile target cannot be resolved.',
+    gap: 'Does not scrape tweets, followers, engagement, generic search results, or account analytics.',
+    upgrade: 'Keep as a profile-lite helper or split out a separate provider-backed public-social connector later.',
+    fit: 'Technically trivial to host, but keep expectations narrow because it is only a profile helper.'
+  },
+  showtimes: {
+    cls: 'shallow-local-utility',
+    strength: '1/5',
+    coverage: '~10%',
+    current: 'Returns an explicit helper-only response with a normalized search URL for the supplied movie and location.',
+    gap: 'No first-party showtime extraction or schedule normalization occurs.',
+    upgrade: 'Keep as a helper-only discovery route unless a stable public showtime source is added later.',
+    fit: 'Technically trivial to host, commercially thin.'
+  },
+  'car-hire-rental': {
+    cls: 'shallow-local-utility',
+    strength: '1/5',
+    coverage: '~10%',
+    current: 'Returns a normalized Skyscanner car-hire search URL through the shared travel-helper family.',
+    gap: 'No live rental inventory, pricing, or provider-side filtering is extracted.',
+    upgrade: 'Keep as a helper-only travel discovery route or rebuild later behind a real travel provider adapter.',
+    fit: 'Technically trivial to host, commercially thin.'
+  },
+  'car-hire-rental-bulk': {
+    cls: 'shallow-local-utility',
+    strength: '1/5',
+    coverage: '~10%',
+    current: 'Acts as a compatibility wrapper over the shared travel-helper family and returns normalized Skyscanner car-hire search URLs in bulk.',
+    gap: 'No live rental inventory, pricing, or provider-side filtering is extracted.',
+    upgrade: 'Keep as a compatibility wrapper or remove once callers can use the primary helper route directly.',
+    fit: 'Technically trivial to host, commercially thin.'
+  },
+  'skyscanner-cars': {
+    cls: 'shallow-local-utility',
+    strength: '1/5',
+    coverage: '~10%',
+    current: 'Returns a normalized Skyscanner car-hire search URL through the shared travel-helper family.',
+    gap: 'No live rental inventory, pricing, or provider-side filtering is extracted.',
+    upgrade: 'Keep as a helper-only travel discovery route or rebuild later behind a real travel provider adapter.',
+    fit: 'Technically trivial to host, commercially thin.'
+  },
+  'skyscanner-hotels': {
+    cls: 'shallow-local-utility',
+    strength: '1/5',
+    coverage: '~10%',
+    current: 'Returns a normalized Skyscanner hotel-search URL through the shared travel-helper family.',
+    gap: 'No live hotel listings, pricing, or provider-side filtering is extracted.',
+    upgrade: 'Keep as a helper-only travel discovery route or rebuild later behind a real travel provider adapter.',
+    fit: 'Technically trivial to host, commercially thin.'
+  },
+  'tripadvisor-cruises': {
+    cls: 'shallow-local-utility',
+    strength: '1/5',
+    coverage: '~10%',
+    current: 'Returns a normalized Tripadvisor cruise-search URL through the shared travel-helper family.',
+    gap: 'No live cruise listings, pricing, or provider-side filtering is extracted.',
+    upgrade: 'Keep as a helper-only travel discovery route or rebuild later behind a real travel provider adapter.',
+    fit: 'Technically trivial to host, commercially thin.'
+  },
+  'tripadvisor-hotels': {
+    cls: 'shallow-local-utility',
+    strength: '1/5',
+    coverage: '~10%',
+    current: 'Returns a normalized Tripadvisor hotel-search URL through the shared travel-helper family.',
+    gap: 'No live hotel listings, pricing, or provider-side filtering is extracted.',
+    upgrade: 'Keep as a helper-only travel discovery route or rebuild later behind a real travel provider adapter.',
+    fit: 'Technically trivial to host, commercially thin.'
+  },
+  vrbo: {
+    cls: 'shallow-local-utility',
+    strength: '1/5',
+    coverage: '~10%',
+    current: 'Returns a normalized Vrbo search URL through the shared travel-helper family.',
+    gap: 'No live property listings, pricing, or review extraction is performed.',
+    upgrade: 'Keep as a helper-only travel discovery route or rebuild later behind a real travel provider adapter.',
+    fit: 'Technically trivial to host, commercially thin.'
   },
   'youtube-rank-checker': {
     strength: '3/5',
     coverage: '~45%',
-    current: 'Real async job submission plus lightweight YouTube search evidence parsing with deterministic fallback.',
-    gap: 'Current parsing path is fragile and degrades to simulation when live evidence is unavailable.',
-    upgrade: 'Promote into a canonical rank-tracker family with retries, provenance, and hardened evidence capture.'
+    current: 'Real internal-preview async job submission plus lightweight YouTube search evidence parsing with deterministic fallback.',
+    gap: 'Current parsing path is fragile and degrades to simulation when live evidence is unavailable, so the route remains internal-only for the supported public subset.',
+    upgrade: 'Promote into a canonical rank-tracker family with retries, provenance, and hardened evidence capture before any public graduation.'
   },
   'youtube-region-restriction-checker': {
     strength: '3/5',
@@ -633,10 +732,12 @@ function headingForClass(cls) {
     'network-wrapper': 'Network and Lookup Wrapper Routes',
     'html-scraper': 'HTML Scraper Routes',
     'local-utility': 'Local Utility Routes',
+    'shallow-local-utility': 'Helper and Compatibility Utility Routes',
     'link-builder': 'Link-Builder Routes',
     'template-link-builder': 'Template/Asset URL Builder Routes',
     'api-key-stub': 'API-Key Stub Routes',
-    'queued-placeholder': 'Queued Placeholder Routes'
+    'queued-placeholder': 'Queued Placeholder Routes',
+    'queued-simulated': 'Queued Internal-Preview Routes'
   }[cls] ?? cls;
 }
 
@@ -684,7 +785,7 @@ for (const entry of entries) {
 
 let report = '';
 
-report += '# 2026-03-28 Deep API Forensic Analysis\n\n';
+report += '# 2026-03-29 Deep API Forensic Analysis\n\n';
 report += '## Scope\n\n';
 report += '- Audit basis: current local repository on the post-integration branch, after safe fast-forward to the latest `origin/main` and replay of preserved forensic artifacts.\n';
 report += '- GitHub posture: this audit reflects the integrated latest upstream platform state rather than the earlier pre-integration snapshot.\n';
@@ -720,10 +821,12 @@ for (const cls of [
   'network-wrapper',
   'html-scraper',
   'local-utility',
+  'shallow-local-utility',
   'link-builder',
   'template-link-builder',
   'api-key-stub',
-  'queued-placeholder'
+  'queued-placeholder',
+  'queued-simulated'
 ]) {
   if (classCounts.has(cls)) {
     report += `| \`${cls}\` | ${classCounts.get(cls)} |\n`;
@@ -901,10 +1004,12 @@ for (const cls of [
   'network-wrapper',
   'html-scraper',
   'local-utility',
+  'shallow-local-utility',
   'link-builder',
   'template-link-builder',
   'api-key-stub',
-  'queued-placeholder'
+  'queued-placeholder',
+  'queued-simulated'
 ]) {
   const group = entries.filter((entry) => entry.cls === cls);
   if (group.length === 0) continue;

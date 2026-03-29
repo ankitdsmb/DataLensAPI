@@ -1,4 +1,5 @@
 import {
+  createHelperResponse,
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
@@ -25,8 +26,20 @@ export const POST = withScrapingHandler({ policy: spyfuPolicy }, async (req: Req
 
   const reportUrl = `https://www.spyfu.com/overview/domain?query=${encodeURIComponent(domain)}`;
 
-  return {
-    domain,
-    reportUrl
-  };
+  return createHelperResponse({
+    status: 'helper_only',
+    source: 'spyfu_report_url',
+    fields: {
+      domain,
+      reportUrl
+    },
+    contract: {
+      productLabel: 'SpyFu Helper (Lite)',
+      forensicCategory: 'link-builder',
+      implementationDepth: 'helper',
+      launchRecommendation: 'internal_or_beta_only',
+      notes:
+        'Builds a normalized SpyFu domain report URL only. This route does not fetch keyword, PPC, ranking, or competitor data.'
+    }
+  });
 });

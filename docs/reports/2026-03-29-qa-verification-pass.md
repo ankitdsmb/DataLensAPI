@@ -72,6 +72,17 @@ All three commands passed on this branch.
   - normalized A-record evidence,
   - a DNS matrix snapshot,
   - and a live HTTPS reachability snapshot.
+- Verifies `/api/v1/seo-tools/top-1000-websites-worldwide-country-level` now returns a real Tranco-backed global popularity snapshot with list metadata, parsed rows, and explicit compatibility handling for the legacy `country` input.
+- Verifies `/api/v1/seo-tools/x-twitter` now stays in profile-lite helper mode:
+  - resolving normalized profile targets when possible,
+  - degrading honestly to `profile_target_required` when only a generic query is supplied.
+- Verifies `/api/v1/seo-tools/showtimes` now returns an explicit helper contract instead of implying live showtime extraction.
+- Verifies the shared travel-helper family now behaves consistently across:
+  - `/api/v1/seo-tools/car-hire-rental`
+  - `/api/v1/seo-tools/car-hire-rental-bulk`
+  - and the compatibility/helper contracts they expose.
+- Verifies `/api/v1/seo-tools/spotify-plus` now behaves as a compatibility wrapper over the base Spotify helper route instead of implying deeper extraction.
+- Verifies `/api/v1/seo-tools/spyfu-bulk-urls` now behaves as a compatibility wrapper over the base SpyFu helper route instead of implying deeper extraction.
 - Verifies the two provider-template routes:
   - `/api/v1/seo-tools/openpagerank-bulk-checker`
   - `/api/v1/seo-tools/rentcast`
@@ -80,6 +91,7 @@ All three commands passed on this branch.
   - provider metadata
   - `api-key-stub` contract classification
   - `launchRecommendation: internal_only_until_provider_integration`
+- Verifies `/api/v1/seo-tools/trayvmy-actor` is quarantined from the supported public subset as a deprecated internal compatibility stub.
 - Confirms the regression harness now exits cleanly after teardown.
 
 ## Forensic significance
@@ -121,6 +133,10 @@ This QA pass materially strengthens the repo’s evidence base:
    - public BBB bulk search and profile evidence extraction,
    - public BBB search and profile evidence extraction,
    - live domain DNS and HTTP evidence extraction,
+   - Tranco-backed global popularity evidence extraction,
+   - profile-lite X helper behavior,
+   - shared travel-helper compatibility behavior,
+   - deprecated internal-template quarantine behavior,
    - provider-template route contracts.
 
 ## Remaining gaps

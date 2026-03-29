@@ -1,4 +1,5 @@
 import {
+  createHelperResponse,
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
@@ -25,15 +26,20 @@ export const POST = withScrapingHandler({ policy: similarwebPolicy }, async (req
 
   const reportUrl = `https://www.similarweb.com/website/${domain}/`;
 
-  return {
-    domain,
-    reportUrl,
+  return createHelperResponse({
+    status: 'helper_only',
+    source: 'similarweb_report_url',
+    fields: {
+      domain,
+      reportUrl
+    },
     contract: {
-      productLabel: 'Similarweb Link Builder (Lite)',
+      productLabel: 'Similarweb Helper (Lite)',
       forensicCategory: 'link-builder',
       implementationDepth: 'helper',
       launchRecommendation: 'internal_or_beta_only',
-      notes: 'Builds a validated Similarweb report URL but does not scrape Similarweb analytics metrics in this route.'
+      notes:
+        'Builds a validated Similarweb report URL only. This route does not scrape traffic metrics, keyword data, or audience analytics.'
     }
-  };
+  });
 });

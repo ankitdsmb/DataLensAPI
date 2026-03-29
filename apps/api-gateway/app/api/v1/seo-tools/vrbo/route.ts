@@ -1,5 +1,7 @@
 import {
+  buildVrboUrl,
   createToolPolicy,
+  createTravelSearchHelper,
   readJsonBody,
   RequestValidationError,
   withScrapingHandler,
@@ -23,10 +25,13 @@ export const POST = withScrapingHandler({ policy: vrboPolicy }, async (req: Requ
     throw new RequestValidationError('location is required', { field: 'location' });
   }
 
-  const searchUrl = `https://www.vrbo.com/search/keywords:${encodeURIComponent(location)}`;
-
-  return {
+  return createTravelSearchHelper({
+    provider: 'vrbo',
+    vertical: 'vacation_rentals',
     location,
-    searchUrl
-  };
+    searchUrl: buildVrboUrl(location),
+    productLabel: 'Vrbo Helper (Lite)',
+    notes:
+      'Builds a normalized Vrbo search URL only. This route does not fetch live property results, pricing, or reviews.'
+  });
 });

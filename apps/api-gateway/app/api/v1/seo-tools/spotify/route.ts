@@ -1,4 +1,5 @@
 import {
+  createHelperResponse,
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
@@ -25,15 +26,20 @@ export const POST = withScrapingHandler({ policy: spotifyPolicy }, async (req: R
 
   const searchUrl = `https://open.spotify.com/search/${encodeURIComponent(query)}`;
 
-  return {
-    query,
-    searchUrl,
+  return createHelperResponse({
+    status: 'helper_only',
+    source: 'spotify_search_url',
+    fields: {
+      query,
+      searchUrl
+    },
     contract: {
       productLabel: 'Spotify Search Helper (Lite)',
       forensicCategory: 'link-builder',
       implementationDepth: 'helper',
       launchRecommendation: 'public_lite',
-      notes: 'Returns a validated Spotify search URL only; it does not fetch tracks, artists, albums, or audio streams.'
+      notes:
+        'Returns a validated Spotify search URL only. This route does not fetch tracks, artists, albums, playlists, lyrics, or audio streams.'
     }
-  };
+  });
 });

@@ -1,5 +1,7 @@
 import {
+  buildTripadvisorCruisesUrl,
   createToolPolicy,
+  createTravelSearchHelper,
   readJsonBody,
   RequestValidationError,
   withScrapingHandler,
@@ -23,10 +25,13 @@ export const POST = withScrapingHandler({ policy: tripadvisorCruisesPolicy }, as
     throw new RequestValidationError('location is required', { field: 'location' });
   }
 
-  const searchUrl = `https://www.tripadvisor.com/Search?q=${encodeURIComponent(location)}+cruise`;
-
-  return {
+  return createTravelSearchHelper({
+    provider: 'tripadvisor',
+    vertical: 'cruises',
     location,
-    searchUrl
-  };
+    searchUrl: buildTripadvisorCruisesUrl(location),
+    productLabel: 'Tripadvisor Cruises Helper (Lite)',
+    notes:
+      'Builds a normalized Tripadvisor cruises search URL only. This route does not scrape cruise listings or challenge-gated Tripadvisor results.'
+  });
 });

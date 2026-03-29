@@ -51,9 +51,9 @@ Current status:
 
 The regenerated report now shows:
 
-- `Routes still using raw JSON.parse locally: 0`
+- `Routes still using raw JSON.parse locally: 1`
 
-That is a major improvement over the earlier state.
+That is still a major improvement over the earlier state, but one embedded-data parsing path remains in `youtube-region-restriction-checker`.
 
 ### 4. Public launch is still not ready by default
 

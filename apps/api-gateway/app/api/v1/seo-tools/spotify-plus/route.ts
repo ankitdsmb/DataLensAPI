@@ -1,4 +1,5 @@
 import {
+  createHelperResponse,
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
@@ -25,9 +26,22 @@ export const POST = withScrapingHandler({ policy: spotifyPlusPolicy }, async (re
 
   const searchUrl = `https://open.spotify.com/search/${encodeURIComponent(query)}`;
 
-  return {
-    query,
-    searchUrl,
-    tier: 'plus'
-  };
+  return createHelperResponse({
+    status: 'compatibility_wrapper',
+    source: 'spotify_search_url',
+    fields: {
+      query,
+      searchUrl,
+      tier: 'plus',
+      compatibilityTarget: '/api/v1/seo-tools/spotify'
+    },
+    contract: {
+      productLabel: 'Spotify Plus Helper (Compatibility)',
+      forensicCategory: 'link-builder',
+      implementationDepth: 'helper',
+      launchRecommendation: 'public_lite',
+      notes:
+        'Compatibility wrapper over the base Spotify helper route. It returns the same normalized Spotify search URL and does not add any live Spotify extraction.'
+    }
+  });
 });

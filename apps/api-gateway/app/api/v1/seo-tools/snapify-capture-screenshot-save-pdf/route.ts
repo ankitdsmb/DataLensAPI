@@ -25,6 +25,14 @@ export const POST = withScrapingHandler({ policy: snapifyPolicy }, async (req: R
   return {
     status: 'queued',
     urls,
-    job: jobToEnvelope(job)
+    job: jobToEnvelope(job),
+    contract: {
+      productLabel: 'Snapify Capture Screenshot / Save PDF (Internal Preview)',
+      forensicCategory: 'queued-simulated',
+      implementationDepth: 'live_job_submission',
+      launchRecommendation: 'internal_only_preview',
+      notes:
+        'Submits an internal preview job that currently captures live HTML evidence and metadata only. It does not yet render screenshot or PDF binaries for public launch.'
+    }
   };
 });

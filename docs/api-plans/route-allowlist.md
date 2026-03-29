@@ -1,6 +1,6 @@
 # Route Allowlist (Canonical Source of Truth)
 
-Date: 2026-03-28
+Date: 2026-03-29
 
 This document is the canonical allowlist for API route existence. A route exists **only** when a `route.ts` file exists under `apps/api-gateway/app/api/v1/**`.
 
@@ -173,24 +173,32 @@ This document is the canonical allowlist for API route existence. A route exists
 
 If a route appears in planning docs but is not listed here, it is considered **not implemented / removed** in the current branch.
 
-## Public launch honesty recommendations (2026-03-28)
+## Public launch honesty recommendations (2026-03-29)
 
 | Route | Forensic category | Public launch recommendation |
 | --- | --- | --- |
 | `/api/v1/seo-tools/business-websites-ranker` | `html-scraper` | Keep public as **lite evidence**; it discovers likely business websites from public search results and applies lightweight website-quality scoring, but it is not an authoritative Google Places feed. |
 | `/api/v1/seo-tools/cms-checker` | `html-scraper` | Keep public as **lite evidence**; it now returns lightweight CMS and site-stack fingerprints from public HTML, but it is still heuristic and does not yet model competitors. |
 | `/api/v1/seo-tools/cms-checker-bulk` | `html-scraper` | Keep public as **lite evidence** with tight URL caps; it applies the same lightweight CMS and site-stack fingerprints across multiple supplied URLs. |
+| `/api/v1/seo-tools/showtimes` | `shallow-local-utility` | Keep public only as a **lite helper**; it emits a normalized search URL and does not scrape live showtimes. |
 | `/api/v1/seo-tools/shopify-product-search` | `public-api-wrapper` | Keep public as **lite evidence** when `storeUrl` is supplied; it uses public Shopify storefront endpoints and falls back to a generic helper URL when `storeUrl` is omitted. |
 | `/api/v1/seo-tools/similarweb` | `link-builder` | Keep internal/beta only until real metrics extraction exists. |
 | `/api/v1/seo-tools/spotify` | `link-builder` | Keep public only as a **lite helper** (query URL builder). |
+| `/api/v1/seo-tools/top-1000-websites-worldwide-country-level` | `public-api-wrapper` | Keep public as a **global popularity snapshot**; it uses the public Tranco latest-list feed and treats the legacy `country` input as compatibility-only. |
 | `/api/v1/seo-tools/trustpilot-plus` | `html-scraper` | Keep public as **lite evidence** for resolvable identifiers; it extracts public aggregate review-page evidence but still does not paginate individual reviews or compute sentiment. |
+| `/api/v1/seo-tools/x-twitter` | `link-builder` | Keep public only as a **profile-lite helper**; it resolves normalized profile targets but does not scrape tweets, generic search results, or engagement data. |
 | `/api/v1/seo-tools/what-site` | `html-scraper` | Keep public as **lite evidence**; it now returns a lightweight site profile with final URL, metadata, heading, link, and content signals for each supplied URL. |
 | `/api/v1/seo-tools/whatruns` | `html-scraper` | Keep public as **lite evidence**; it now returns lightweight technology fingerprints across CMS, frontend, ecommerce, analytics, and infrastructure categories from public HTML. |
 | `/api/v1/seo-tools/youtube-region-restriction-checker` | `html-scraper` | Keep public as a **lite evidence scrape**; it parses watch-page availability data but does not independently test playback from each country. |
 | `/api/v1/seo-tools/openpagerank-bulk-checker` | `api-key-stub` | Keep internal-only as a provider template until real OpenPageRank integration is implemented. |
 | `/api/v1/seo-tools/rentcast` | `api-key-stub` | Keep internal-only as a provider template until real RentCast integration is implemented. |
-| `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | `queued-placeholder` | Keep deferred from public launch until browser/PDF rendering exists; current worker captures live HTML evidence only. |
-| `/api/v1/seo-tools/youtube-rank-checker` | `queued-placeholder` | Keep deferred from public launch until lightweight search evidence parsing is hardened into a reliable rank pipeline. |
+| `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | `queued-simulated` | Keep internal-only as an **internal preview** until browser/PDF rendering exists; the current worker captures live HTML evidence only. |
+| `/api/v1/seo-tools/youtube-rank-checker` | `queued-simulated` | Keep internal-only as an **internal preview** until the lightweight search-evidence path is hardened into a reliable public rank pipeline. |
+| `/api/v1/seo-tools/trayvmy-actor` | `shallow-local-utility` | Keep internal-only and deprecated; this path exists only as a compatibility stub and is not part of the public product story. |
+
+Travel-helper routes such as `/api/v1/seo-tools/car-hire-rental`, `/api/v1/seo-tools/car-hire-rental-bulk`, `/api/v1/seo-tools/skyscanner-cars`, `/api/v1/seo-tools/skyscanner-hotels`, `/api/v1/seo-tools/tripadvisor-cruises`, `/api/v1/seo-tools/tripadvisor-hotels`, and `/api/v1/seo-tools/vrbo` now share one helper family and should be described only as normalized search helpers, not live inventory scrapers.
+
+Challenge-gated helper routes such as `/api/v1/seo-tools/software-advice`, `/api/v1/seo-tools/spotify-plus`, `/api/v1/seo-tools/spyfu`, `/api/v1/seo-tools/spyfu-bulk-urls`, `/api/v1/seo-tools/stackshare`, and `/api/v1/seo-tools/the-org` should remain helper or internal/beta only unless a real provider-backed path is added.
 
 ## Rejected From Public Catalog
 
