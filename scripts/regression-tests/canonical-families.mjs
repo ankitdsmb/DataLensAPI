@@ -530,6 +530,34 @@ try {
   assert.equal(plagiarism.json.data.contract.implementationDepth, 'live');
   assert.equal(plagiarism.json.data.contract.launchRecommendation, 'public_lite');
 
+  const serpMeta = await post('/api/v1/seo-tools/serp-meta-title-generator', {
+    keyword: 'AI search visibility',
+    brand: 'DataLensAPI',
+    intent: 'guide',
+    audience: 'marketing teams',
+    maxTitles: 6,
+    includeYear: true
+  });
+  assert.equal(serpMeta.response.status, 200);
+  assert.equal(serpMeta.json.success, true);
+  assert.equal(serpMeta.json.data.status, 'generated');
+  assert.equal(serpMeta.json.data.keyword, 'AI search visibility');
+  assert.equal(serpMeta.json.data.brand, 'DataLensAPI');
+  assert.equal(serpMeta.json.data.intent, 'guide');
+  assert.equal(typeof serpMeta.json.data.recommendedTitle, 'string');
+  assert.ok(serpMeta.json.data.recommendedTitle.includes('AI search visibility'));
+  assert.equal(Array.isArray(serpMeta.json.data.titles), true);
+  assert.ok(serpMeta.json.data.titles.length >= 3);
+  assert.ok(serpMeta.json.data.titles.length <= 6);
+  assert.equal(typeof serpMeta.json.data.titles[0].score, 'number');
+  assert.equal(typeof serpMeta.json.data.titles[0].pixelWidthEstimate, 'number');
+  assert.equal(Array.isArray(serpMeta.json.data.titles[0].notes), true);
+  assert.ok(serpMeta.json.data.evidence.keywordAtFrontCount >= 1);
+  assert.ok(serpMeta.json.data.evidence.withinRecommendedLengthCount >= 1);
+  assert.equal(serpMeta.json.data.contract.forensicCategory, 'local-utility');
+  assert.equal(serpMeta.json.data.contract.implementationDepth, 'live');
+  assert.equal(serpMeta.json.data.contract.launchRecommendation, 'public_lite');
+
   console.log('regression-tests: canonical families ok');
 } finally {
   await stopProcess(server, 'api-gateway');

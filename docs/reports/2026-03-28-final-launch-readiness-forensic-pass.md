@@ -30,8 +30,8 @@ Classification summary:
 
 - **Strength**
   - Strong: **16**
-  - Medium: **94**
-  - Weak: **44**
+  - Medium: **95**
+  - Weak: **43**
 - **Launch readiness**
   - Ready: **89**
   - Conditional: **47**
@@ -83,6 +83,7 @@ What this evidence now covers:
 - deterministic platform-aware hashtag generation evidence for `social-media-hashtag-generator`,
 - first-party SVG open graph generation evidence for `open-graph-image-generator`,
 - local n-gram plagiarism evidence for `plagiarism-checker`,
+- deterministic SEO title generation evidence for `serp-meta-title-generator`,
 - local profanity moderation evidence for `profanity-checker`,
 - public CMS/site-stack fingerprint evidence for `cms-checker`,
 - public Shopify storefront product evidence for `shopify-product-search`,

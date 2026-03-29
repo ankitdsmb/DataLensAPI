@@ -1,8 +1,11 @@
 import {
   createToolPolicy,
+  generateSerpMetaTitles,
+  optionalBooleanField,
+  optionalIntegerField,
+  optionalStringField,
   readJsonBody,
   withScrapingHandler,
-  RequestValidationError,
   requireAllowedFields
 } from '@forensic/scraping-core';
 
@@ -16,25 +19,26 @@ const serpTitlePolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: serpTitlePolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, serpTitlePolicy);
-  requireAllowedFields(body, ['brand', 'keyword']);
-  const keyword = typeof body.keyword === 'string' ? body.keyword.trim() : '';
-  const brand = typeof body.brand === 'string' ? body.brand.trim() : '';
+  requireAllowedFields(body, ['audience', 'brand', 'includeYear', 'intent', 'keyword', 'location', 'maxTitles']);
 
-  if (!keyword) {
-    throw new RequestValidationError('keyword is required', { field: 'keyword' });
-  }
+  const result = generateSerpMetaTitles(optionalStringField(body, 'keyword'), {
+    brand: optionalStringField(body, 'brand', '') || null,
+    audience: optionalStringField(body, 'audience', '') || null,
+    location: optionalStringField(body, 'location', '') || null,
+    intent: optionalStringField(body, 'intent', '') || null,
+    maxTitles: optionalIntegerField(body, 'maxTitles', { defaultValue: 6, min: 3, max: 10 }),
+    includeYear: optionalBooleanField(body, 'includeYear', true)
+  });
 
-  const templates = [
-    `${keyword} Guide`,
-    `Best ${keyword} in 2026`,
-    `${keyword} Checklist`,
-    `${keyword} Tips & Examples`,
-    `${keyword} for Teams`
-  ];
-
-  const titles = templates
-    .map((title) => (brand ? `${title} | ${brand}` : title))
-    .map((title) => title.slice(0, 60));
-
-  return { keyword, titles };
+  return {
+    ...result,
+    contract: {
+      productLabel: 'SERP Meta Title Generator',
+      forensicCategory: 'local-utility',
+      implementationDepth: 'live',
+      launchRecommendation: 'public_lite',
+      notes:
+        'Runs a deterministic SEO title engine with intent-aware variants, brand placement, and pixel-width heuristics to recommend stronger SERP titles. This is local scoring logic, not live competitive SERP scraping.'
+    }
+  };
 });

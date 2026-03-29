@@ -120,6 +120,15 @@ const routeOverrides = {
     upgrade: 'Promote into a canonical writing-quality utility family with optional source lookup adapters, richer excerpt evidence, and adjacent originality/reporting modes.',
     fit: 'Excellent free-tier fit because the current analysis is deterministic, local-only, and bounded by input size.'
   },
+  'serp-meta-title-generator': {
+    cls: 'local-utility',
+    strength: '3/5',
+    coverage: '~45%',
+    current: 'Runs a deterministic SEO title engine with intent-aware variants, brand placement, pixel-width estimation, and a scored recommended title.',
+    gap: 'Still does not inspect live SERPs or competitor titles, so the competitive-analysis promise remains heuristic rather than evidence-backed.',
+    upgrade: 'Promote into a canonical search-copy utility family with title/description pairs, SERP snippet simulation, and optional live SERP adapters.',
+    fit: 'Excellent free-tier fit because the current generation logic is deterministic, local-only, and fast.'
+  },
   'openpagerank-bulk-checker': {
     strength: '1/5',
     coverage: '~5%',
