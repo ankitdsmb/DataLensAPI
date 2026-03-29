@@ -378,6 +378,28 @@ try {
   assert.equal(typeof domainIntelligence.json.data.domains[0].http.finalUrl, 'string');
   assertNetworkWrapperContract(domainIntelligence.json.data);
 
+  const domainDetails = await post('/api/v1/seo-tools/domain-availability-expiry-whois-dns-ip-asn-70-tld', {
+    domain: 'openai.com'
+  });
+  assert.equal(domainDetails.response.status, 200);
+  assert.equal(domainDetails.json.success, true);
+  assert.equal(domainDetails.json.data.domain, 'openai.com');
+  assert.equal(typeof domainDetails.json.data.available, 'boolean');
+  assert.equal(typeof domainDetails.json.data.dns.status, 'number');
+  assert.equal(typeof domainDetails.json.data.dns.answerCount, 'number');
+  assert.equal(Array.isArray(domainDetails.json.data.dns.aRecords), true);
+  assert.ok(domainDetails.json.data.dns.aRecords.length >= 1);
+  assert.equal(Array.isArray(domainDetails.json.data.dns.answers), true);
+  assert.equal(Array.isArray(domainDetails.json.data.dns.matrix), true);
+  assert.ok(domainDetails.json.data.dns.matrix.length >= 6);
+  assert.equal(typeof domainDetails.json.data.http.finalUrl, 'string');
+  assert.equal(typeof domainDetails.json.data.http.reachable, 'boolean');
+  assert.equal(domainDetails.json.data.evidence.liveDns, true);
+  assert.equal(domainDetails.json.data.evidence.liveHttp, true);
+  assert.equal(domainDetails.json.data.evidence.liveWhois, false);
+  assert.equal(domainDetails.json.data.evidence.liveAsn, false);
+  assertNetworkWrapperContract(domainDetails.json.data);
+
   const barcode = await post('/api/v1/seo-tools/barcode', {
     code: '737628064502'
   });

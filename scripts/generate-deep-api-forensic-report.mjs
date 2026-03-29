@@ -292,6 +292,15 @@ const routeOverrides = {
     gap: 'Only checks resolver status; registrar-grade availability evidence is still missing.',
     upgrade: 'Keep public as a lite availability signal or deepen with registrar/RDAP evidence.'
   },
+  'domain-availability-expiry-whois-dns-ip-asn-70-tld': {
+    cls: 'network-wrapper',
+    strength: '3/5',
+    coverage: '~40%',
+    current: 'Returns live DNS availability, A-record summaries, a DNS record matrix, and an HTTPS reachability snapshot for the supplied domain.',
+    gap: 'WHOIS, ASN, IP intelligence, and SSL certificate inspection remain unimplemented despite the broader product promise.',
+    upgrade: 'Promote into the canonical domain intelligence family with optional WHOIS/RDAP, ASN/IP enrichment, and SSL certificate parsing layered onto the current light evidence path.',
+    fit: 'Good free-tier fit because the current checks are capped, deterministic, and network-light.'
+  },
   'trustpilot-plus': {
     strength: '3/5',
     coverage: '~40%',
