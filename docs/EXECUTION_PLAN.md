@@ -1,596 +1,291 @@
-# DataLens API Step-by-Step Implementation Plan
+# DataLens API Remediation Execution Plan
 
-## Goal
+- Date: 2026-03-29
+- Branch baseline: `codex/origin-main-integration`
+- Purpose: turn the latest forensic findings into a concrete execution order for the remaining repo work.
 
-Turn the forensic audit into a real delivery roadmap for `DataLensAPI`, starting with platform fixes, then canonical API families, and finally ToolNexus onboarding.
+## Source reports
 
-This plan assumes we will **not** implement the raw backlog one ticket = one endpoint. We will first merge duplicate ideas into canonical API families, then build a shared runtime that lets those families ship safely and consistently.
+This plan is based on:
 
-## What This Plan Covers
+- `docs/reports/2026-03-28-deep-api-forensic-analysis.md`
+- `docs/reports/2026-03-28-final-launch-readiness-forensic-pass.md`
+- `docs/reports/2026-03-29-qa-verification-pass.md`
+- `docs/reports/2026-03-29-remaining-weak-route-prioritization.md`
 
-- All accepted suggestions from the forensic report.
-- Platform work required before large-scale API import.
-- Delivery order for Wave 1, Wave 2, and selective Wave 3 families.
-- How to prepare DataLens outputs for ToolNexus integration.
-- Exit criteria for each phase so implementation does not drift.
+## Current repo truth
 
-## Delivery Rules
+- Live routes: `154`
+- Strength:
+  - `strong: 16`
+  - `medium: 105`
+  - `weak: 33`
+- Launch readiness:
+  - `ready: 89`
+  - `conditional: 47`
+  - `internal-only: 4`
+  - `blocked: 14`
+- Route inventory drift:
+  - routes in code but missing from allowlist: `0`
+  - routes in allowlist but missing from code: `0`
 
-1. Build **platform first**, not endpoint first.
-2. Group duplicate tickets into **canonical API families**.
-3. Split work into `gateway-light` and `async-heavy` execution paths.
-4. Keep public contracts stable from the first release.
-5. Make every launch family ToolNexus-ready from day one.
-6. Exclude risky traffic, fake engagement, and fake-view tools from the public roadmap.
+## What this plan replaces
 
-## Phase Order
+This plan supersedes the earlier broad rollout mindset of "build many more families next."
 
-1. Lock scope and governance.
-2. Build the platform foundation.
-3. Build the shared provider and execution runtime.
-4. Build ToolNexus compatibility and import packaging.
-5. Ship Wave 1 families.
-6. Ship Wave 2 families.
-7. Review and selectively ship Wave 3 families.
-8. Stabilize, monitor, and expand.
+That is no longer the repo's main problem.
 
-## Phase 0: Lock Scope and Governance
+The current problem is narrower:
 
-### Objective
+1. finish the last product-truth blockers,
+2. decide which weak routes deserve strengthening,
+3. keep challenge-gated and abuse-prone routes honest,
+4. tighten launch posture around the subset we can actually support.
 
-Freeze the real product scope before engineering expands the codebase.
+## Delivery rules
 
-### Steps
+1. Do not expand the public catalog until the remaining blockers are resolved.
+2. Prefer route truth over marketing breadth.
+3. Strengthen only where there is a believable public-data or first-party implementation path.
+4. Merge duplicate helper routes instead of deepening them independently.
+5. Keep fake-engagement and traffic-simulation classes blocked.
+6. Refresh forensic and launch docs after every posture-changing route upgrade.
+7. Keep QA green after each batch with:
+   - `npm run contract-tests`
+   - `npm run smoke-tests`
+   - `npm run regression-tests`
 
-1. Convert the raw backlog into the canonical family list from `docs/reports/2026-03-26-api-family-implementation-plan.csv`.
-2. Mark each family as one of:
-   - `build-now`
-   - `build-after-foundation`
-   - `build-later`
-   - `template-only`
-   - `do-not-add`
-3. Create a backlog registry document with one row per canonical family.
-4. Publish the official naming rules:
-   - short public API name
-   - stable family slug
-   - stable endpoint slug
-   - SEO title
-   - SEO description
-5. Lock the public category taxonomy:
-   - `seo-tools`
-   - `developer-tools`
-   - `market-intelligence`
-   - `public-connectors`
-   - `content-tools`
-6. Freeze the v1 response envelope and async job contract.
-7. Publish the public reject list for risky tools.
-8. Assign technical ownership by workstream:
-   - API gateway
-   - scraping runtime
-   - provider adapters
-   - ToolNexus integration
-   - QA and contract testing
+## Workstreams
 
-### Deliverables
+### Workstream A: Launch blockers
 
-- Canonical backlog registry.
-- Public naming and slugging convention.
-- Approved response contract v1.
-- Approved reject/defer policy.
-- Ownership map by workstream.
+Focus on routes that still block a `GO` decision.
 
-### Exit Criteria
+### Workstream B: Weak-route triage
 
-- No new endpoint is started from the raw ticket list directly.
-- Every future build request maps to a canonical family first.
-- The team agrees which families are out of scope for launch.
+Reduce the remaining `weak` surface by strengthening, merging, relabeling, or removing.
 
-## Phase 1: Platform Foundation
+### Workstream C: Governance and catalog truth
+
+Keep allowlist, launch docs, and route contracts aligned.
+
+### Workstream D: QA and release evidence
+
+Every posture change must remain backed by runnable verification.
+
+## Phase 0: Freeze the launch surface
 
 ### Objective
 
-Fix the repo gaps that currently make the API scaffold unsafe for large-scale rollout.
+Prevent scope drift while the remaining blocker work is completed.
 
-### Step 1.1: Shared Request and Response Schemas
+### Actions
 
-1. Add a schema package or extend `packages/shared-types` for:
-   - request metadata
-   - validation errors
-   - response envelope
-   - pagination
-   - async job descriptors
-2. Add strict request validation for all new routes.
-3. Normalize common fields across families:
-   - `urls`
-   - `keyword`
-   - `keywords`
-   - `country`
-   - `language`
-   - `device`
-   - `limit`
-   - `mode`
-   - `profile`
+1. Treat the current route tree plus `docs/api-plans/route-allowlist.md` as the canonical inventory.
+2. Do not add new public families during this plan.
+3. Keep the rejected traffic and fake-engagement routes blocked in code and excluded from launch docs.
+4. Keep `openpagerank-bulk-checker`, `rentcast`, `snapify-capture-screenshot-save-pdf`, and `youtube-rank-checker` out of public launch until their phase is complete.
 
-### Step 1.2: Route Wrapper Standardization
+### Exit criteria
 
-1. Upgrade the shared wrapper in `packages/scraping-core`.
-2. Add:
-   - `request_id`
-   - `tool_version`
-   - `source`
-   - `warnings`
-   - optional `job`
-   - optional `pagination`
-3. Ensure error responses use machine-readable codes.
-4. Make route handlers thin and move logic into reusable services.
+- No new launch-surface drift.
+- No public documentation implies these four routes are launch-ready.
 
-### Step 1.3: Policy Layer
-
-1. Create a per-tool policy definition model.
-2. Add support for:
-   - timeout budget
-   - max input size
-   - max URL count
-   - anonymous/public access
-   - auth-required access
-   - allowed output modes
-   - cache TTL
-3. Set the default lightweight timeout to `10s`.
-4. Route long-running jobs to async execution instead of stretching the ingress timeout.
-
-### Step 1.4: Auth and Abuse Controls
-
-1. Add API key middleware for protected families.
-2. Add IP and API-key rate limiting.
-3. Add per-tool concurrency controls.
-4. Add public vs private tool flags.
-5. Log quota and rejection events.
-
-### Step 1.5: Testing and Observability
-
-1. Add route contract tests for the shared response envelope.
-2. Add request validation tests for common failure modes.
-3. Add smoke tests for representative route families.
-4. Add structured logs with request id propagation.
-5. Add basic metrics for:
-   - success rate
-   - timeout rate
-   - validation failures
-   - provider failures
-   - cache hit rate
-
-### Deliverables
-
-- Shared schema layer.
-- Shared wrapper v2.
-- Policy configuration system.
-- Auth and rate limit middleware.
-- Contract-test harness.
-- Structured logging and metrics.
-
-### Repo Areas
-
-- `packages/shared-types`
-- `packages/scraping-core/src`
-- `apps/api-gateway/app/api`
-- `apps/api-gateway` middleware and config
-
-### Exit Criteria
-
-- New routes cannot bypass validation and policy checks.
-- All new public responses match the v1 envelope.
-- Lightweight routes enforce the 10-second rule.
-
-## Phase 2: Shared Provider and Execution Runtime
+## Phase 1: Resolve the hard launch blockers
 
 ### Objective
 
-Build reusable internals so canonical families share infrastructure instead of duplicating logic.
+Close the items that still make the launch gate read `NO-GO`.
 
-### Step 2.1: Provider Adapter Layer
+### Targets
 
-1. Add provider modules for:
-   - raw HTML fetch
-   - HTML parsing and extraction
-   - crawl and sitemap discovery
-   - search suggestions
-   - SERP data
-   - performance and lighthouse providers
-   - DNS and domain intelligence
-   - file and PDF rendering
-2. Define a normalized output contract per provider type.
-3. Keep vendor-specific fields inside nested `provider_details` objects.
+| Route | Current posture | Required decision |
+| --- | --- | --- |
+| `/api/v1/seo-tools/openpagerank-bulk-checker` | blocked provider template | real provider integration or permanent internal-only |
+| `/api/v1/seo-tools/rentcast` | blocked provider template | real provider integration or permanent internal-only |
+| `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | internal-only async evidence route | real screenshot/PDF execution or permanent preview/internal-only |
+| `/api/v1/seo-tools/youtube-rank-checker` | internal-only async evidence route | stronger live rank execution or permanent preview/internal-only |
 
-### Step 2.2: Caching and Storage
+### Actions
 
-1. Add short-term cache support for public, repeatable lookups.
-2. Add durable artifact storage for:
-   - PDF files
-   - screenshots
-   - HTML reports
-   - generated sitemaps
-3. Add result snapshot storage for tracking-style tools.
+1. Decide route-by-route whether each target will be:
+   - fully implemented now,
+   - explicitly internal-only for launch,
+   - or deferred from the public roadmap.
+2. If implemented:
+   - replace template/degraded execution with real provider-grade execution,
+   - add regression coverage,
+   - refresh launch posture docs.
+3. If kept internal-only:
+   - make contracts explicit,
+   - make launch docs explicit,
+   - keep guardrails in code.
 
-### Step 2.3: Async Job System
+### Exit criteria
 
-1. Define a `Job` model with:
-   - `id`
-   - `family`
-   - `status`
-   - `created_at`
-   - `started_at`
-   - `finished_at`
-   - `artifact_urls`
-   - `error`
-2. Add status endpoints such as `/api/v1/jobs/{id}`.
-3. Route heavy tasks into the scraper service or worker execution path.
-4. Add retry, timeout, and failure-reason handling.
+- None of the four blocker routes are in an ambiguous state.
+- Launch docs, route contracts, and QA posture all agree on their status.
 
-### Step 2.4: Scraper Service Upgrade
-
-1. Replace the placeholder `apps/scraper-service/index.js` with a real worker entrypoint.
-2. Add health endpoints for the worker.
-3. Add job execution handlers for:
-   - browser-based audits
-   - crawl jobs
-   - report and artifact generation
-4. Add result callback or shared storage write-back.
-
-### Deliverables
-
-- Provider adapter layer.
-- Cache and artifact storage integration.
-- Async job model and status API.
-- Real scraper worker service.
-
-### Repo Areas
-
-- `packages/scraping-core/src/providers`
-- `packages/scraping-core/src/services`
-- `apps/scraper-service`
-- `apps/api-gateway/app/api/v1/seo-tools`
-
-### Exit Criteria
-
-- Heavy jobs no longer return placeholder delegated responses.
-- Reusable provider adapters are used by more than one family.
-- Artifact-heavy routes return durable file links.
-
-## Phase 3: ToolNexus Compatibility Layer
+## Phase 2: Upgrade the few weak routes that are actually worth it
 
 ### Objective
 
-Make DataLens families importable into ToolNexus without rethinking contracts later.
+Only strengthen weak routes with believable product upside and feasible public evidence paths.
 
-### Steps
+### Priority set
 
-1. Create a ToolNexus mapping file for each launch family:
-   - family slug
-   - ToolNexus slug
-   - title
-   - category
-   - action list
-   - SEO title
-   - SEO description
-   - sample input
-   - public/private policy
-2. For every Wave 1 family, define the ToolNexus execution shape:
-   - ToolNexus `input`
-   - DataLens upstream request
-   - normalized output summary
-3. Publish integration notes covering:
-   - manifest entry
-   - executor registration
-   - action routing
-   - ToolShell display expectations
-4. Keep browser UI logic in ToolNexus and server-side execution in DataLens.
-5. Add response shaping rules so ToolNexus can summarize outputs consistently.
+| Route | Recommended action | Reason |
+| --- | --- | --- |
+| `/api/v1/seo-tools/top-1000-websites-worldwide-country-level` | re-scope and implement | current `queued` behavior is indefensible; a truthful Tranco-style global-rank route is feasible |
+| `/api/v1/seo-tools/x-twitter` | narrow or split | current mixed search/profile helper is too weak; only a narrower public-lite version is believable |
+| `/api/v1/seo-tools/showtimes` | keep helper unless stable source is found | only worth deeper work if a durable public showtimes source is identified |
 
-### Deliverables
+### Actions
 
-- ToolNexus mapping package.
-- Family-specific manifest metadata.
-- Execution bridge documentation.
-- Shared examples for request and response translation.
+1. Re-scope `top-1000-websites-worldwide-country-level` into a truthful route with a narrower public promise.
+2. Decide whether `x-twitter` becomes:
+   - a narrower profile-lite route,
+   - an internal helper,
+   - or a candidate for later provider-backed work.
+3. Leave `showtimes` as helper unless we first prove a stable public evidence path.
 
-### Exit Criteria
+### Exit criteria
 
-- A ToolNexus engineer can onboard any Wave 1 family using the mapping docs without re-discovering contracts.
-- Every Wave 1 family has a ready slug, description, and sample payload.
+- The P1 set no longer contains fake queued behavior.
+- Public promises are narrower and true.
 
-## Phase 4: Wave 1 Implementation
+## Phase 3: Collapse duplicate travel helpers
 
 ### Objective
 
-Ship the highest-value, lowest-risk launch families first.
+Stop spending maintenance on multiple near-identical weak helper routes.
 
-### Wave 1 Families
+### Routes in scope
 
-1. `keyword-density-and-presence-audit`
-2. `search-suggestions-explorer`
-3. `keyword-research-suite`
-4. `site-audit-suite`
-5. `meta-tags-audit`
-6. `headings-audit`
-7. `image-seo-audit`
-8. `performance-audit-suite`
-9. `link-health-monitor`
-10. `sitemap-suite`
-11. `domain-intelligence-suite`
-12. `tech-stack-detector-suite`
-13. `qr-code-studio`
-14. `pdf-conversion-suite`
+- `/api/v1/seo-tools/car-hire-rental`
+- `/api/v1/seo-tools/car-hire-rental-bulk`
+- `/api/v1/seo-tools/skyscanner-cars`
+- `/api/v1/seo-tools/skyscanner-hotels`
+- `/api/v1/seo-tools/tripadvisor-cruises`
+- `/api/v1/seo-tools/tripadvisor-hotels`
+- `/api/v1/seo-tools/vrbo`
 
-### Implementation Sequence Inside Wave 1
+### Actions
 
-#### Batch A: Lightweight SEO primitives
+1. Merge Skyscanner car routes into one honest helper family.
+2. Decide whether the bulk helper has enough value to survive as a separate route.
+3. Keep anti-bot travel surfaces honest as helpers or internal-only.
+4. Remove duplicate marketing language that implies deep scraping where only search-helper behavior exists.
 
-1. `meta-tags-audit`
-2. `headings-audit`
-3. `keyword-density-and-presence-audit`
-4. `image-seo-audit`
+### Exit criteria
 
-Reason:
-- They are fast to implement.
-- They validate the new response and policy model.
-- They create reusable parsing utilities for later suites.
+- Fewer duplicate helper routes.
+- Travel routes have clearer names and expectations.
+- No travel helper over-promises data depth.
 
-#### Batch B: Search and intelligence primitives
-
-1. `search-suggestions-explorer`
-2. `keyword-research-suite`
-3. `domain-intelligence-suite`
-4. `tech-stack-detector-suite`
-
-Reason:
-- They benefit heavily from the provider adapter layer.
-- They are ToolNexus-friendly and commercially useful.
-
-#### Batch C: Crawl and audit products
-
-1. `link-health-monitor`
-2. `sitemap-suite`
-3. `site-audit-suite`
-
-Reason:
-- They depend on crawl normalization, caching, and issue-code design.
-
-#### Batch D: Heavy output and artifact tools
-
-1. `performance-audit-suite`
-2. `qr-code-studio`
-3. `pdf-conversion-suite`
-
-Reason:
-- They exercise artifact storage and async job behavior.
-
-### Step-by-Step Build Pattern for Each Family
-
-1. Finalize the family contract.
-2. Add request schema.
-3. Add response schema.
-4. Add policy profile.
-5. Build or attach provider adapters.
-6. Implement the service layer.
-7. Add the route.
-8. Add contract tests.
-9. Add sample request and sample response docs.
-10. Add ToolNexus mapping metadata.
-11. Run smoke verification.
-12. Mark family ready for import.
-
-### Deliverables
-
-- Four Wave 1 batches completed in order.
-- Public API examples for each family.
-- ToolNexus-ready launch package for each family.
-
-### Exit Criteria
-
-- All Wave 1 families pass contract tests.
-- ToolNexus metadata exists for each Wave 1 family.
-- No Wave 1 family depends on route-local custom behavior that bypasses the platform foundation.
-
-## Phase 5: Wave 2 Implementation
+## Phase 4: Keep challenge-gated connectors honest
 
 ### Objective
 
-Build the higher-complexity families after the runtime is proven.
+Avoid burning time on routes that still do not have a credible implementation path.
 
-### Wave 2 Families
+### Routes in scope
 
-1. `seo-content-optimizer`
-2. `rank-tracker-suite`
-3. `authority-metrics-suite`
-4. `accessibility-audit-suite`
-5. `serp-search-intelligence`
-6. `google-indexing-suite`
-7. `maps-intelligence-suite`
-8. `jobs-intelligence-suite`
-9. `company-enrichment-suite`
-10. `image-optimization-suite`
-11. `text-analysis-suite`
-12. `tech-debt-analysis`
+- `/api/v1/seo-tools/similarweb`
+- `/api/v1/seo-tools/software-advice`
+- `/api/v1/seo-tools/spotify`
+- `/api/v1/seo-tools/spotify-plus`
+- `/api/v1/seo-tools/spyfu`
+- `/api/v1/seo-tools/spyfu-bulk-urls`
+- `/api/v1/seo-tools/stackshare`
+- `/api/v1/seo-tools/the-org`
 
-### Sequence
+### Actions
 
-1. Start with `authority-metrics-suite`, `image-optimization-suite`, and `text-analysis-suite`.
-2. Then ship `serp-search-intelligence` and `jobs-intelligence-suite`.
-3. Then ship `rank-tracker-suite` and `seo-content-optimizer`.
-4. Then ship `accessibility-audit-suite`, `maps-intelligence-suite`, and `google-indexing-suite`.
-5. Build `tech-debt-analysis` only after deciding whether it stays in the same runtime or becomes its own worker service.
+1. Keep them as helpers or internal-only until a real provider path exists.
+2. Collapse duplicate pairs where the extra SKU adds no real value:
+   - `spotify` / `spotify-plus`
+   - `spyfu` / `spyfu-bulk-urls`
+3. Clean route copy so these do not read like full data APIs.
 
-### Special Rules
+### Exit criteria
 
-- Anything historical or scheduled should persist snapshots from the beginning.
-- Anything browser-heavy should use async job execution.
-- Anything credentialed should require auth and stronger audit logs.
+- No challenge-gated connector is pretending to be deeper than it is.
+- Duplicate helper SKUs are reduced where possible.
 
-### Exit Criteria
-
-- Wave 2 families reuse shared providers instead of inventing new one-off routes.
-- Historical tools have snapshot storage.
-- Sensitive and credentialed flows have auditable access controls.
-
-## Phase 6: Selective Wave 3 and Templates
+## Phase 5: Remove or quarantine low-identity routes
 
 ### Objective
 
-Only ship later families if they have clear product value and low legal or maintenance risk.
+Eliminate routes that do not belong in a focused product catalog.
 
-### Build-Later Candidates
+### Target
 
-- `linkedin-people-posts-intelligence`
-- `travel-rental-intelligence`
-- `market-data-prices-suite`
-- `analytics-mcp-suite`
-- `speech-suite`
-- `discord-web-publisher-suite`
-- `website-traffic-intelligence-suite`
-- `website-security-suite`
-- `youtube-channel-intelligence`
-- `app-store-market-intelligence`
+| Route | Recommendation |
+| --- | --- |
+| `/api/v1/seo-tools/trayvmy-actor` | remove or permanently quarantine |
 
-### Template-Only Candidates
+### Actions
 
-- `marketplace-review-intelligence`
-- `public-knowledge-base-connector`
-- `generic-public-connector-template`
+1. Decide whether the route has any defensible product role.
+2. If not, remove it from the public plan and route tree.
+3. If kept, force an internal-only/template posture everywhere.
 
-### Rules
+### Exit criteria
 
-1. Do not ship a Wave 3 family unless Wave 1 is stable in production.
-2. Run a legal and abuse review before onboarding new social, traffic, or browser-intensive providers.
-3. Prefer templates when the family is low differentiation and high maintenance.
+- `trayvmy-actor` is no longer ambiguous.
 
-### Exit Criteria
+## Phase 6: Re-run the launch gate
 
-- Later families are added selectively, not automatically.
-- Low-value providers are onboarded through templates, not bespoke product work.
+### Objective
 
-## Phase 7: Explicit Exclusions
+Turn remediation work into a fresh release decision.
 
-### Do Not Add to the Public Roadmap
+### Actions
 
-- website traffic generators
-- fake engagement tools
+1. Refresh:
+   - `docs/reports/2026-03-28-deep-api-forensic-analysis.md`
+   - `docs/reports/2026-03-28-final-launch-readiness-forensic-pass.md`
+   - `docs/reports/2026-03-28-launch-readiness-route-classification.csv`
+   - `docs/reports/2026-03-29-qa-verification-pass.md`
+2. Recompute the route counts and weak-route inventory.
+3. Re-check code vs allowlist drift.
+4. Run the full QA suite again.
+5. Publish a new `GO` / `NO-GO` decision.
+
+### Exit criteria
+
+- Launch posture is backed by fresh forensic evidence.
+- Counts, docs, and route contracts match.
+
+## Recommended execution order
+
+1. Phase 1: launch blockers
+2. Phase 2: high-value weak upgrades
+3. Phase 3: duplicate travel-helper cleanup
+4. Phase 4: challenge-gated helper cleanup
+5. Phase 5: remove/quarantine low-identity routes
+6. Phase 6: refresh launch gate
+
+## What not to work on during this plan
+
+Do not spend remediation time trying to public-launch these classes:
+
+- traffic simulation routes
+- fake engagement routes
 - fake view generators
-- manipulative load simulators presented as growth tools
+- other abuse-prone "growth" surfaces already blocked by launch guard
 
-### Reason
+These should remain blocked unless product governance explicitly changes.
 
-These tools create legal, trust, abuse, and ecosystem risk that is much higher than their product value.
+## Definition of done for this plan
 
-## Phase 8: QA, Release, and Operations
+This plan is complete when all of the following are true:
 
-### Pre-Release Checklist for Every Family
-
-1. Contract test passes.
-2. Validation test passes.
-3. Timeout and policy settings are defined.
-4. Error codes are documented.
-5. Sample requests and responses are published.
-6. ToolNexus mapping is complete.
-7. Logging and metrics are confirmed.
-8. Abuse review is complete if the source is sensitive.
-
-### Release Gates
-
-1. Foundation gate:
-   - schema layer
-   - policy layer
-   - auth
-   - rate limiting
-   - async job support
-2. Wave 1 gate:
-   - first fourteen launch families complete
-3. Wave 2 gate:
-   - advanced families only after shared runtime is stable
-4. Expansion gate:
-   - later families only after stability and legal review
-
-### Operational Metrics
-
-- request volume by family
-- median and p95 execution time
-- timeout count
-- cache hit rate
-- provider failure rate
-- job success rate
-- artifact generation success rate
-- ToolNexus import adoption rate
-
-## Recommended Sprint Structure
-
-### Sprint 1
-
-- Phase 0 complete.
-- Response contract locked.
-- Backlog registry published.
-
-### Sprint 2
-
-- Shared schemas and wrapper v2.
-- Policy layer.
-- Contract-test skeleton.
-
-### Sprint 3
-
-- Auth and rate limiting.
-- Provider adapter skeletons.
-- Async job model.
-
-### Sprint 4
-
-- Real scraper worker.
-- Cache and artifact storage.
-- ToolNexus mapping scaffolds.
-
-### Sprint 5
-
-- Wave 1 Batch A.
-
-### Sprint 6
-
-- Wave 1 Batch B.
-
-### Sprint 7
-
-- Wave 1 Batch C.
-
-### Sprint 8
-
-- Wave 1 Batch D.
-- ToolNexus import for all Wave 1 families.
-
-### Sprint 9+
-
-- Wave 2 rollout based on dependency readiness and production learnings.
-
-## Definition of Done
-
-A family is only complete when:
-
-1. It has a canonical contract and stable endpoint.
-2. It uses shared validation and response handling.
-3. It follows the policy layer.
-4. It has contract tests and sample payloads.
-5. It is documented for ToolNexus import.
-6. It is safe to operate under the public roadmap rules.
-
-## Recommended Immediate Next Actions
-
-1. Create the canonical backlog registry from the CSV report.
-2. Implement the shared response envelope v2.
-3. Add request schema validation for all new routes.
-4. Add the policy layer with 10-second lightweight timeouts.
-5. Replace scraper-service placeholder code with a real job worker skeleton.
-6. Build Wave 1 Batch A first.
-7. Prepare ToolNexus mapping files while Wave 1 is being built.
-
-## Reference Inputs
-
-- `docs/reports/2026-03-26-api-forensic-implementation-plan.md`
-- `docs/reports/2026-03-26-api-family-implementation-plan.csv`
-- `docs/reports/2026-03-26-datalens-repo-forensic-findings.csv`
-- `docs/reports/2026-03-26-toolnexus-integration-contract.csv`
+1. The four hard launch blockers have a final, explicit posture.
+2. The highest-value weak routes have either been strengthened or decisively narrowed.
+3. Duplicate helper families have been collapsed where they add no independent value.
+4. Challenge-gated helpers are honestly positioned.
+5. Low-identity carryover routes are removed or quarantined.
+6. The forensic reports and launch docs have been refreshed.
+7. The repo can be re-evaluated for a `GO` launch decision on the supported subset.
