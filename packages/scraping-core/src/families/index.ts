@@ -13,4 +13,5 @@ export * from './siteAudit';
 export * from './socialHashtagGenerator';
 export * from './spellChecker';
 export * from './techFingerprint';
+export * from './topicTrendAggregator';
 export * from './whatSite';

@@ -200,6 +200,15 @@ const routeOverrides = {
     upgrade: 'Promote into a canonical social copy utility family with caption presets, trend-provider adapters, and per-platform output packages.',
     fit: 'Excellent free-tier fit because the logic is deterministic, fast, and local-only.'
   },
+  'topic-trend-aggregator': {
+    cls: 'local-utility',
+    strength: '3/5',
+    coverage: '~45%',
+    current: 'Runs a deterministic topic-clustering engine over supplied phrases, grouping overlapping themes and scoring trend momentum signals from variant frequency and modifiers.',
+    gap: 'Still does not ingest live news pipelines, measure social/search velocity, or attach external provenance to topic clusters.',
+    upgrade: 'Promote into a canonical trend-analysis family with ingest adapters, source provenance, and optional live momentum signals layered on top of the local clustering core.',
+    fit: 'Excellent free-tier fit because the current aggregation logic is deterministic, local-only, and bounded by input size.'
+  },
   'markdown-table-generator': {
     cls: 'local-utility',
     strength: '3/5',

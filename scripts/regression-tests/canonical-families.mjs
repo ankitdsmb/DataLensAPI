@@ -558,6 +558,37 @@ try {
   assert.equal(serpMeta.json.data.contract.implementationDepth, 'live');
   assert.equal(serpMeta.json.data.contract.launchRecommendation, 'public_lite');
 
+  const topicTrends = await post('/api/v1/seo-tools/topic-trend-aggregator', {
+    topics: [
+      'AI search visibility',
+      'AI search visibility guide',
+      'AI search visibility tips',
+      'AI search visibility for marketing teams',
+      'Prompt engineering workflow',
+      'Prompt engineering checklist'
+    ],
+    topN: 3
+  });
+  assert.equal(topicTrends.response.status, 200);
+  assert.equal(topicTrends.json.success, true);
+  assert.equal(topicTrends.json.data.status, 'aggregated');
+  assert.equal(topicTrends.json.data.trendCount, 2);
+  assert.equal(Array.isArray(topicTrends.json.data.trends), true);
+  assert.ok(topicTrends.json.data.trends.length >= 2);
+  assert.equal(topicTrends.json.data.trends[0].topic, 'AI Search Visibility');
+  assert.ok(topicTrends.json.data.trends[0].mentions >= 4);
+  assert.ok(topicTrends.json.data.trends[0].trendScore >= 80);
+  assert.ok(topicTrends.json.data.trends[0].sharedTokens.includes('ai'));
+  assert.ok(topicTrends.json.data.trends[0].sharedTokens.includes('search'));
+  assert.ok(topicTrends.json.data.trends[0].sharedTokens.includes('visibility'));
+  assert.equal(topicTrends.json.data.evidence.inputTopicCount, 6);
+  assert.ok(topicTrends.json.data.evidence.mergedTopicCount >= 2);
+  assert.equal(Array.isArray(topicTrends.json.data.evidence.topKeywords), true);
+  assert.ok(topicTrends.json.data.evidence.topKeywords.some((entry) => entry.token === 'visibility'));
+  assert.equal(topicTrends.json.data.contract.forensicCategory, 'local-utility');
+  assert.equal(topicTrends.json.data.contract.implementationDepth, 'live');
+  assert.equal(topicTrends.json.data.contract.launchRecommendation, 'public_lite');
+
   console.log('regression-tests: canonical families ok');
 } finally {
   await stopProcess(server, 'api-gateway');

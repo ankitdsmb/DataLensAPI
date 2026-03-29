@@ -1,9 +1,10 @@
 import {
+  aggregateTopicTrends,
   createToolPolicy,
+  optionalIntegerField,
   optionalStringArrayField,
   readJsonBody,
   withScrapingHandler,
-  RequestValidationError,
   requireAllowedFields
 } from '@forensic/scraping-core';
 
@@ -17,18 +18,21 @@ const topicTrendPolicy = createToolPolicy({
 
 export const POST = withScrapingHandler({ policy: topicTrendPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, topicTrendPolicy);
-  requireAllowedFields(body, ['topics']);
+  requireAllowedFields(body, ['topN', 'topics']);
   const topics = optionalStringArrayField(body, 'topics', { maxItems: 50, fieldLabel: 'topics' });
-  if (topics.length === 0) {
-    throw new RequestValidationError('topics is required', { field: 'topics' });
-  }
-
-  const normalized = topics.map((topic) => ({
-    topic,
-    score: Math.max(1, Math.min(100, topic.length * 3))
-  }));
+  const result = aggregateTopicTrends(topics, {
+    topN: optionalIntegerField(body, 'topN', { defaultValue: 10, min: 1, max: 20 })
+  });
 
   return {
-    topics: normalized.sort((a, b) => b.score - a.score)
+    ...result,
+    contract: {
+      productLabel: 'Topic Trend Aggregator',
+      forensicCategory: 'local-utility',
+      implementationDepth: 'live',
+      launchRecommendation: 'public_lite',
+      notes:
+        'Runs a deterministic topic-clustering engine over supplied phrases, grouping overlapping themes and scoring trend momentum signals from variant frequency and modifiers. This is a local aggregation utility, not a live news-ingestion pipeline.'
+    }
   };
 });
