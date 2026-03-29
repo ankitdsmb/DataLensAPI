@@ -1,5 +1,7 @@
 import {
+  analyzePlagiarismTexts,
   createToolPolicy,
+  optionalIntegerField,
   optionalStringArrayField,
   readJsonBody,
   RequestValidationError,
@@ -33,38 +35,24 @@ function normalizeTexts(body: Record<string, unknown>) {
   return combined;
 }
 
-function analyzeText(content: string) {
-  const words = content.toLowerCase().match(/[a-z0-9']+/g) ?? [];
-  const totalWords = words.length;
-  const uniqueWords = new Set(words).size;
-  const duplicateRatio = totalWords === 0 ? 0 : (totalWords - uniqueWords) / totalWords;
-  const sentences = content.split(/[.!?]+/).map((sentence) => sentence.trim()).filter(Boolean);
-  const sentenceCount = sentences.length;
-
-  return {
-    totalWords,
-    uniqueWords,
-    duplicateRatio: Number(duplicateRatio.toFixed(4)),
-    sentenceCount
-  };
-}
-
 export const POST = withScrapingHandler({ policy: plagiarismPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, plagiarismPolicy);
-  requireAllowedFields(body, ['text', 'texts']);
+  requireAllowedFields(body, ['maxMatches', 'phraseSize', 'text', 'texts']);
   const texts = normalizeTexts(body);
-
-  const results = texts.map((text) => {
-    const analysis = analyzeText(text);
-    return {
-      input: text,
-      similarityScore: Math.round(analysis.duplicateRatio * 100),
-      ...analysis
-    };
+  const analysis = analyzePlagiarismTexts(texts, {
+    phraseSize: optionalIntegerField(body, 'phraseSize', { defaultValue: 4, min: 3, max: 8 }),
+    maxMatches: optionalIntegerField(body, 'maxMatches', { defaultValue: 5, min: 1, max: 10 })
   });
 
   return {
-    method: 'heuristic-duplicate-ratio',
-    results
+    ...analysis,
+    contract: {
+      productLabel: 'Plagiarism Checker',
+      forensicCategory: 'local-utility',
+      implementationDepth: 'live',
+      launchRecommendation: 'public_lite',
+      notes:
+        'Runs a deterministic local n-gram similarity analysis with repeated-phrase detection, pairwise overlap scoring, and phrase-level evidence. This is a local duplicate-analysis report, not a web-scale plagiarism crawler.'
+    }
   };
 });

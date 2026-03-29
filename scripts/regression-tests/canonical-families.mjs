@@ -500,6 +500,36 @@ try {
   assert.equal(openGraph.json.data.contract.implementationDepth, 'live');
   assert.equal(openGraph.json.data.contract.launchRecommendation, 'public_lite');
 
+  const plagiarism = await post('/api/v1/seo-tools/plagiarism-checker', {
+    texts: [
+      'OpenAI builds AI systems for research and products. Teams use AI systems for productivity and search.',
+      'Many teams use AI systems for productivity and search. OpenAI builds AI systems for research and products.'
+    ],
+    phraseSize: 4,
+    maxMatches: 4
+  });
+  assert.equal(plagiarism.response.status, 200);
+  assert.equal(plagiarism.json.success, true);
+  assert.equal(plagiarism.json.data.status, 'analyzed');
+  assert.equal(plagiarism.json.data.method, 'local_ngram_similarity');
+  assert.equal(plagiarism.json.data.textCount, 2);
+  assert.equal(plagiarism.json.data.phraseSize, 4);
+  assert.equal(plagiarism.json.data.maxMatches, 4);
+  assert.equal(typeof plagiarism.json.data.maxPairwiseSimilarity, 'number');
+  assert.ok(plagiarism.json.data.maxPairwiseSimilarity >= 50);
+  assert.equal(plagiarism.json.data.riskLevel, 'medium');
+  assert.equal(Array.isArray(plagiarism.json.data.results), true);
+  assert.equal(plagiarism.json.data.results.length, 2);
+  assert.equal(Array.isArray(plagiarism.json.data.pairwiseMatches), true);
+  assert.equal(plagiarism.json.data.pairwiseMatches.length, 1);
+  assert.ok(plagiarism.json.data.pairwiseMatches[0].sharedPhraseCount >= 2);
+  assert.ok(plagiarism.json.data.pairwiseMatches[0].sharedPhrases.includes('ai systems for productivity'));
+  assert.equal(plagiarism.json.data.evidence.localTokenizationUsed, true);
+  assert.equal(plagiarism.json.data.evidence.crossTextOverlapDetected, true);
+  assert.equal(plagiarism.json.data.contract.forensicCategory, 'local-utility');
+  assert.equal(plagiarism.json.data.contract.implementationDepth, 'live');
+  assert.equal(plagiarism.json.data.contract.launchRecommendation, 'public_lite');
+
   console.log('regression-tests: canonical families ok');
 } finally {
   await stopProcess(server, 'api-gateway');

@@ -5,6 +5,7 @@ export * from './domainIntelligence';
 export * from './keywordDiscovery';
 export * from './markdownTable';
 export * from './openGraphImage';
+export * from './plagiarismAnalyzer';
 export * from './profanityFilter';
 export * from './shopifyProductSearch';
 export * from './siteAudit';

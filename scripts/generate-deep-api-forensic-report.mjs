@@ -111,6 +111,15 @@ const routeOverrides = {
     upgrade: 'Promote into a canonical social-image utility family with multiple templates, binary render modes, and brand-kit support.',
     fit: 'Strong free-tier fit because the current renderer is deterministic, local-only, and fast.'
   },
+  'plagiarism-checker': {
+    cls: 'local-utility',
+    strength: '3/5',
+    coverage: '~45%',
+    current: 'Runs a deterministic local n-gram similarity analysis with repeated-phrase detection, pairwise overlap scoring, and phrase-level evidence across supplied texts.',
+    gap: 'Still does not perform web-scale source discovery, crawl search results, or fetch external documents for plagiarism verification.',
+    upgrade: 'Promote into a canonical writing-quality utility family with optional source lookup adapters, richer excerpt evidence, and adjacent originality/reporting modes.',
+    fit: 'Excellent free-tier fit because the current analysis is deterministic, local-only, and bounded by input size.'
+  },
   'openpagerank-bulk-checker': {
     strength: '1/5',
     coverage: '~5%',
