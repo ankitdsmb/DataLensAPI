@@ -175,13 +175,21 @@ Additionally:
 
 ## Best next concrete move
 
-If we start another implementation batch immediately, the best single next move is:
+The provider-feasibility audit is now complete for:
 
-1. make a firm product decision on `openpagerank-bulk-checker` and `rentcast`:
-   - permanent internal template, or
-   - approved real provider integration with credentials and quota planning.
-2. keep `snapify-capture-screenshot-save-pdf` at authenticated-beta posture outside free-tier mode and keep `youtube-rank-checker` preview-only while browser quotas, artifact delivery, and evidence hardening continue to tighten.
-3. avoid speculative expansion work on challenge-gated connectors unless a real provider or stable public-data path is approved first.
+- `openpagerank-bulk-checker`
+- `rentcast`
+
+Result:
+
+- neither route has a credible no-credentials implementation path on this branch,
+- both should stay internal-only provider templates by default,
+- and speculative compatibility-lite replacements would be less truthful than the current explicit template posture.
+
+That means the best next move is now:
+
+1. prepare this branch for review / PR as the supported-subset milestone, or
+2. start a separate, explicitly approved provider-integration track for exactly one route with real credentials and quota planning.
 
 ## Bottom line
 

@@ -11,6 +11,7 @@ The phase-wise remediation plan described in this document has now been implemen
 For the follow-up cycle, use:
 
 - `docs/reports/2026-03-29-next-cycle-implementation-plan.md`
+- `docs/reports/2026-03-30-provider-template-feasibility-note.md`
 
 ## Source reports
 
