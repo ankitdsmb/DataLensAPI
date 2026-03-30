@@ -93,6 +93,7 @@ The current review bundle is backed by:
 - [2026-03-29-qa-verification-pass.md](/mnt/c/docker/DataLensAPI/DataLensAPI/docs/reports/2026-03-29-qa-verification-pass.md)
 - [2026-03-28-final-launch-readiness-forensic-pass.md](/mnt/c/docker/DataLensAPI/DataLensAPI/docs/reports/2026-03-28-final-launch-readiness-forensic-pass.md)
 - [2026-03-28-deep-api-forensic-analysis.md](/mnt/c/docker/DataLensAPI/DataLensAPI/docs/reports/2026-03-28-deep-api-forensic-analysis.md)
+- [2026-03-30-draft-pr-package.md](/mnt/c/docker/DataLensAPI/DataLensAPI/docs/reports/2026-03-30-draft-pr-package.md)
 
 Most important verified commands:
 
