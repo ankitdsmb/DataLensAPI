@@ -5,6 +5,7 @@
 2. API Gateway validates request body, creates a durable job record (`queued`), and returns:
    - `job.id`
    - `job.statusUrl` (`/api/v1/jobs/:jobId`)
+   - `job.access.scope` (`public`, `authenticated`, or `submitter`)
 3. API Gateway async runtime transitions job to `running` and dispatches execution to scraper-service:
    - `POST /jobs/execute`
 4. scraper-service executes tool-specific work and returns:

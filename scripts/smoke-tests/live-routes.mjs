@@ -255,6 +255,8 @@ try {
   assert.equal(queued.json.data?.job?.retention?.artifactAccess, 'authenticated');
   assert.equal(queued.json.data?.job?.retention?.jobTtlSeconds, 12 * 60 * 60);
   assert.equal(queued.json.data?.job?.retention?.artifactTtlSeconds, 6 * 60 * 60);
+  assert.equal(queued.json.data?.job?.access?.scope, 'submitter');
+  assert.equal(queued.json.data?.job?.access?.submitterBound, true);
 
   const youtubeUnauthorizedStatus = await getJson(`/api/v1/jobs/${jobId}`);
   assert.equal(youtubeUnauthorizedStatus.response.status, 401);
@@ -274,6 +276,8 @@ try {
   assert.ok(['provider', 'browser', 'simulated'].includes(youtubeJob.execution?.mode));
   assert.equal(youtubeJob.execution?.readyForPublicLaunch, false);
   assert.equal(youtubeJob.retention?.artifactAccess, 'authenticated');
+  assert.equal(youtubeJob.access?.scope, 'submitter');
+  assert.equal(youtubeJob.access?.submitterBound, true);
   assert.equal(youtubeJob.retention?.jobTtlSeconds, 12 * 60 * 60);
   assert.equal(youtubeJob.retention?.artifactTtlSeconds, 6 * 60 * 60);
   assert.equal(youtubeJob.execution?.provenance?.provider, 'youtube-public-search');
@@ -321,6 +325,8 @@ try {
   assert.equal(snapifyQueued.json.data?.job?.retention?.artifactAccess, 'authenticated');
   assert.equal(snapifyQueued.json.data?.job?.retention?.jobTtlSeconds, 6 * 60 * 60);
   assert.equal(snapifyQueued.json.data?.job?.retention?.artifactTtlSeconds, 2 * 60 * 60);
+  assert.equal(snapifyQueued.json.data?.job?.access?.scope, 'submitter');
+  assert.equal(snapifyQueued.json.data?.job?.access?.submitterBound, true);
 
   const snapifyUnauthorizedStatus = await getJson(`/api/v1/jobs/${snapifyJobId}`);
   assert.equal(snapifyUnauthorizedStatus.response.status, 401);
@@ -340,6 +346,8 @@ try {
   assert.ok(['browser', 'provider'].includes(snapifyJob.execution?.mode));
   assert.equal(snapifyJob.execution?.readyForPublicLaunch, true);
   assert.equal(snapifyJob.retention?.artifactAccess, 'authenticated');
+  assert.equal(snapifyJob.access?.scope, 'submitter');
+  assert.equal(snapifyJob.access?.submitterBound, true);
   assert.equal(snapifyJob.retention?.jobTtlSeconds, 6 * 60 * 60);
   assert.equal(snapifyJob.retention?.artifactTtlSeconds, 2 * 60 * 60);
   assert.equal(Array.isArray(snapifyJob.artifacts), true);

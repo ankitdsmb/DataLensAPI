@@ -401,7 +401,28 @@ async function processJob(jobId: string) {
   }
 }
 
-export function jobToEnvelope(job: JobContract) {
+function jobAccessToEnvelope(job: StoredJobContract) {
+  if (job.access?.scope === 'submitter') {
+    return {
+      scope: 'submitter',
+      submitterBound: true
+    };
+  }
+
+  if (job.retention.artifactAccess === 'authenticated') {
+    return {
+      scope: 'authenticated',
+      submitterBound: false
+    };
+  }
+
+  return {
+    scope: 'public',
+    submitterBound: false
+  };
+}
+
+export function jobToEnvelope(job: StoredJobContract) {
   return {
     id: job.id,
     tool: job.tool,
@@ -409,6 +430,7 @@ export function jobToEnvelope(job: JobContract) {
     progress: job.progress,
     timestamps: job.timestamps,
     retention: job.retention,
+    access: jobAccessToEnvelope(job),
     execution: job.execution ?? null,
     error: job.error ?? null,
     artifacts: job.artifacts,
