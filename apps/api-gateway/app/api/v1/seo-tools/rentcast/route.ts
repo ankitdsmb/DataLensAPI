@@ -1,4 +1,5 @@
 import {
+  createProviderTemplateResponse,
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
@@ -25,16 +26,14 @@ export const POST = withScrapingHandler({ policy: rentcastPolicy }, async (req: 
 
   const lookupUrl = `https://www.rentcast.io/?address=${encodeURIComponent(address)}`;
 
-  return {
-    address,
-    lookupUrl,
-    status: 'pending_api_key',
-    contract: {
-      productLabel: 'RentCast Address Lookup Template',
-      forensicCategory: 'api-key-stub',
-      implementationDepth: 'template',
-      launchRecommendation: 'defer_from_public_launch',
-      notes: 'Generates a lookup URL and signals required provider credentials; no RentCast API request is executed.'
+  return createProviderTemplateResponse({
+    providerName: 'RentCast',
+    productLabel: 'RentCast Address Lookup Template',
+    notes:
+      'Generates a normalized lookup URL and returns a provider-template contract only. No RentCast API request is executed in the supported subset; reconsider only if a real credentialed integration is explicitly approved later.',
+    fields: {
+      address,
+      lookupUrl
     }
-  };
+  });
 });

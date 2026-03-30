@@ -1,4 +1,5 @@
 import {
+  createHelperResponse,
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
@@ -25,8 +26,20 @@ export const POST = withScrapingHandler({ policy: softwareAdvicePolicy }, async 
 
   const searchUrl = `https://www.softwareadvice.com/search/?q=${encodeURIComponent(query)}`;
 
-  return {
-    query,
-    searchUrl
-  };
+  return createHelperResponse({
+    status: 'helper_only',
+    source: 'software_advice_search_url',
+    fields: {
+      query,
+      searchUrl
+    },
+    contract: {
+      productLabel: 'Software Advice Helper (Lite)',
+      forensicCategory: 'link-builder',
+      implementationDepth: 'helper',
+      launchRecommendation: 'internal_or_beta_only',
+      notes:
+        'Builds a normalized Software Advice search URL only. This route does not scrape category rankings, vendor reviews, or product statistics.'
+    }
+  });
 });

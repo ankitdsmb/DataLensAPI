@@ -29,6 +29,21 @@ const FREE_TIER_SAFE_ROUTES = new Set<string>([
   '/api/v1/seo-tools/app-store-search-suggestions'
 ]);
 
+const REJECTED_PUBLIC_CATALOG_ROUTES = new Set<string>([
+  '/api/v1/seo-tools/web-traffic-boots',
+  '/api/v1/seo-tools/new-web-traffic-generator-youtube-vimeo-twitch',
+  '/api/v1/seo-tools/website-traffic-generator-pro',
+  '/api/v1/seo-tools/traffic-generator-youtube-web-etsy-behance-and-many-more',
+  '/api/v1/seo-tools/website-traffic-machine',
+  '/api/v1/seo-tools/websites-traffic-generator',
+  '/api/v1/seo-tools/smart-website-traffic',
+  '/api/v1/seo-tools/web-traffic-spike-simulator-x',
+  '/api/v1/seo-tools/organic-visit-simulator-x',
+  '/api/v1/seo-tools/traffic-booster',
+  '/api/v1/seo-tools/youtube-view-generator',
+  '/api/v1/seo-tools/youtube-view-generator-124-test-events-124-0001'
+]);
+
 const launchProfiles: LaunchProfile[] = [
   ...Array.from(FREE_TIER_SAFE_ROUTES).map((route) => ({
     route,
@@ -45,6 +60,28 @@ const launchProfiles: LaunchProfile[] = [
   })),
   {
     route: '/api/v1/seo-tools/snapify-capture-screenshot-save-pdf',
+    freeTierEligible: true,
+    visibility: 'public' as const,
+    authRequired: true,
+    timeoutMs: 10000,
+    maxUrlCount: 1,
+    maxPayloadBytes: 64 * 1024,
+    rateLimitPerMinute: 2,
+    maxConcurrentRequests: 1
+  },
+  {
+    route: '/api/v1/seo-tools/youtube-rank-checker',
+    freeTierEligible: true,
+    visibility: 'public' as const,
+    authRequired: true,
+    timeoutMs: 10000,
+    maxUrlCount: 1,
+    maxPayloadBytes: 64 * 1024,
+    rateLimitPerMinute: 4,
+    maxConcurrentRequests: 1
+  },
+  {
+    route: '/api/v1/seo-tools/trayvmy-actor',
     freeTierEligible: false,
     visibility: 'internal' as const
   },
@@ -118,7 +155,7 @@ function isFreeTierLaunchMode(): boolean {
   return (process.env.FREE_TIER_LAUNCH_MODE ?? 'true').toLowerCase() !== 'false';
 }
 
-function getApiKey(req: Request): string {
+export function readApiKeyFromRequest(req: Request): string {
   const bearer = req.headers.get('authorization');
   if (bearer?.startsWith('Bearer ')) {
     return bearer.replace('Bearer ', '').trim();
@@ -137,7 +174,7 @@ function isApiKeyAuthorized(req: Request): boolean {
     return false;
   }
 
-  const key = getApiKey(req);
+  const key = readApiKeyFromRequest(req);
   return configuredKeys.includes(key);
 }
 
@@ -167,6 +204,14 @@ export function resolveLaunchPolicy(req: Request, policy: ToolExecutionPolicy): 
   const pathname = normalizePath(req.url);
   const profile = launchProfileMap.get(pathname);
 
+  if (REJECTED_PUBLIC_CATALOG_ROUTES.has(pathname)) {
+    return {
+      ...policy,
+      freeTierEligible: false,
+      visibility: 'disabled'
+    };
+  }
+
   if (isFreeTierLaunchMode() && !FREE_TIER_SAFE_ROUTES.has(pathname)) {
     return {
       ...policy,
@@ -187,6 +232,13 @@ export function resolveLaunchPolicy(req: Request, policy: ToolExecutionPolicy): 
 
 export function enforceLaunchPolicy(req: Request, policy: ToolExecutionPolicy): void {
   const pathname = normalizePath(req.url);
+
+  if (REJECTED_PUBLIC_CATALOG_ROUTES.has(pathname)) {
+    throw new RequestValidationError('route is rejected from the public catalog for launch governance reasons', {
+      route: pathname,
+      reason: 'traffic_or_fake_engagement_tool'
+    });
+  }
 
   if (policy.visibility === 'disabled') {
     throw new RequestValidationError('route is disabled for public launch', { route: pathname });
@@ -242,4 +294,8 @@ export function acquireConcurrencyLease(req: Request, policy: ToolExecutionPolic
 
 export function getFreeTierSafeRoutes(): string[] {
   return Array.from(FREE_TIER_SAFE_ROUTES);
+}
+
+export function getRejectedPublicCatalogRoutes(): string[] {
+  return Array.from(REJECTED_PUBLIC_CATALOG_ROUTES);
 }

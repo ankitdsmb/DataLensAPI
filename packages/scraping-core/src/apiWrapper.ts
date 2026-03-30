@@ -7,6 +7,7 @@ import type {
   ApiWarning,
   StandardResponse
 } from '../../shared-types/src';
+import { elapsedMs, type TimingHandle } from './observability';
 
 const DEFAULT_TOOL_VERSION = '1.0.0';
 
@@ -18,11 +19,11 @@ export type ResponseEnvelopeOptions = {
   pagination?: ApiPagination | null;
 };
 
-function buildMetadata(startTime: number, options: ResponseEnvelopeOptions): ApiResponseMetadata {
+function buildMetadata(startTime: TimingHandle | number, options: ResponseEnvelopeOptions): ApiResponseMetadata {
   return {
     request_id: options.requestId ?? createRequestId(),
     timestamp: new Date().toISOString(),
-    execution_time_ms: Date.now() - startTime,
+    execution_time_ms: elapsedMs(startTime),
     tool_version: options.toolVersion ?? DEFAULT_TOOL_VERSION,
     source: 'datalens',
     warnings: options.warnings ?? []
@@ -66,7 +67,7 @@ export function createRequestId() {
  */
 export function createResponse<T>(
   data: T,
-  startTime: number,
+  startTime: TimingHandle | number,
   options: ResponseEnvelopeOptions = {}
 ): StandardResponse<T> {
   return {
@@ -84,7 +85,7 @@ export function createResponse<T>(
  */
 export function createErrorResponse(
   error: Error | string,
-  startTime: number,
+  startTime: TimingHandle | number,
   options: ResponseEnvelopeOptions = {}
 ): StandardResponse<null> {
   return {

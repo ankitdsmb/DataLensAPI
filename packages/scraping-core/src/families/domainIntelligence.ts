@@ -5,6 +5,13 @@ export const DNS_TYPES = ['A', 'AAAA', 'MX', 'TXT', 'NS', 'CNAME', 'SOA', 'PTR']
 
 type DnsType = (typeof DNS_TYPES)[number];
 
+export type DnsAnswerSummary = {
+  name: string | null;
+  type: number | null;
+  ttl: number | null;
+  data: string | null;
+};
+
 export function normalizeDomain(body: Record<string, unknown>) {
   const domain = typeof body.domain === 'string' ? body.domain.trim() : '';
   if (!domain) {
@@ -54,6 +61,27 @@ export function toAvailability(dnsPayload: Record<string, unknown>) {
     available: dnsPayload.Status === 3,
     dnsStatus: dnsPayload.Status ?? null
   };
+}
+
+export function summarizeDnsAnswers(dnsPayload: Record<string, unknown>): DnsAnswerSummary[] {
+  const answers = Array.isArray(dnsPayload.Answer) ? dnsPayload.Answer : [];
+
+  return answers.map((answer) => {
+    const record = typeof answer === 'object' && answer !== null ? (answer as Record<string, unknown>) : {};
+
+    return {
+      name: typeof record.name === 'string' ? record.name : null,
+      type: typeof record.type === 'number' ? record.type : null,
+      ttl: typeof record.TTL === 'number' ? record.TTL : null,
+      data: typeof record.data === 'string' ? record.data : null
+    };
+  });
+}
+
+export function extractDnsAnswerData(dnsPayload: Record<string, unknown>) {
+  return summarizeDnsAnswers(dnsPayload)
+    .map((answer) => answer.data)
+    .filter((answer): answer is string => Boolean(answer));
 }
 
 export async function runDnsMatrixLookup(domain: string, ip: string, timeoutMs: number) {

@@ -1,5 +1,6 @@
 import {
   createToolPolicy,
+  rankBusinessWebsites,
   readJsonBody,
   RequestValidationError,
   withScrapingHandler,
@@ -24,19 +25,29 @@ export const POST = withScrapingHandler({ policy: businessRankerPolicy }, async 
     throw new RequestValidationError('keyword is required', { field: 'keyword' });
   }
 
-  const query = [keyword, location].filter(Boolean).join(' ');
-  const searchUrl = `https://www.google.com/maps/search/${encodeURIComponent(query)}`;
+  const ranking = await rankBusinessWebsites({
+    keyword,
+    location: location || null,
+    timeoutMs: Math.min(businessRankerPolicy.timeoutMs, 5000)
+  });
 
   return {
     keyword,
     location: location || null,
-    searchUrl,
+    query: ranking.query,
+    searchUrl: ranking.searchUrl,
+    source: ranking.source,
+    candidateCount: ranking.candidateCount,
+    analyzedCount: ranking.analyzedCount,
+    underperformingCount: ranking.underperformingCount,
+    rankedBusinesses: ranking.rankedBusinesses,
     contract: {
-      productLabel: 'Business Websites Ranker Seed Query Builder',
-      forensicCategory: 'link-builder',
-      implementationDepth: 'helper',
+      productLabel: 'Business Websites Ranker',
+      forensicCategory: 'html-scraper',
+      implementationDepth: 'live',
       launchRecommendation: 'public_lite',
-      notes: 'Constructs a Google Maps search seed URL only; ranking extraction and scoring are out of scope for this route.'
+      notes:
+        'Discovers public business websites from DuckDuckGo HTML search results and applies lightweight website-quality scoring. This is not an authoritative Google Places ranking feed.'
     }
   };
 });

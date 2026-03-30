@@ -1,7 +1,7 @@
 import {
   collectUrlInputs,
   createToolPolicy,
-  fetchHtmlDocument,
+  inspectTechFingerprint,
   readJsonBody,
   withScrapingHandler,
   requireAllowedFields
@@ -15,21 +15,6 @@ const cmsCheckerPolicy = createToolPolicy({
   cacheTtlSeconds: 300
 });
 
-function detectStack(html: string) {
-  const lower = html.toLowerCase();
-  const stack = new Set<string>();
-
-  if (lower.includes('wp-content') || lower.includes('wordpress')) stack.add('WordPress');
-  if (lower.includes('shopify') || lower.includes('cdn.shopify.com')) stack.add('Shopify');
-  if (lower.includes('wix.com')) stack.add('Wix');
-  if (lower.includes('squarespace')) stack.add('Squarespace');
-  if (lower.includes('webflow')) stack.add('Webflow');
-  if (lower.includes('joomla')) stack.add('Joomla');
-  if (lower.includes('drupal')) stack.add('Drupal');
-
-  return Array.from(stack);
-}
-
 export const POST = withScrapingHandler({ policy: cmsCheckerPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, cmsCheckerPolicy);
   requireAllowedFields(body, ['url', 'urls']);
@@ -38,15 +23,32 @@ export const POST = withScrapingHandler({ policy: cmsCheckerPolicy }, async (req
   const results = [];
 
   for (const url of urls) {
-    const { html, $ } = await fetchHtmlDocument(url, { timeoutMs: cmsCheckerPolicy.timeoutMs });
-    const generator = $('meta[name="generator"]').attr('content')?.trim() ?? null;
-    const technologies = detectStack(html);
-    if (generator && !technologies.includes(generator)) {
-      technologies.push(generator);
-    }
+    const profile = await inspectTechFingerprint({
+      url,
+      timeoutMs: cmsCheckerPolicy.timeoutMs
+    });
 
-    results.push({ url, generator, cms: technologies });
+    results.push({
+      ...profile,
+      cms: profile.status === 'analyzed' ? profile.categories.cms : []
+    });
   }
 
-  return { results };
+  const analyzedCount = results.filter((result) => result.status === 'analyzed').length;
+
+  return {
+    status: 'analyzed',
+    requestedCount: urls.length,
+    analyzedCount,
+    errorCount: results.length - analyzedCount,
+    results,
+    contract: {
+      productLabel: 'CMS Checker',
+      forensicCategory: 'html-scraper',
+      implementationDepth: 'live',
+      launchRecommendation: 'public_lite',
+      notes:
+        'Fetches public HTML and applies lightweight technology fingerprints to identify likely CMS and related site-stack signals.'
+    }
+  };
 });

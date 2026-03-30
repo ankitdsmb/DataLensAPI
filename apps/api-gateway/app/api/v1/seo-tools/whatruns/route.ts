@@ -1,7 +1,7 @@
 import {
   collectUrlInputs,
   createToolPolicy,
-  fetchHtmlDocument,
+  inspectTechFingerprint,
   readJsonBody,
   withScrapingHandler,
   requireAllowedFields
@@ -15,25 +15,6 @@ const whatRunsPolicy = createToolPolicy({
   cacheTtlSeconds: 300
 });
 
-function detectStack(html: string) {
-  const lower = html.toLowerCase();
-  const stack = new Set<string>();
-
-  if (lower.includes('wp-content') || lower.includes('wordpress')) stack.add('WordPress');
-  if (lower.includes('shopify') || lower.includes('cdn.shopify.com')) stack.add('Shopify');
-  if (lower.includes('wix.com')) stack.add('Wix');
-  if (lower.includes('squarespace')) stack.add('Squarespace');
-  if (lower.includes('webflow')) stack.add('Webflow');
-  if (lower.includes('next.js') || lower.includes('__next')) stack.add('Next.js');
-  if (lower.includes('gatsby')) stack.add('Gatsby');
-  if (lower.includes('react')) stack.add('React');
-  if (lower.includes('angular')) stack.add('Angular');
-  if (lower.includes('vue')) stack.add('Vue');
-  if (lower.includes('nuxt')) stack.add('Nuxt');
-
-  return Array.from(stack);
-}
-
 export const POST = withScrapingHandler({ policy: whatRunsPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, whatRunsPolicy);
   requireAllowedFields(body, ['url', 'urls']);
@@ -42,15 +23,27 @@ export const POST = withScrapingHandler({ policy: whatRunsPolicy }, async (req: 
   const results = [];
 
   for (const url of urls) {
-    const { html, $ } = await fetchHtmlDocument(url, { timeoutMs: whatRunsPolicy.timeoutMs });
-    const generator = $('meta[name="generator"]').attr('content')?.trim() ?? null;
-    const technologies = detectStack(html);
-    if (generator && !technologies.includes(generator)) {
-      technologies.push(generator);
-    }
-
-    results.push({ url, generator, technologies });
+    results.push(await inspectTechFingerprint({
+      url,
+      timeoutMs: whatRunsPolicy.timeoutMs
+    }));
   }
 
-  return { results };
+  const analyzedCount = results.filter((result) => result.status === 'analyzed').length;
+
+  return {
+    status: 'analyzed',
+    requestedCount: urls.length,
+    analyzedCount,
+    errorCount: results.length - analyzedCount,
+    results,
+    contract: {
+      productLabel: 'WhatRuns',
+      forensicCategory: 'html-scraper',
+      implementationDepth: 'live',
+      launchRecommendation: 'public_lite',
+      notes:
+        'Fetches public HTML and applies lightweight technology fingerprints to identify likely CMS, frontend, ecommerce, analytics, and infrastructure signals.'
+    }
+  };
 });

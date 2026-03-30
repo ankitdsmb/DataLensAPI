@@ -1,8 +1,9 @@
 import {
+  checkSpellingWithLanguageTool,
   createToolPolicy,
+  optionalStringField,
   readJsonBody,
   withScrapingHandler,
-  RequestValidationError,
   requireAllowedFields
 } from '@forensic/scraping-core';
 
@@ -14,35 +15,25 @@ const spellCheckerPolicy = createToolPolicy({
   cacheTtlSeconds: 120
 });
 
-const COMMON_WORDS = new Set([
-  'the', 'and', 'for', 'that', 'with', 'this', 'from', 'you', 'your', 'are', 'was',
-  'but', 'not', 'all', 'can', 'our', 'out', 'has', 'have', 'will', 'into', 'about'
-]);
-
 export const POST = withScrapingHandler({ policy: spellCheckerPolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, spellCheckerPolicy);
-  requireAllowedFields(body, ['text']);
-  const text = typeof body.text === 'string' ? body.text : '';
-  if (!text) {
-    throw new RequestValidationError('text is required', { field: 'text' });
-  }
+  requireAllowedFields(body, ['language', 'text']);
 
-  const words = text
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, ' ')
-    .split(/\s+/)
-    .filter(Boolean);
-
-  const suspects = Array.from(new Set(words.filter((word) => {
-    if (COMMON_WORDS.has(word)) return false;
-    if (word.length > 18) return true;
-    if (/\d/.test(word)) return true;
-    if (/(.)\1\1/.test(word)) return true;
-    return false;
-  })));
+  const liveCheck = await checkSpellingWithLanguageTool({
+    text: optionalStringField(body, 'text'),
+    language: optionalStringField(body, 'language', '') || null,
+    timeoutMs: Math.min(spellCheckerPolicy.timeoutMs, 6000)
+  });
 
   return {
-    suspects,
-    suspectCount: suspects.length
+    ...liveCheck,
+    contract: {
+      productLabel: 'Spell Checker',
+      forensicCategory: 'public-api-wrapper',
+      implementationDepth: 'live',
+      launchRecommendation: 'public_lite',
+      notes:
+        'Uses the public LanguageTool endpoint to return real spelling and grammar match evidence for capped text inputs. This is evidence-grade checking, not a rewrite or style-optimization engine.'
+    }
   };
 });

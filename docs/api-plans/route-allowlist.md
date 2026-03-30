@@ -1,15 +1,20 @@
 # Route Allowlist (Canonical Source of Truth)
 
-Date: 2026-03-28
+Date: 2026-03-29
 
 This document is the canonical allowlist for API route existence. A route exists **only** when a `route.ts` file exists under `apps/api-gateway/app/api/v1/**`.
 
-- Total routes: **149**
-- Categories: **seo-tools**
+- Total routes: **154**
+- Categories: **jobs**, **seo-tools**
 
 ## Route Tree
 
-### seo-tools (149)
+### jobs (2)
+
+- `/api/v1/jobs/[jobId]`
+- `/api/v1/jobs/[jobId]/artifacts/[artifactId]`
+
+### seo-tools (152)
 
 - `/api/v1/seo-tools/amazon-keywords-discovery-tool`
 - `/api/v1/seo-tools/api-gw-lite`
@@ -59,6 +64,7 @@ This document is the canonical allowlist for API route existence. A route exists
 - `/api/v1/seo-tools/domain-availability-expiry-whois-dns-ip-asn-70-tld`
 - `/api/v1/seo-tools/domain-checker`
 - `/api/v1/seo-tools/domain-inspector`
+- `/api/v1/seo-tools/domain-intelligence-suite`
 - `/api/v1/seo-tools/ebay-keywords-discovery-tool`
 - `/api/v1/seo-tools/ebay-smart-shopper`
 - `/api/v1/seo-tools/etsy-product-description`
@@ -96,6 +102,7 @@ This document is the canonical allowlist for API route existence. A route exists
 - `/api/v1/seo-tools/reverse-dictionary-api`
 - `/api/v1/seo-tools/rivalflowai`
 - `/api/v1/seo-tools/search-keyword-research`
+- `/api/v1/seo-tools/search-suggestions-explorer`
 - `/api/v1/seo-tools/seo-audit-tool`
 - `/api/v1/seo-tools/seo-h1-h6-headings-checker`
 - `/api/v1/seo-tools/seo-report-generator`
@@ -107,6 +114,7 @@ This document is the canonical allowlist for API route existence. A route exists
 - `/api/v1/seo-tools/similar-app-store-applications-finder`
 - `/api/v1/seo-tools/similarweb`
 - `/api/v1/seo-tools/simple-bbb`
+- `/api/v1/seo-tools/site-audit-suite`
 - `/api/v1/seo-tools/sitemap-detector`
 - `/api/v1/seo-tools/skyscanner-cars`
 - `/api/v1/seo-tools/skyscanner-hotels`
@@ -165,17 +173,48 @@ This document is the canonical allowlist for API route existence. A route exists
 
 If a route appears in planning docs but is not listed here, it is considered **not implemented / removed** in the current branch.
 
-## Public launch honesty recommendations (2026-03-28)
+## Public launch honesty recommendations (2026-03-29)
 
 | Route | Forensic category | Public launch recommendation |
 | --- | --- | --- |
-| `/api/v1/seo-tools/business-websites-ranker` | `link-builder` | Keep public only as a **lite helper** (seed URL builder). |
+| `/api/v1/seo-tools/business-websites-ranker` | `html-scraper` | Keep public as **lite evidence**; it discovers likely business websites from public search results and applies lightweight website-quality scoring, but it is not an authoritative Google Places feed. |
+| `/api/v1/seo-tools/cms-checker` | `html-scraper` | Keep public as **lite evidence**; it now returns lightweight CMS and site-stack fingerprints from public HTML, but it is still heuristic and does not yet model competitors. |
+| `/api/v1/seo-tools/cms-checker-bulk` | `html-scraper` | Keep public as **lite evidence** with tight URL caps; it applies the same lightweight CMS and site-stack fingerprints across multiple supplied URLs. |
+| `/api/v1/seo-tools/showtimes` | `shallow-local-utility` | Keep public only as a **lite helper**; it emits a normalized search URL and does not scrape live showtimes. |
+| `/api/v1/seo-tools/shopify-product-search` | `public-api-wrapper` | Keep public as **lite evidence** when `storeUrl` is supplied; it uses public Shopify storefront endpoints and falls back to a generic helper URL when `storeUrl` is omitted. |
 | `/api/v1/seo-tools/similarweb` | `link-builder` | Keep internal/beta only until real metrics extraction exists. |
 | `/api/v1/seo-tools/spotify` | `link-builder` | Keep public only as a **lite helper** (query URL builder). |
-| `/api/v1/seo-tools/trustpilot-plus` | `link-builder` | Keep public only as a **lite helper** (company lookup helper). |
-| `/api/v1/seo-tools/youtube-region-restriction-checker` | `link-builder` | Keep public only as a **lite helper** until restriction telemetry exists. |
-| `/api/v1/seo-tools/openpagerank-bulk-checker` | `api-key-stub` | Defer/hide from public launch until provider integration is implemented. |
-| `/api/v1/seo-tools/rentcast` | `api-key-stub` | Defer/hide from public launch until provider integration is implemented. |
-| `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | `queued-placeholder` | Defer/hide from public launch until screenshot+PDF worker and artifact storage exist. |
-| `/api/v1/seo-tools/youtube-rank-checker` | `queued-placeholder` | Defer/hide from public launch until async rank worker/status pipeline exists. |
-| `/api/v1/seo-tools/quick-lh` | `queued-placeholder` | Already not implemented in allowlist; keep hidden from public launch. |
+| `/api/v1/seo-tools/top-1000-websites-worldwide-country-level` | `public-api-wrapper` | Keep public as a **global popularity snapshot**; it uses the public Tranco latest-list feed and treats the legacy `country` input as compatibility-only. |
+| `/api/v1/seo-tools/trustpilot-plus` | `html-scraper` | Keep public as **lite evidence** for resolvable identifiers; it extracts public aggregate review-page evidence but still does not paginate individual reviews or compute sentiment. |
+| `/api/v1/seo-tools/x-twitter` | `link-builder` | Keep public only as a **profile-lite helper**; it resolves normalized profile targets but does not scrape tweets, generic search results, or engagement data. |
+| `/api/v1/seo-tools/what-site` | `html-scraper` | Keep public as **lite evidence**; it now returns a lightweight site profile with final URL, metadata, heading, link, and content signals for each supplied URL. |
+| `/api/v1/seo-tools/whatruns` | `html-scraper` | Keep public as **lite evidence**; it now returns lightweight technology fingerprints across CMS, frontend, ecommerce, analytics, and infrastructure categories from public HTML. |
+| `/api/v1/seo-tools/youtube-region-restriction-checker` | `html-scraper` | Keep public as a **lite evidence scrape**; it parses watch-page availability data but does not independently test playback from each country. |
+| `/api/v1/seo-tools/openpagerank-bulk-checker` | `api-key-stub` | Keep internal-only as a provider template by default. Reconsider only if a real OpenPageRank integration is explicitly approved later. |
+| `/api/v1/seo-tools/rentcast` | `api-key-stub` | Keep internal-only as a provider template by default. Reconsider only if a real RentCast integration is explicitly approved later. |
+| `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf` | `queued-browser` | Keep out of the **free-tier** profile, but allow as a stable **authenticated beta** outside free-tier mode; it now renders real screenshot/PDF artifacts in a browser worker, enforces public-host validation plus page/artifact budgets, and uses submitter-bound status/artifact reads with a 6-hour job TTL and 2-hour artifact retention window. Broader promotion is intentionally deferred unless a separate hardening phase is approved. |
+| `/api/v1/seo-tools/youtube-rank-checker` | `queued-simulated` | Keep out of the **free-tier** profile and hold it as a **credentialed preview-only** route outside free-tier mode; it now enforces supported YouTube video URLs, uses multi-strategy YouTube search evidence parsing plus a browser-assisted DOM fallback with provenance, and keeps submitter-bound status/artifact reads with a 12-hour job TTL and 6-hour artifact retention window. |
+| `/api/v1/seo-tools/trayvmy-actor` | `shallow-local-utility` | Keep internal-only and deprecated; this path exists only as a compatibility stub and is not part of the public product story. |
+
+Travel-helper routes such as `/api/v1/seo-tools/car-hire-rental`, `/api/v1/seo-tools/car-hire-rental-bulk`, `/api/v1/seo-tools/skyscanner-cars`, `/api/v1/seo-tools/skyscanner-hotels`, `/api/v1/seo-tools/tripadvisor-cruises`, `/api/v1/seo-tools/tripadvisor-hotels`, and `/api/v1/seo-tools/vrbo` now share one helper family and should be described only as normalized search helpers, not live inventory scrapers.
+
+Challenge-gated helper routes such as `/api/v1/seo-tools/software-advice`, `/api/v1/seo-tools/spotify-plus`, `/api/v1/seo-tools/spyfu`, `/api/v1/seo-tools/spyfu-bulk-urls`, `/api/v1/seo-tools/stackshare`, and `/api/v1/seo-tools/the-org` should remain helper or internal/beta only unless a real provider-backed path is added.
+
+## Rejected From Public Catalog
+
+The following live routes exist in code but are explicitly rejected from the public catalog because they simulate traffic, inflate views, or otherwise fit the fake-engagement/abuse-prone class.
+
+| Route | Class | Recommendation |
+| --- | --- | --- |
+| `/api/v1/seo-tools/new-web-traffic-generator-youtube-vimeo-twitch` | `traffic-simulation` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/organic-visit-simulator-x` | `traffic-simulation` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/smart-website-traffic` | `traffic-simulation` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/traffic-booster` | `traffic-simulation` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/traffic-generator-youtube-web-etsy-behance-and-many-more` | `traffic-simulation` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/web-traffic-boots` | `traffic-simulation` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/web-traffic-spike-simulator-x` | `traffic-simulation` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/website-traffic-generator-pro` | `traffic-simulation` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/website-traffic-machine` | `traffic-simulation` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/websites-traffic-generator` | `traffic-simulation` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/youtube-view-generator` | `fake-engagement` | Keep disabled and out of the public catalog. |
+| `/api/v1/seo-tools/youtube-view-generator-124-test-events-124-0001` | `fake-engagement` | Keep disabled and out of the public catalog. |

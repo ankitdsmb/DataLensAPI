@@ -1,6 +1,6 @@
 # Final Launch-Readiness Forensic Pass
 
-Date: 2026-03-28
+Date: 2026-03-29
 
 ## Scope and method
 
@@ -29,95 +29,189 @@ Classification dimensions applied per route:
 Classification summary:
 
 - **Strength**
-  - Strong: **15**
-  - Medium: **76**
-  - Weak: **63**
+  - Strong: **16**
+  - Medium: **106**
+  - Weak: **32**
 - **Launch readiness**
   - Ready: **89**
-  - Conditional: **63**
-  - Internal-only: **2**
-  - Blocked: **2**
+  - Conditional: **48**
+  - Internal-only: **3**
+  - Blocked: **14**
 - **Free-tier fit**
   - Fit (in explicit safe allowlist): **10**
-  - Blocked: **4** (2 async job routes + 2 api-key-stub routes)
-  - Not in free-tier allowlist: **140**
+  - Blocked: **17** (12 rejected traffic/fake-engagement routes + 3 internal-only routes + 2 api-key-stub routes)
+  - Not in free-tier allowlist: **127**
 
 ## Route tree vs allowlist verification
 
 Compared live code routes against `docs/api-plans/route-allowlist.md`.
 
-- Routes in code but missing from allowlist: **5**
+- Routes in code but missing from allowlist: **0**
 - Routes in allowlist but missing from code: **0**
-
-Missing-from-allowlist live routes:
-
-1. `/api/v1/jobs/[jobId]`
-2. `/api/v1/jobs/[jobId]/artifacts/[artifactId]`
-3. `/api/v1/seo-tools/domain-intelligence-suite`
-4. `/api/v1/seo-tools/search-suggestions-explorer`
-5. `/api/v1/seo-tools/site-audit-suite`
 
 ## Docs vs actual code verification
 
 ### Confirmed doc drift
 
-1. `docs/api-plans/route-allowlist.md` still reports 149 routes and only `seo-tools`, but code now has 154 routes including `jobs/*` and 3 additional SEO suite routes.
-2. `docs/reports/2026-03-28-deep-api-forensic-analysis.md` still states 149 local routes.
-3. `docs/seo-tools-contract-hardening-report.md` states 149 routes upgraded.
-4. `docs/api-plans/route-allowlist.md` still carries a recommendation row for `/api/v1/seo-tools/quick-lh`, which is not a live route.
+1. The major allowlist count drift has been corrected: the canonical route allowlist now reflects all 154 live routes.
+2. This phase sync closes the targeted plan drift: helper-only travel/search routes, provider templates, internal-preview async routes, and the deprecated compatibility stub now have matching contracts and docs.
+3. Launch-facing docs must keep distinguishing between:
+   - template/provider-stub routes,
+   - real async orchestration surfaces,
+   - and fully implemented worker outputs.
 
-## Launch blockers (explicit)
+## Verification evidence
 
-### Blocker 1 — Canonical allowlist drift
+Current branch verification is recorded in:
 
-The canonical allowlist is stale relative to executable code (+5 live routes not listed). This breaks product-surface governance and release auditability.
+- `docs/reports/2026-03-29-qa-verification-pass.md`
 
-**Required action:** regenerate and publish `docs/api-plans/route-allowlist.md` directly from route files before launch.
+Verified commands:
 
-### Blocker 2 — Route-documentation truth drift
+- `npm run contract-tests`
+- `npm run smoke-tests`
+- `npm run regression-tests`
 
-Multiple operational documents still anchor to the old 149-route snapshot. This creates a mismatch between launch docs and deployable reality.
+What this evidence now covers:
 
-**Required action:** update route-count-dependent docs in the same PR as allowlist refresh.
+- shared response envelope and validation behavior,
+- async job submission/completion/artifact retrieval for `youtube-rank-checker`,
+- public watch-page availability evidence for `youtube-region-restriction-checker`,
+- public Trustpilot review-page aggregate evidence for `trustpilot-plus`,
+- public barcode product evidence for `barcode` (with product-page fallback when the API rate-limits),
+- deterministic markdown table generation evidence for `markdown-table-generator`,
+- deterministic platform-aware hashtag generation evidence for `social-media-hashtag-generator`,
+- first-party SVG open graph generation evidence for `open-graph-image-generator`,
+- local n-gram plagiarism evidence for `plagiarism-checker`,
+- deterministic SEO title generation evidence for `serp-meta-title-generator`,
+- deterministic topic clustering evidence for `topic-trend-aggregator`,
+- live light domain availability evidence for `domain-availability-expiry-whois-dns-ip-asn-70-tld`,
+- public Google News RSS article evidence for `trending-news`,
+- public App Store similar-app shelf evidence for `similar-app-store-applications-finder`,
+- public OpenTable restaurant search-state evidence for `opentable`,
+- public Zapier app-integrations page evidence for `zapier`,
+- shared first-party light SEO audit evidence for `woorank`,
+- shared first-party homepage audit plus live domain-check evidence for `seobility-ranking-seo`,
+- first-party proxy authority and spam-risk evidence for `moz-da-pa-spam-checker`,
+- local profanity moderation evidence for `profanity-checker`,
+- public CMS/site-stack fingerprint evidence for `cms-checker`,
+- public Shopify storefront product evidence for `shopify-product-search`,
+- public spelling and grammar evidence for `spell-checker`,
+- public GA4 tag evidence for `ga4-mcp`,
+- public site-profile evidence for `what-site`,
+- public multi-category technology fingerprint evidence for `whatruns`,
+- public BBB bulk company evidence for `bulk-bbb`,
+- public business website discovery/scoring evidence for `business-websites-ranker`,
+- public BBB company-profile evidence for `simple-bbb`,
+- live DNS and HTTPS evidence extraction for `domain-intelligence-suite`,
+- Tranco-backed global popularity evidence for `top-1000-websites-worldwide-country-level`,
+- profile-lite helper behavior for `x-twitter`,
+- explicit helper-only posture for `showtimes`,
+- shared travel-helper compatibility behavior for `car-hire-rental` and `car-hire-rental-bulk`,
+- compatibility-wrapper posture for `spotify-plus` and `spyfu-bulk-urls`,
+- launch-guard free-tier blocking plus authenticated-beta gateway execution for `snapify-capture-screenshot-save-pdf` and credentialed-preview-only gateway execution for `youtube-rank-checker`,
+- deprecated internal-template quarantine for `trayvmy-actor`,
+- provider-template contract assertions for `openpagerank-bulk-checker` and `rentcast`.
 
-### Blocker 3 — Two blocked endpoints remain non-launchable
+## Explicitly excluded from the supported public subset
+
+### Provider-template routes remain intentionally non-public
 
 - `/api/v1/seo-tools/openpagerank-bulk-checker` (`api-key-stub`)
 - `/api/v1/seo-tools/rentcast` (`api-key-stub`)
 
-**Required action:** either strengthen with real provider integration + credential flow, or keep internal-only/defer from public launch.
+These routes are now explicitly classified as internal provider templates rather than ambiguous pending APIs.
+For the current supported subset, they are treated as deliberate internal templates by default rather than near-term public candidates.
+
+### Async capture/rank routes remain excluded from the supported free-tier subset
+
+- `/api/v1/seo-tools/snapify-capture-screenshot-save-pdf`
+- `/api/v1/seo-tools/youtube-rank-checker`
+
+These routes now have a real async submission and job-status surface, and both have been strengthened beyond pure placeholders. `snapify-capture-screenshot-save-pdf` now renders browser-backed screenshot/PDF artifacts, enforces public-host validation plus render/artifact budgets, and is intentionally held as a stable authenticated beta outside free-tier mode, while `youtube-rank-checker` now enforces supported YouTube video URLs, uses multi-strategy search evidence parsing plus a browser-assisted DOM fallback with provenance, and is intentionally held as a credentialed preview-only route outside free-tier mode. Both now enforce submitter-bound job status/artifact reads with explicit TTL windows, and both remain excluded from the supported free-tier subset because browser execution controls and preview-route safeguards are intentionally tighter than the public free-tier launch profile.
+
+### Rejected traffic and fake-engagement routes remain blocked by design
+
+The repo now enforces launch governance in code for the highest-risk traffic and fake-engagement class, including:
+
+- traffic simulation routes such as `traffic-booster`, `smart-website-traffic`, and `website-traffic-generator-pro`
+- fake-engagement routes such as `youtube-view-generator` and `youtube-view-generator-124-test-events-124-0001`
+
+These are now explicitly rejected from the public catalog in both route responses and launch guard enforcement.
+
+### Deprecated compatibility-only carryover remains internal
+
+- `/api/v1/seo-tools/trayvmy-actor`
+
+This route is now explicitly documented and classified as an internal deprecated compatibility stub. It is no longer part of the public product story.
 
 ## Weak-route action plan (concrete)
 
-All weak routes now have a concrete next action in the CSV:
+The remaining weak routes are now concentrated mostly in:
 
-- `relabel`: **61** routes (primarily `link-builder` + `shallow-local-utility`)
-- `strengthen`: **2** routes (`api-key-stub`)
+- `link-builder` helpers
+- very small local transform utilities
+- provider templates that are still blocked from public launch
 
-Action policy for remaining weak routes:
+Notably, the domain family no longer belongs in that bucket:
+
+- `/api/v1/seo-tools/domain-availability-checker`
+- `/api/v1/seo-tools/domain-checker`
+- `/api/v1/seo-tools/domain-inspector`
+- `/api/v1/seo-tools/domain-intelligence-suite`
+
+These routes now sit in a medium-depth, evidence-backed conditional posture because they perform live DNS and/or HTTP inspection, even though product depth is still incomplete relative to their broader marketing promises.
+
+`/api/v1/seo-tools/trustpilot-plus` also no longer belongs in the weak helper bucket. It now performs direct review-page evidence extraction for resolvable Trustpilot identifiers and should be treated as a medium-depth conditional route rather than a pure link builder.
+
+`/api/v1/seo-tools/bulk-bbb` also no longer belongs in the weak helper bucket. It now performs capped bulk BBB search parsing plus best-match business-profile enrichment with rating and complaint signals for each input company.
+
+`/api/v1/seo-tools/business-websites-ranker` also no longer belongs in the weak helper bucket. It now discovers public websites from search results and applies lightweight website-quality scoring instead of only emitting a seed query URL.
+
+`/api/v1/seo-tools/simple-bbb` also no longer belongs in the weak helper bucket. It now performs public BBB search parsing plus first-match business-profile enrichment with rating and complaint signals.
+
+`/api/v1/seo-tools/shopify-product-search` also no longer belongs in the weak helper bucket when `storeUrl` is supplied. It now calls public Shopify storefront endpoints and returns normalized product evidence instead of only returning a search helper URL.
+
+`/api/v1/seo-tools/ga4-mcp` also no longer belongs in the weak helper bucket. It now fetches public HTML and inspects GA4 measurement ids plus gtag/GTM implementation evidence instead of returning queued placeholder responses.
+
+`/api/v1/seo-tools/zapier` also no longer belongs in the weak helper bucket. It now fetches the public Zapier app integrations page for a resolvable app slug and extracts app metadata plus visible integration-card evidence instead of only returning a search helper URL.
+
+`/api/v1/seo-tools/what-site` now materially exceeds its original title/description lookup promise. It returns a lightweight site profile with metadata, heading, link, and content signals, which makes it a stronger ready route than before.
+
+`/api/v1/seo-tools/top-1000-websites-worldwide-country-level` also no longer belongs in the fake-queued bucket. It now returns a synchronous Tranco-backed global popularity snapshot and honestly treats country-level behavior as compatibility-only.
+
+`/api/v1/seo-tools/x-twitter` has been narrowed into a profile-lite helper posture and should no longer be described as a general tweet or search extraction route.
+
+The travel-helper family (`car-hire-rental`, `car-hire-rental-bulk`, `skyscanner-cars`, `skyscanner-hotels`, `tripadvisor-cruises`, `tripadvisor-hotels`, `vrbo`) has also been standardized as helper-only compatibility behavior rather than live travel inventory extraction.
+
+Action policy for the remaining weak routes:
 
 1. **Relabel** as helper/lite utilities where output is URL generation or minimal transformation.
-2. **Strengthen** where the product promise requires real external retrieval/analysis.
+2. **Strengthen** where the product promise requires real external retrieval or analysis.
 3. **Internal-only** for risky or abuse-prone classes until hardening is complete.
-4. **Remove** if route has low product value and no hardening path.
+4. **Remove** if a route has low product value and no believable hardening path.
 
 (Per-route action assignment is in `docs/reports/2026-03-28-launch-readiness-route-classification.csv`.)
 
 ## Launch gate decision
 
-## ❌ NO-GO (as of 2026-03-28)
+## ✅ GO FOR THE SUPPORTED SUBSET (as of 2026-03-29)
 
 Rationale:
 
-1. Canonical allowlist drift is unresolved.
-2. Launch documentation is not fully truthful to current code state.
-3. Two routes are explicitly blocked stubs and need strengthen/internal-only enforcement.
+1. Route inventory, allowlist, contracts, and launch-facing docs are aligned for the supported subset.
+2. The phase-plan routes that were ambiguous are now explicitly classified as helper-only, compatibility-only, internal-preview, provider-template, or deprecated internal-only.
+3. Contract, smoke, and regression suites now exercise the relevant public subset plus the intentionally non-public exclusions.
+4. Blocked/internal-only routes remain excluded by design instead of by ambiguity.
+5. Shared API/provider timing has been hardened onto a monotonic clock, so launch-facing observability no longer inherits the earlier negative-duration wall-clock glitch.
 
-## Go criteria for next pass
+This is **not** a GO for every live route. It is a GO for the intentionally supported public subset, with blocked/internal-only routes excluded from launch by policy and documentation.
 
-Launch can move to **GO** when all are true:
+## Expansion criteria for next pass
 
-1. Allowlist regenerated and includes all 154 live routes (including jobs routes).
-2. Route-count-dependent docs are synced to code.
-3. Blocked stub routes are either strengthened or explicitly kept internal-only with matching docs.
-4. Weak-route relabeling is reflected consistently across route contracts and docs.
+Route expansion beyond the supported public subset should happen only when all are true:
+
+1. Provider-template routes are either integrated for real or intentionally kept internal-only.
+2. Internal-preview async routes are upgraded to provider-grade execution before any public graduation.
+3. Rejected traffic/fake-engagement routes remain excluded consistently across route contracts, launch guard policy, and launch docs.
+4. Additional weak/helper routes are expanded only when a believable public-data or first-party path exists.

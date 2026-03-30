@@ -1,5 +1,7 @@
 import {
+  buildSkyscannerCarHireUrl,
   createToolPolicy,
+  createTravelBulkHelper,
   optionalStringArrayField,
   readJsonBody,
   withScrapingHandler,
@@ -25,8 +27,16 @@ export const POST = withScrapingHandler({ policy: carHireBulkPolicy }, async (re
 
   const results = locations.map((location) => ({
     location,
-    searchUrl: `https://www.skyscanner.com/carhire/search?pickup=${encodeURIComponent(location)}`
+    searchUrl: buildSkyscannerCarHireUrl(location)
   }));
 
-  return { results };
+  return createTravelBulkHelper({
+    provider: 'skyscanner',
+    vertical: 'car_hire',
+    results,
+    compatibilityTarget: '/api/v1/seo-tools/car-hire-rental',
+    productLabel: 'Car Hire Rental (Bulk Helper)',
+    notes:
+      'Compatibility wrapper that emits multiple Skyscanner car-hire helper URLs. It does not fetch live prices or inventory in bulk.'
+  });
 });

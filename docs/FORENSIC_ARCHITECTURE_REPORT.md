@@ -30,9 +30,10 @@ The repository currently operates as a **single Next.js API gateway workspace** 
 ## Observability and contract model
 
 - Every route response returns the shared envelope and carries `metadata.request_id` plus `x-request-id` response headers.
+- Shared envelope timing now uses a monotonic clock for `metadata.execution_time_ms`, so response timing stays non-negative even if the wall clock shifts during execution.
 - Error payloads are machine-readable via `error.code` (`validation_error`, `upstream_api_error`, `bad_request`, etc.).
 - API handler wrapper emits structured lifecycle logs (`api.request.started`, `api.request.completed`, `api.request.failed`).
-- Shared HTTP client emits provider timing/failure logs (`provider.request.started`, `provider.request.completed`, `provider.request.failed`).
+- Shared HTTP client emits provider timing/failure logs (`provider.request.started`, `provider.request.completed`, `provider.request.failed`) using the same monotonic duration path.
 
 ## QA loops and regression protection
 

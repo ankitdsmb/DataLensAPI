@@ -20,7 +20,14 @@ export const POST = withScrapingHandler({ policy: trafficGeneratorPolicy }, asyn
   const urls = collectUrlInputs(body, trafficGeneratorPolicy);
 
   return {
-    status: 'queued',
-    urls
+    status: 'rejected_for_public_catalog',
+    urls,
+    contract: {
+      productLabel: 'Cross-Platform Traffic Generator Template (Rejected)',
+      forensicCategory: 'traffic-simulation',
+      implementationDepth: 'template',
+      launchRecommendation: 'rejected_from_public_catalog',
+      notes: 'Tracked for inventory only; traffic-simulation and fake-engagement routes are excluded from the public catalog.'
+    }
   };
 });

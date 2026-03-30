@@ -1,4 +1,5 @@
 import {
+  createHelperResponse,
   createToolPolicy,
   optionalStringArrayField,
   readJsonBody,
@@ -43,5 +44,21 @@ export const POST = withScrapingHandler({ policy: spyfuBulkPolicy }, async (req:
     reportUrl: `https://www.spyfu.com/overview/domain?query=${encodeURIComponent(domain)}`
   }));
 
-  return { results };
+  return createHelperResponse({
+    status: 'compatibility_wrapper',
+    source: 'spyfu_report_url',
+    fields: {
+      compatibilityTarget: '/api/v1/seo-tools/spyfu',
+      resultCount: results.length,
+      results
+    },
+    contract: {
+      productLabel: 'SpyFu Bulk URLs Helper (Compatibility)',
+      forensicCategory: 'link-builder',
+      implementationDepth: 'helper',
+      launchRecommendation: 'internal_or_beta_only',
+      notes:
+        'Compatibility wrapper that emits normalized SpyFu report URLs in bulk. It does not perform live SpyFu data extraction.'
+    }
+  });
 });

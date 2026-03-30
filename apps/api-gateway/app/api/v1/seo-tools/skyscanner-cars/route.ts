@@ -1,5 +1,7 @@
 import {
+  buildSkyscannerCarHireUrl,
   createToolPolicy,
+  createTravelSearchHelper,
   readJsonBody,
   RequestValidationError,
   withScrapingHandler,
@@ -23,10 +25,13 @@ export const POST = withScrapingHandler({ policy: skyscannerCarsPolicy }, async 
     throw new RequestValidationError('location is required', { field: 'location' });
   }
 
-  const searchUrl = `https://www.skyscanner.com/carhire?pickup=${encodeURIComponent(location)}`;
-
-  return {
+  return createTravelSearchHelper({
+    provider: 'skyscanner',
+    vertical: 'car_hire',
     location,
-    searchUrl
-  };
+    searchUrl: buildSkyscannerCarHireUrl(location),
+    productLabel: 'Skyscanner Cars Helper (Lite)',
+    notes:
+      'Compatibility wrapper over the travel-search helper family. Returns a normalized Skyscanner car-hire search URL only.'
+  });
 });

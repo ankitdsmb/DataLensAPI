@@ -1,9 +1,11 @@
 import {
+  buildMarkdownTable,
   createToolPolicy,
+  optionalBooleanField,
   optionalStringArrayField,
+  optionalStringField,
   readJsonBody,
   withScrapingHandler,
-  RequestValidationError,
   requireAllowedFields
 } from '@forensic/scraping-core';
 
@@ -15,31 +17,34 @@ const markdownTablePolicy = createToolPolicy({
   cacheTtlSeconds: 120
 });
 
-function toMarkdownTable(headers: string[], rows: string[][]) {
-  const headerLine = `| ${headers.join(' | ')} |`;
-  const separator = `| ${headers.map(() => '---').join(' | ')} |`;
-  const body = rows.map((row) => `| ${row.join(' | ')} |`);
-  return [headerLine, separator, ...body].join('\n');
-}
-
 export const POST = withScrapingHandler({ policy: markdownTablePolicy }, async (req: Request) => {
   const body = await readJsonBody<Record<string, unknown>>(req, markdownTablePolicy);
-  requireAllowedFields(body, ['headers', 'rows']);
+  requireAllowedFields(body, ['alignments', 'delimiter', 'hasHeaderRow', 'headers', 'input', 'rows']);
   const headers = optionalStringArrayField(body, 'headers', { maxItems: 20, fieldLabel: 'headers' });
   const rows = Array.isArray(body.rows) ? body.rows : [];
 
-  if (headers.length === 0 || rows.length === 0) {
-    throw new RequestValidationError('headers and rows are required', { field: 'headers' });
-  }
-
   const normalizedRows = rows.map((row) => {
-    if (!Array.isArray(row)) {
-      throw new RequestValidationError('rows must be an array of string arrays', { field: 'rows' });
-    }
-    return row.map((cell) => String(cell));
+    return Array.isArray(row) ? row.map((cell) => String(cell)) : [String(row)];
+  });
+
+  const table = buildMarkdownTable({
+    headers,
+    rows: normalizedRows,
+    input: optionalStringField(body, 'input', '') || null,
+    delimiter: optionalStringField(body, 'delimiter', '') || null,
+    hasHeaderRow: optionalBooleanField(body, 'hasHeaderRow', true),
+    alignments: optionalStringArrayField(body, 'alignments', { maxItems: 20, fieldLabel: 'alignments' })
   });
 
   return {
-    markdown: toMarkdownTable(headers, normalizedRows)
+    ...table,
+    contract: {
+      productLabel: 'Markdown Table Generator',
+      forensicCategory: 'local-utility',
+      implementationDepth: 'live',
+      launchRecommendation: 'public_lite',
+      notes:
+        'Generates markdown tables from explicit rows or parsed CSV/TSV-style input, with column alignment, markdown escaping, and ragged-row normalization. This is a deterministic formatting utility, not a spreadsheet engine.'
+    }
   };
 });

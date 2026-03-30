@@ -20,7 +20,14 @@ export const POST = withScrapingHandler({ policy: trafficSpikePolicy }, async (r
   const urls = collectUrlInputs(body, trafficSpikePolicy);
 
   return {
-    status: 'queued',
-    urls
+    status: 'rejected_for_public_catalog',
+    urls,
+    contract: {
+      productLabel: 'Traffic Spike Simulation Template (Rejected)',
+      forensicCategory: 'traffic-simulation',
+      implementationDepth: 'template',
+      launchRecommendation: 'rejected_from_public_catalog',
+      notes: 'Tracked for inventory only; traffic-simulation and fake-engagement routes are excluded from the public catalog.'
+    }
   };
 });

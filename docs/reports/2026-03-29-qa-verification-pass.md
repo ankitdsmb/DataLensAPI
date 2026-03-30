@@ -1,0 +1,184 @@
+# QA Verification Pass
+
+- Date: 2026-03-29
+- Branch: `codex/origin-main-integration`
+- Purpose: record the current executable verification evidence behind the latest contract, launch, and forensic posture updates.
+
+## Commands executed
+
+1. `npm run contract-tests`
+2. `npm run smoke-tests`
+3. `npm run regression-tests`
+
+## Results
+
+All three commands passed on this branch.
+
+## Post-QA observability follow-up
+
+After the main QA pass, the shared timing path was hardened in commit `0ec2fb0`.
+
+- Shared API and provider timing now use a monotonic clock for:
+  - `metadata.execution_time_ms`
+  - `api.request.completed` / `api.request.failed`
+  - `provider.request.completed` / `provider.request.failed`
+- This closes the previously observed negative-duration glitch that could appear when wall-clock time shifted during long regression runs.
+- A full rerun of:
+  - `npm run contract-tests`
+  - `npm run regression-tests`
+
+confirmed the shared timing path stays stable after the change.
+
+## Coverage provided
+
+### Contract tests
+
+- Verifies the shared API envelope shape.
+- Verifies validation error normalization.
+- Confirms the request/response wrapper layer still emits the expected metadata and machine-readable error codes.
+
+### Smoke tests
+
+- Starts both `api-gateway` and `scraper-service`.
+- Verifies validation failure envelopes for representative live routes.
+- Verifies `youtube-rank-checker`:
+  - stays blocked from the free-tier profile by launch-guard contract checks,
+  - is allowed in non-free-tier mode only with API key auth,
+  - rejects unsupported non-YouTube `videoUrl` values with a validation error,
+  - async job submission,
+  - preview-only access metadata in the job envelope,
+  - unauthenticated job status rejection,
+  - wrong-key job status rejection with `403`,
+  - terminal job completion,
+  - execution metadata plus provenance across multi-strategy parsing and browser-assisted fallback,
+  - unauthenticated artifact rejection,
+  - wrong-key artifact rejection with `403`,
+  - submitter-bound artifact retrieval,
+  - explicit retention metadata on the preview job/artifact envelope.
+- Verifies `snapify-capture-screenshot-save-pdf`:
+  - stays blocked from the free-tier profile by launch-guard contract checks,
+  - is allowed in non-free-tier mode only with API key auth,
+  - now submits and completes successfully through the public gateway in stable authenticated-beta mode,
+  - now exposes submitter-bound preview access metadata in the job envelope,
+  - now rejects private-host targets by default unless explicitly allowlisted for controlled environments,
+  - now returns browser-rendered screenshot/PDF artifacts plus page-evidence reports for in-budget pages,
+  - now degrades cleanly to HTML-evidence-only when a page exceeds the render/artifact budget,
+  - now rejects unauthenticated preview reads,
+  - now rejects wrong-key preview reads with `403`,
+  - and keeps beta status/artifact access submitter-bound with explicit TTL metadata.
+- Confirms the smoke harness now exits cleanly after teardown.
+
+### Regression tests
+
+- Verifies the canonical link-builder/helper family still returns the expected helper contracts.
+- Verifies `/api/v1/seo-tools/youtube-region-restriction-checker` now returns public watch-page availability evidence, including `playabilityStatus` and `availableCountries`.
+- Verifies `/api/v1/seo-tools/trustpilot-plus` now returns public review-page evidence, including aggregate TrustScore-style rating data and total review count for a resolvable company identifier.
+- Verifies `/api/v1/seo-tools/business-websites-ranker` now returns public website discovery and lightweight quality-scoring evidence instead of only emitting a seed query URL.
+- Verifies `/api/v1/seo-tools/barcode` now returns public product evidence from the OpenFoodFacts API, with a public product-page fallback when the API is rate-limited, instead of only inferring format from string length.
+- Verifies `/api/v1/seo-tools/cms-checker` now returns lightweight CMS and site-stack fingerprint evidence from public HTML instead of only shallow generator hints.
+- Verifies `/api/v1/seo-tools/markdown-table-generator` now returns deterministic markdown table output with parsed delimited input, alignment control, escaping, and ragged-row normalization under the route’s API-key launch posture.
+- Verifies `/api/v1/seo-tools/social-media-hashtag-generator` now returns deterministic platform-aware hashtag suggestions with grouped output, ranking, duplicate control, and cross-keyword combinations under the route’s API-key launch posture.
+- Verifies `/api/v1/seo-tools/open-graph-image-generator` now returns first-party SVG open graph artwork, a previewable data URI, and deterministic theme/layout metadata.
+- Verifies `/api/v1/seo-tools/plagiarism-checker` now returns deterministic local n-gram overlap analysis with pairwise match scoring, repeated-phrase evidence, and shared-phrase excerpts across supplied texts.
+- Verifies `/api/v1/seo-tools/serp-meta-title-generator` now returns deterministic intent-aware SEO title variants with scoring, brand placement, and pixel/length evidence.
+- Verifies `/api/v1/seo-tools/topic-trend-aggregator` now returns deterministic topic clusters with representative phrases, shared tokens, and momentum signals instead of raw string-length scoring.
+- Verifies `/api/v1/seo-tools/trending-news` now returns live Google News RSS article metadata, source names, publication times, and feed-level evidence instead of only a search URL.
+- Verifies `/api/v1/seo-tools/similar-app-store-applications-finder` now returns public App Store “You Might Also Like” shelf evidence plus source-app metadata instead of only returning a queued app URL.
+- Verifies `/api/v1/seo-tools/opentable` now returns public OpenTable restaurant search-state evidence with profile URLs, cuisine, neighborhood, ratings, and reservation signals instead of only returning a search URL.
+- Verifies `/api/v1/seo-tools/zapier` now returns public Zapier app-integrations page evidence with app metadata, canonical page details, feature examples, and visible integration-card extraction instead of only returning a search helper URL.
+- Verifies `/api/v1/seo-tools/domain-availability-expiry-whois-dns-ip-asn-70-tld` now returns live DNS availability, normalized A-record summaries, DNS matrix evidence, and HTTPS reachability instead of a single thin A-record response.
+- Verifies `/api/v1/seo-tools/profanity-checker` now returns deterministic moderation matches, masking, severity, and custom-word handling while respecting the route’s API-key launch posture.
+- Verifies `/api/v1/seo-tools/shopify-product-search` now returns public storefront product evidence from Shopify predictive-search or products-feed endpoints when a `storeUrl` is supplied.
+- Verifies `/api/v1/seo-tools/spell-checker` now returns public spelling and grammar match evidence from the LanguageTool public endpoint instead of local suspect-word heuristics.
+- Verifies `/api/v1/seo-tools/ga4-mcp` now returns live GA4 tag evidence from supplied public HTML, including measurement ids plus gtag/GTM detection, instead of queued placeholder responses.
+- Verifies `/api/v1/seo-tools/what-site` now returns a lightweight site profile with final URL, metadata, heading counts, link counts, and content signals instead of only a title/description pair.
+- Verifies `/api/v1/seo-tools/whatruns` now returns lightweight technology fingerprint evidence across CMS, frontend, ecommerce, analytics, and infrastructure categories instead of only shallow generator hints.
+- Verifies `/api/v1/seo-tools/woorank` now runs the shared first-party lightweight SEO audit and returns page-level findings plus a summarized site score instead of queued/pending placeholder responses.
+- Verifies `/api/v1/seo-tools/seobility-ranking-seo` now runs the shared first-party homepage audit plus live domain checks and returns page-level findings with a summarized site score instead of queued/pending placeholder responses.
+- Verifies `/api/v1/seo-tools/moz-da-pa-spam-checker` now runs first-party homepage audit plus live DNS/HTTP checks and returns proxy authority and spam-risk signals instead of null Moz fields.
+- Verifies `/api/v1/seo-tools/bulk-bbb` now returns public BBB bulk evidence, including per-company search-result matches, best-match profile enrichment, BBB rating, and complaint signals.
+- Verifies `/api/v1/seo-tools/simple-bbb` now returns public BBB evidence, including search-result matches, best-match profile enrichment, BBB rating, and complaint signals.
+- Verifies `/api/v1/seo-tools/domain-intelligence-suite` now returns:
+  - live DNS lookups,
+  - normalized A-record evidence,
+  - a DNS matrix snapshot,
+  - and a live HTTPS reachability snapshot.
+- Verifies `/api/v1/seo-tools/top-1000-websites-worldwide-country-level` now returns a real Tranco-backed global popularity snapshot with list metadata, parsed rows, and explicit compatibility handling for the legacy `country` input.
+- Verifies `/api/v1/seo-tools/x-twitter` now stays in profile-lite helper mode:
+  - resolving normalized profile targets when possible,
+  - degrading honestly to `profile_target_required` when only a generic query is supplied.
+- Verifies `/api/v1/seo-tools/showtimes` now returns an explicit helper contract instead of implying live showtime extraction.
+- Verifies the shared travel-helper family now behaves consistently across:
+  - `/api/v1/seo-tools/car-hire-rental`
+  - `/api/v1/seo-tools/car-hire-rental-bulk`
+  - and the compatibility/helper contracts they expose.
+- Verifies `/api/v1/seo-tools/spotify-plus` now behaves as a compatibility wrapper over the base Spotify helper route instead of implying deeper extraction.
+- Verifies `/api/v1/seo-tools/spyfu-bulk-urls` now behaves as a compatibility wrapper over the base SpyFu helper route instead of implying deeper extraction.
+- Verifies the two provider-template routes:
+  - `/api/v1/seo-tools/openpagerank-bulk-checker`
+  - `/api/v1/seo-tools/rentcast`
+- Confirms those routes now return:
+  - `status: internal_provider_template`
+  - provider metadata
+  - `api-key-stub` contract classification
+  - `launchRecommendation: internal_only_provider_template`
+- Verifies `/api/v1/seo-tools/trayvmy-actor` is quarantined from the supported public subset as a deprecated internal compatibility stub.
+- Confirms the regression harness now exits cleanly after teardown.
+
+## Forensic significance
+
+This QA pass materially strengthens the repo’s evidence base:
+
+1. Async-route posture is no longer just described in docs; it is exercised end to end.
+2. Provider-template posture is no longer only documented; it is asserted in automated regression coverage.
+3. The repo now has visible, runnable verification for:
+   - contract layer,
+   - launch guard behavior,
+   - async job lifecycle,
+   - artifact serving,
+   - public watch-page availability evidence extraction,
+   - public Trustpilot review-page aggregate evidence extraction,
+   - public business website discovery and scoring evidence extraction,
+   - public barcode product evidence extraction with API-rate-limit fallback,
+   - public CMS and site-stack fingerprint extraction,
+   - deterministic markdown table generation,
+   - deterministic platform-aware hashtag generation,
+   - first-party SVG open graph generation,
+   - local n-gram plagiarism evidence,
+   - deterministic SEO title generation,
+   - deterministic topic clustering,
+   - first-party lightweight SEO audit evidence extraction via the Woorank compatibility route,
+   - first-party homepage audit and live domain-check evidence extraction via the Seobility compatibility route,
+   - first-party proxy authority and spam-risk evidence extraction via the Moz compatibility route,
+   - public trending news feed evidence extraction,
+   - public App Store similar-app shelf evidence extraction,
+   - public OpenTable restaurant search-state evidence extraction,
+   - public Zapier app-integrations page evidence extraction,
+   - live light domain availability evidence,
+   - deterministic profanity moderation extraction,
+   - public Shopify storefront product evidence extraction,
+   - public spelling and grammar evidence extraction,
+   - public GA4 tag evidence extraction,
+   - public site-profile evidence extraction,
+   - public multi-category technology fingerprint extraction,
+   - public BBB bulk search and profile evidence extraction,
+   - public BBB search and profile evidence extraction,
+   - live domain DNS and HTTP evidence extraction,
+   - Tranco-backed global popularity evidence extraction,
+   - profile-lite X helper behavior,
+   - shared travel-helper compatibility behavior,
+   - deprecated internal-template quarantine behavior,
+   - provider-template route contracts.
+4. Shared observability timing is now more trustworthy:
+   - API/provider `duration_ms` and envelope `execution_time_ms` are measured with a monotonic clock,
+   - so forensic timing evidence is no longer vulnerable to wall-clock skew during long runs.
+
+## Remaining gaps
+
+Passing QA does **not** change the current launch decision by itself.
+
+The main remaining product gaps are still:
+
+1. real provider integration for the blocked provider-template routes,
+2. provider-grade execution for the strengthened but still internal-only async routes,
+3. continued exclusion of traffic/fake-engagement routes from the public catalog.

@@ -1,9 +1,10 @@
 import {
+  analyzeBbbCompanyEvidence,
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
-  withScrapingHandler,
-  requireAllowedFields
+  requireAllowedFields,
+  withScrapingHandler
 } from '@forensic/scraping-core';
 
 const bbbPolicy = createToolPolicy({
@@ -23,10 +24,19 @@ export const POST = withScrapingHandler({ policy: bbbPolicy }, async (req: Reque
     throw new RequestValidationError('company is required', { field: 'company' });
   }
 
-  const searchUrl = `https://www.bbb.org/search?find_text=${encodeURIComponent(company)}`;
+  const result = await analyzeBbbCompanyEvidence(company, bbbPolicy.timeoutMs);
 
   return {
-    company,
-    searchUrl
+    ...result,
+    contract: {
+      productLabel: 'BBB Company Evidence (Lite)',
+      forensicCategory: 'html-scraper',
+      implementationDepth: result.status === 'analyzed' ? 'live' : 'partial',
+      launchRecommendation: 'public_lite',
+      notes:
+        result.status === 'analyzed'
+          ? 'Fetches the public BBB search page, parses visible business matches, and enriches the best match with BBB profile metadata, rating evidence, and complaint signals.'
+          : 'Fetches the public BBB search page and parses visible business-result cards. If no direct profile match is found, the route returns search evidence only.'
+    }
   };
 });

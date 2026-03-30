@@ -1,4 +1,5 @@
 import {
+  createProviderTemplateResponse,
   createToolPolicy,
   optionalStringArrayField,
   readJsonBody,
@@ -41,17 +42,14 @@ export const POST = withScrapingHandler({ policy: openPageRankPolicy }, async (r
   const results = domains.map((domain) => ({
     domain,
     oprScore: null,
-    status: 'pending_api_key'
+    status: 'provider_credentials_required'
   }));
 
-  return {
-    results,
-    contract: {
-      productLabel: 'OpenPageRank Bulk Checker (Template)',
-      forensicCategory: 'api-key-stub',
-      implementationDepth: 'template',
-      launchRecommendation: 'defer_from_public_launch',
-      notes: 'No provider API call is performed without credentials; this route is a request-normalization template.'
-    }
-  };
+  return createProviderTemplateResponse({
+    providerName: 'OpenPageRank',
+    productLabel: 'OpenPageRank Bulk Checker (Template)',
+    notes:
+      'Normalizes domain inputs and returns a provider-template contract only. No OpenPageRank API call is executed in the supported subset; reconsider only if a real credentialed integration is explicitly approved later.',
+    fields: { results }
+  });
 });
