@@ -1,10 +1,53 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import http from 'node:http';
+import net from 'node:net';
 
-const PORT = process.env.SMOKE_PORT ?? '3101';
-const SCRAPER_PORT = process.env.SMOKE_SCRAPER_PORT ?? '3103';
-const EVIDENCE_PORT = process.env.SMOKE_EVIDENCE_PORT ?? '3104';
+async function resolvePort(preferredPort) {
+  if (preferredPort) {
+    const preferred = Number(preferredPort);
+    const claimed = await tryClaimPort(preferred);
+    if (claimed) {
+      return String(claimed);
+    }
+  }
+
+  return String(await claimEphemeralPort());
+}
+
+function tryClaimPort(port) {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.unref();
+    server.once('error', () => resolve(null));
+    server.listen(port, '127.0.0.1', () => {
+      const address = server.address();
+      const claimed = typeof address === 'object' && address ? address.port : port;
+      server.close(() => resolve(claimed));
+    });
+  });
+}
+
+function claimEphemeralPort() {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer();
+    server.unref();
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', () => {
+      const address = server.address();
+      if (typeof address !== 'object' || !address) {
+        server.close(() => reject(new Error('failed to allocate ephemeral port')));
+        return;
+      }
+
+      server.close(() => resolve(address.port));
+    });
+  });
+}
+
+const PORT = process.env.SMOKE_PORT ?? await resolvePort('3101');
+const SCRAPER_PORT = process.env.SMOKE_SCRAPER_PORT ?? await resolvePort('3103');
+const EVIDENCE_PORT = process.env.SMOKE_EVIDENCE_PORT ?? await resolvePort('3104');
 const BASE_URL = `http://127.0.0.1:${PORT}`;
 const SCRAPER_URL = `http://127.0.0.1:${SCRAPER_PORT}`;
 const EVIDENCE_URL = `http://127.0.0.1:${EVIDENCE_PORT}`;
@@ -210,6 +253,9 @@ server.stderr.on('data', (chunk) => process.stderr.write(`[smoke:next] ${chunk}`
 const evidenceServer = await createEvidenceServer();
 
 try {
+  process.stdout.write(
+    `[smoke] using ports next=${PORT} scraper=${SCRAPER_PORT} evidence=${EVIDENCE_PORT}\n`
+  );
   await waitForServer(SCRAPER_URL, 60000);
   await waitForServer(`${BASE_URL}/api/v1/seo-tools/spotify`, 60000);
 

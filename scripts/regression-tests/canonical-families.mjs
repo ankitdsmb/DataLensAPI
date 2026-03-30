@@ -1,10 +1,54 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import http from 'node:http';
+import net from 'node:net';
 
-const PORT = process.env.REGRESSION_PORT ?? '3102';
+async function resolvePort(preferredPort) {
+  if (preferredPort) {
+    const preferred = Number(preferredPort);
+    const claimed = await tryClaimPort(preferred);
+    if (claimed) {
+      return String(claimed);
+    }
+  }
+
+  return String(await claimEphemeralPort());
+}
+
+function tryClaimPort(port) {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.unref();
+    server.once('error', () => resolve(null));
+    server.listen(port, '127.0.0.1', () => {
+      const address = server.address();
+      const claimed = typeof address === 'object' && address ? address.port : port;
+      server.close(() => resolve(claimed));
+    });
+  });
+}
+
+function claimEphemeralPort() {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer();
+    server.unref();
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', () => {
+      const address = server.address();
+      if (typeof address !== 'object' || !address) {
+        server.close(() => reject(new Error('failed to allocate ephemeral port')));
+        return;
+      }
+
+      server.close(() => resolve(address.port));
+    });
+  });
+}
+
+const PORT = process.env.REGRESSION_PORT ?? await resolvePort('3102');
 const BASE_URL = `http://127.0.0.1:${PORT}`;
-const FIXTURE_PORT = String(Number(PORT) + 1);
+const FIXTURE_PORT =
+  process.env.REGRESSION_FIXTURE_PORT ?? (await resolvePort(String(Number(PORT) + 1)));
 const FIXTURE_BASE = `http://127.0.0.1:${FIXTURE_PORT}`;
 const FIXTURE_URL = `${FIXTURE_BASE}/ga4-fixture`;
 
@@ -213,6 +257,7 @@ server.stdout.on('data', (chunk) => process.stdout.write(`[regression:next] ${ch
 server.stderr.on('data', (chunk) => process.stderr.write(`[regression:next] ${chunk}`));
 
 try {
+  process.stdout.write(`[regression] using ports next=${PORT} fixture=${FIXTURE_PORT}\n`);
   await waitForServer(`${BASE_URL}/api/v1/seo-tools/spotify`, 60000);
 
   const cases = [
