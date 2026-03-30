@@ -9,6 +9,15 @@ const SNAPIFY_MAX_RENDER_WIDTH = 2400;
 const SNAPIFY_MAX_RENDER_HEIGHT = 12000;
 const SNAPIFY_MAX_SCREENSHOT_BYTES = 8 * 1024 * 1024;
 const SNAPIFY_MAX_PDF_BYTES = 12 * 1024 * 1024;
+const SUPPORTED_YOUTUBE_HOSTS = new Set([
+  'youtube.com',
+  'www.youtube.com',
+  'm.youtube.com',
+  'music.youtube.com',
+  'youtu.be',
+  'youtube-nocookie.com',
+  'www.youtube-nocookie.com'
+]);
 const YOUTUBE_DESKTOP_UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36';
 const YOUTUBE_MOBILE_UA =
@@ -25,9 +34,17 @@ function pseudoRank(keyword, videoUrl) {
   return (signal % 40) + 1;
 }
 
+function isSupportedYouTubeHost(hostname) {
+  return SUPPORTED_YOUTUBE_HOSTS.has(String(hostname || '').toLowerCase());
+}
+
 function extractYouTubeVideoId(videoUrl) {
   try {
     const url = new URL(videoUrl);
+    if (!isSupportedYouTubeHost(url.hostname)) {
+      return '';
+    }
+
     if (url.hostname === 'youtu.be') {
       return url.pathname.replace(/^\/+/, '').slice(0, 11);
     }
@@ -389,7 +406,7 @@ async function fetchYouTubeSearchEvidence(keyword, targetVideoId) {
       };
       attempts.push(attempt);
 
-      if (results.length && !best) {
+      if (results.length && (!best || results.length > best.results.length)) {
         best = {
           strategy: strategy.id,
           searchUrl: strategy.searchUrl,
@@ -419,6 +436,39 @@ async function fetchYouTubeSearchEvidence(keyword, targetVideoId) {
     }
   }
 
+  try {
+    const browserEvidence = await fetchYouTubeBrowserSearchEvidence(keyword, targetVideoId);
+    attempts.push(...browserEvidence.attempts);
+
+    if (browserEvidence.results.length && (!best || browserEvidence.results.length > best.results.length)) {
+      best = {
+        strategy: browserEvidence.strategy,
+        searchUrl: browserEvidence.searchUrl,
+        results: browserEvidence.results,
+        attempts
+      };
+    }
+
+    if (browserEvidence.results.some((result) => result.videoId === targetVideoId)) {
+      return {
+        strategy: browserEvidence.strategy,
+        searchUrl: browserEvidence.searchUrl,
+        results: browserEvidence.results,
+        attempts
+      };
+    }
+  } catch (error) {
+    attempts.push({
+      strategy: 'browser-dom-fallback',
+      searchUrl: `https://www.youtube.com/results?search_query=${encodeURIComponent(keyword)}`,
+      status: null,
+      success: false,
+      resultCount: 0,
+      matchedTarget: false,
+      error: error instanceof Error ? error.message : 'Unknown browser search failure'
+    });
+  }
+
   if (best) {
     return best;
   }
@@ -429,6 +479,99 @@ async function fetchYouTubeSearchEvidence(keyword, targetVideoId) {
       ? `youtube search did not yield parseable results (${attemptSummary})`
       : 'youtube search page did not expose parseable video results'
   );
+}
+
+async function fetchYouTubeBrowserSearchEvidence(keyword, targetVideoId) {
+  const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(keyword)}`;
+  const browser = await launchRenderingBrowser();
+
+  try {
+    const context = await browser.newContext({
+      viewport: { width: 1440, height: 900 },
+      screen: { width: 1440, height: 900 },
+      ignoreHTTPSErrors: true,
+      locale: 'en-US',
+      userAgent: YOUTUBE_DESKTOP_UA
+    });
+
+    try {
+      const page = await context.newPage();
+      const response = await page.goto(searchUrl, {
+        waitUntil: 'domcontentloaded',
+        timeout: 15000
+      });
+
+      await page.waitForLoadState('networkidle', { timeout: 2500 }).catch(() => undefined);
+      await page.waitForSelector('a#video-title[href*="/watch?v="]', { timeout: 5000 }).catch(() => undefined);
+      await page.waitForTimeout(500);
+
+      const results = await page.evaluate(() => {
+        const anchors = Array.from(
+          document.querySelectorAll('a#video-title[href*="/watch?v="], a.yt-simple-endpoint[href*="/watch?v="]')
+        );
+        const seen = new Set();
+        const normalized = [];
+
+        for (const anchor of anchors) {
+          const href = anchor.getAttribute('href') || '';
+          const title = (anchor.textContent || anchor.getAttribute('title') || '').replace(/\s+/g, ' ').trim();
+          if (!href || !title) {
+            continue;
+          }
+
+          let videoId = '';
+          try {
+            const url = new URL(href, location.origin);
+            videoId = url.searchParams.get('v') || '';
+          } catch {
+            videoId = '';
+          }
+
+          if (!videoId || seen.has(videoId)) {
+            continue;
+          }
+
+          seen.add(videoId);
+          normalized.push({
+            videoId,
+            title,
+            url: `https://www.youtube.com/watch?v=${videoId}`,
+            channelTitle: '',
+            durationText: '',
+            publishedTimeText: '',
+            viewCountText: '',
+            thumbnailUrl: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`
+          });
+
+          if (normalized.length >= 40) {
+            break;
+          }
+        }
+
+        return normalized;
+      });
+
+      return {
+        strategy: 'browser-dom-fallback',
+        searchUrl: page.url() || searchUrl,
+        results,
+        attempts: [
+          {
+            strategy: 'browser-dom-fallback',
+            searchUrl: page.url() || searchUrl,
+            status: response?.status() ?? null,
+            success: results.length > 0,
+            resultCount: results.length,
+            matchedTarget: results.some((result) => result.videoId === targetVideoId)
+          }
+        ]
+      };
+    } finally {
+      await context.close();
+    }
+  } finally {
+    await browser.close();
+  }
 }
 
 function extractTitle(html) {

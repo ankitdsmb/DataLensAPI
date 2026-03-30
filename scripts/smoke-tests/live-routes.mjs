@@ -228,6 +228,14 @@ try {
   assertEnvelope(domainValidation.json);
   assert.equal(domainValidation.json.error?.code, 'validation_error');
 
+  const youtubeValidation = await postJson('/api/v1/seo-tools/youtube-rank-checker', {
+    keyword: 'test keyword',
+    videoUrl: 'https://example.com/watch?v=dQw4w9WgXcQ'
+  });
+  assert.equal(youtubeValidation.response.status, 400);
+  assertEnvelope(youtubeValidation.json);
+  assert.equal(youtubeValidation.json.error?.code, 'validation_error');
+
   const queued = await postJson('/api/v1/seo-tools/youtube-rank-checker', {
     keyword: 'test keyword',
     videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
@@ -247,7 +255,7 @@ try {
 
   const youtubeJob = await waitForJob(jobId);
   assert.equal(youtubeJob.status, 'succeeded');
-  assert.ok(['provider', 'simulated'].includes(youtubeJob.execution?.mode));
+  assert.ok(['provider', 'browser', 'simulated'].includes(youtubeJob.execution?.mode));
   assert.equal(youtubeJob.execution?.readyForPublicLaunch, false);
   assert.equal(youtubeJob.retention?.artifactAccess, 'authenticated');
   assert.equal(youtubeJob.retention?.jobTtlSeconds, 12 * 60 * 60);
@@ -259,7 +267,7 @@ try {
   assert.ok(youtubeJob.artifacts.length >= 1);
   assert.equal(typeof youtubeJob.artifacts[0]?.expiresAt, 'string');
   assert.equal(typeof youtubeJob.result?.targetMetadata, 'object');
-  if (youtubeJob.execution?.mode === 'provider') {
+  if (youtubeJob.execution?.mode === 'provider' || youtubeJob.execution?.mode === 'browser') {
     assert.equal(typeof youtubeJob.result?.strategyUsed, 'string');
     assert.equal(typeof youtubeJob.result?.searchUrl, 'string');
     assert.ok(Array.isArray(youtubeJob.result?.attempts));

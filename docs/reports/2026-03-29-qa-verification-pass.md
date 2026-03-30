@@ -44,10 +44,11 @@ confirmed the shared timing path stays stable after the change.
 - Verifies `youtube-rank-checker`:
   - stays blocked from the free-tier profile by launch-guard contract checks,
   - is allowed in non-free-tier mode only with API key auth,
+  - rejects unsupported non-YouTube `videoUrl` values with a validation error,
   - async job submission,
   - authenticated-only job status access,
   - terminal job completion,
-  - execution metadata plus provenance,
+  - execution metadata plus provenance across multi-strategy parsing and browser-assisted fallback,
   - authenticated-only artifact retrieval,
   - explicit retention metadata on the preview job/artifact envelope.
 - Verifies `snapify-capture-screenshot-save-pdf`:

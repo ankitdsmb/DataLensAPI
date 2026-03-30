@@ -427,13 +427,13 @@ const routeOverrides = {
   },
   'youtube-rank-checker': {
     strength: '3/5',
-    coverage: '~55%',
+    coverage: '~60%',
     current:
-      'Real credentialed-preview async job submission plus multi-strategy YouTube search evidence parsing, provenance, deterministic fallback, authenticated-only status/artifact reads, and explicit TTL-based retention.',
+      'Real credentialed-preview async job submission that enforces supported YouTube video URLs, uses multi-strategy YouTube search evidence parsing plus a browser-assisted DOM fallback with provenance, retains deterministic fallback, and keeps authenticated-only status/artifact reads with explicit TTL-based retention.',
     gap:
-      'The worker still depends on public search-page parsing and can degrade to simulation when YouTube markup shifts or live evidence is unavailable, so the route remains excluded from the supported free-tier subset.',
+      'The worker still depends on public YouTube search markup and can still degrade to simulation when live evidence is unavailable or markup shifts, so the route remains excluded from the supported free-tier subset.',
     upgrade:
-      'Keep it as a credentialed preview outside free-tier mode and promote it into a canonical rank-tracker family only after stronger retries, result-window expansion, artifact provenance, and a more stable provider-backed evidence path exist.'
+      'Keep it as a credentialed preview outside free-tier mode and promote it into a canonical rank-tracker family only after stronger retries, broader result-window coverage, richer artifact provenance, and a more stable provider-backed evidence path exist.'
   },
   'youtube-region-restriction-checker': {
     strength: '3/5',

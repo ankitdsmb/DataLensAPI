@@ -79,7 +79,7 @@ Current truth:
 - both now expose explicit preview retention policy with authenticated-only status/artifact reads,
 - both stay excluded from the free-tier profile,
 - `snapify-capture-screenshot-save-pdf` now runs as an authenticated beta outside free-tier mode with public-host validation plus page/artifact budgets,
-- `youtube-rank-checker` still runs as a credentialed preview outside free-tier mode,
+- `youtube-rank-checker` now enforces supported YouTube video URLs, adds a browser-assisted DOM fallback to its provenance-bearing evidence path, and still runs as a credentialed preview outside free-tier mode,
 - both are useful internally,
 - and only `snapify-capture-screenshot-save-pdf` is now close to public-grade for authenticated non-free-tier use.
 
@@ -101,8 +101,8 @@ Suggested order:
    - and now submits successfully through the gateway in non-free-tier authenticated-beta mode.
 2. `youtube-rank-checker`
    - completed on `codex/origin-main-integration`,
-   - now uses multi-strategy live result collection with provenance,
-    - and now limits preview jobs to a 12-hour TTL with 6-hour authenticated artifact retention,
+   - now enforces supported YouTube video URLs and uses multi-strategy live result collection plus a browser-assisted DOM fallback with provenance,
+   - and now limits preview jobs to a 12-hour TTL with 6-hour authenticated artifact retention,
    - and now runs as a credentialed preview outside free-tier mode,
    - but still needs a decision on further hardening versus permanent preview-only posture.
 

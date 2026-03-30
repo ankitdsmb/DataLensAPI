@@ -1,4 +1,5 @@
 import {
+  assertHttpUrl,
   createToolPolicy,
   readJsonBody,
   RequestValidationError,
@@ -6,6 +7,30 @@ import {
   requireAllowedFields
 } from '@forensic/scraping-core';
 import { jobToEnvelope, submitJob } from '@/lib/jobs/runtime';
+
+const SUPPORTED_YOUTUBE_HOSTS = new Set([
+  'youtube.com',
+  'www.youtube.com',
+  'm.youtube.com',
+  'music.youtube.com',
+  'youtu.be',
+  'youtube-nocookie.com',
+  'www.youtube-nocookie.com'
+]);
+
+function assertYouTubeVideoUrl(videoUrl: string): string {
+  const normalized = assertHttpUrl(videoUrl);
+  const hostname = new URL(normalized).hostname.toLowerCase();
+
+  if (!SUPPORTED_YOUTUBE_HOSTS.has(hostname)) {
+    throw new RequestValidationError('videoUrl must be a supported YouTube video URL', {
+      field: 'videoUrl',
+      hostname
+    });
+  }
+
+  return normalized;
+}
 
 const youtubeRankPolicy = createToolPolicy({
   timeoutMs: 10000,
@@ -22,14 +47,16 @@ export const POST = withScrapingHandler({ policy: youtubeRankPolicy }, async (re
   const body = await readJsonBody<Record<string, unknown>>(req, youtubeRankPolicy);
   requireAllowedFields(body, ['keyword', 'videoUrl']);
   const keyword = typeof body.keyword === 'string' ? body.keyword.trim() : '';
-  const videoUrl = typeof body.videoUrl === 'string' ? body.videoUrl.trim() : '';
+  const rawVideoUrl = typeof body.videoUrl === 'string' ? body.videoUrl.trim() : '';
 
-  if (!keyword || !videoUrl) {
+  if (!keyword || !rawVideoUrl) {
     throw new RequestValidationError('keyword and videoUrl are required', {
       field: 'keyword',
       alternateField: 'videoUrl'
     });
   }
+
+  const videoUrl = assertYouTubeVideoUrl(rawVideoUrl);
 
   const job = await submitJob(
     'youtube-rank-checker',
@@ -52,7 +79,7 @@ export const POST = withScrapingHandler({ policy: youtubeRankPolicy }, async (re
       implementationDepth: 'live_job_submission',
       launchRecommendation: 'credentialed_preview',
       notes:
-        'Submits a credentialed preview job that now attempts multi-strategy YouTube search evidence parsing with provenance and degraded fallback. In free-tier launch mode this route stays blocked, but in non-free-tier mode it is available with API key auth and authenticated-only status/artifact reads, using a 12-hour job TTL and 6-hour artifact retention window.'
+        'Submits a credentialed preview job that now enforces supported YouTube video URLs, attempts multi-strategy HTML parsing plus a browser-assisted DOM fallback with provenance, and still degrades honestly when live evidence cannot be collected. In free-tier launch mode this route stays blocked, but in non-free-tier mode it is available with API key auth and authenticated-only status/artifact reads, using a 12-hour job TTL and 6-hour artifact retention window.'
     }
   };
 });
