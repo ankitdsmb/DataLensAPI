@@ -92,7 +92,7 @@ Prevent scope drift while the remaining blocker work is completed.
 1. Treat the current route tree plus `docs/api-plans/route-allowlist.md` as the canonical inventory.
 2. Do not add new public families during this plan.
 3. Keep the rejected traffic and fake-engagement routes blocked in code and excluded from launch docs.
-4. Keep `openpagerank-bulk-checker` and `rentcast` out of public launch; keep `snapify-capture-screenshot-save-pdf` outside the free-tier subset as an authenticated beta and keep `youtube-rank-checker` outside the free-tier subset as a credentialed preview.
+4. Keep `openpagerank-bulk-checker` and `rentcast` out of public launch; keep `snapify-capture-screenshot-save-pdf` outside the free-tier subset as an authenticated beta with submitter-bound preview reads and keep `youtube-rank-checker` outside the free-tier subset as a credentialed preview with submitter-bound preview reads.
 
 ### Exit criteria
 

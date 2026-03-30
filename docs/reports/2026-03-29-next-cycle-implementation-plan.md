@@ -76,10 +76,10 @@ Routes:
 Current truth:
 
 - both routes have real job submission, status, and artifact behavior,
-- both now expose explicit preview retention policy with authenticated-only status/artifact reads,
+- both now expose explicit preview retention policy with submitter-bound status/artifact reads,
 - both stay excluded from the free-tier profile,
-- `snapify-capture-screenshot-save-pdf` now runs as an authenticated beta outside free-tier mode with public-host validation plus page/artifact budgets,
-- `youtube-rank-checker` now enforces supported YouTube video URLs, adds a browser-assisted DOM fallback to its provenance-bearing evidence path, and still runs as a credentialed preview outside free-tier mode,
+- `snapify-capture-screenshot-save-pdf` now runs as an authenticated beta outside free-tier mode with public-host validation plus page/artifact budgets and submitter-bound preview reads,
+- `youtube-rank-checker` now enforces supported YouTube video URLs, adds a browser-assisted DOM fallback to its provenance-bearing evidence path, and still runs as a credentialed preview outside free-tier mode with submitter-bound preview reads,
 - both are useful internally,
 - and only `snapify-capture-screenshot-save-pdf` is now close to public-grade for authenticated non-free-tier use.
 

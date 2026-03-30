@@ -30,10 +30,15 @@ async function waitForServer(url, timeoutMs = 45000) {
   throw new Error(`server did not become ready at ${url}`);
 }
 
-async function postJson(path, body) {
+async function postJson(path, body, options = {}) {
+  const headers = { 'content-type': 'application/json' };
+  if (options.apiKey !== null) {
+    headers['x-api-key'] = options.apiKey ?? 'smoke-key';
+  }
+
   const response = await fetch(`${BASE_URL}${path}`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', 'x-api-key': 'smoke-key' },
+    headers,
     body: JSON.stringify(body)
   });
 
@@ -42,7 +47,10 @@ async function postJson(path, body) {
 }
 
 async function getJson(path, options = {}) {
-  const headers = options.withApiKey ? { 'x-api-key': 'smoke-key' } : {};
+  const headers = {};
+  if (options.withApiKey) {
+    headers['x-api-key'] = options.apiKey ?? 'smoke-key';
+  }
   const response = await fetch(`${BASE_URL}${path}`, {
     headers
   });
@@ -190,7 +198,7 @@ const server = spawn('npm', ['--workspace', 'api-gateway', 'run', 'dev', '--', '
   env: {
     ...process.env,
     FREE_TIER_LAUNCH_MODE: 'false',
-    FREE_TIER_API_KEYS: 'smoke-key',
+    FREE_TIER_API_KEYS: 'smoke-key,other-smoke-key',
     SCRAPER_SERVICE_URL: SCRAPER_URL,
     SNAPIFY_CAPTURE_HOST_ALLOWLIST: '127.0.0.1,localhost'
   }
@@ -253,6 +261,14 @@ try {
   assertEnvelope(youtubeUnauthorizedStatus.json);
   assert.equal(youtubeUnauthorizedStatus.json.error?.code, 'unauthorized');
 
+  const youtubeWrongKeyStatus = await getJson(`/api/v1/jobs/${jobId}`, {
+    withApiKey: true,
+    apiKey: 'other-smoke-key'
+  });
+  assert.equal(youtubeWrongKeyStatus.response.status, 403);
+  assertEnvelope(youtubeWrongKeyStatus.json);
+  assert.equal(youtubeWrongKeyStatus.json.error?.code, 'forbidden');
+
   const youtubeJob = await waitForJob(jobId);
   assert.equal(youtubeJob.status, 'succeeded');
   assert.ok(['provider', 'browser', 'simulated'].includes(youtubeJob.execution?.mode));
@@ -281,6 +297,14 @@ try {
   assertEnvelope(youtubeArtifactUnauthorized.json);
   assert.equal(youtubeArtifactUnauthorized.json.error?.code, 'unauthorized');
 
+  const youtubeArtifactWrongKey = await getJson(youtubeArtifact.url, {
+    withApiKey: true,
+    apiKey: 'other-smoke-key'
+  });
+  assert.equal(youtubeArtifactWrongKey.response.status, 403);
+  assertEnvelope(youtubeArtifactWrongKey.json);
+  assert.equal(youtubeArtifactWrongKey.json.error?.code, 'forbidden');
+
   const youtubeArtifactResponse = await getJson(youtubeArtifact.url, { withApiKey: true });
   assert.equal(youtubeArtifactResponse.response.status, 200);
   assertEnvelope(youtubeArtifactResponse.json);
@@ -302,6 +326,14 @@ try {
   assert.equal(snapifyUnauthorizedStatus.response.status, 401);
   assertEnvelope(snapifyUnauthorizedStatus.json);
   assert.equal(snapifyUnauthorizedStatus.json.error?.code, 'unauthorized');
+
+  const snapifyWrongKeyStatus = await getJson(`/api/v1/jobs/${snapifyJobId}`, {
+    withApiKey: true,
+    apiKey: 'other-smoke-key'
+  });
+  assert.equal(snapifyWrongKeyStatus.response.status, 403);
+  assertEnvelope(snapifyWrongKeyStatus.json);
+  assert.equal(snapifyWrongKeyStatus.json.error?.code, 'forbidden');
 
   const snapifyJob = await waitForJob(snapifyJobId);
   assert.equal(snapifyJob.status, 'succeeded');
@@ -343,6 +375,14 @@ try {
   assert.equal(snapifyArtifactUnauthorized.response.status, 401);
   assertEnvelope(snapifyArtifactUnauthorized.json);
   assert.equal(snapifyArtifactUnauthorized.json.error?.code, 'unauthorized');
+
+  const snapifyArtifactWrongKey = await getJson(snapifyArtifact.url, {
+    withApiKey: true,
+    apiKey: 'other-smoke-key'
+  });
+  assert.equal(snapifyArtifactWrongKey.response.status, 403);
+  assertEnvelope(snapifyArtifactWrongKey.json);
+  assert.equal(snapifyArtifactWrongKey.json.error?.code, 'forbidden');
 
   const snapifyArtifactResponse = await getJson(snapifyArtifact.url, { withApiKey: true });
   assert.equal(snapifyArtifactResponse.response.status, 200);

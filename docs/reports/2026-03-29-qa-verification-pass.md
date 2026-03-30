@@ -46,10 +46,13 @@ confirmed the shared timing path stays stable after the change.
   - is allowed in non-free-tier mode only with API key auth,
   - rejects unsupported non-YouTube `videoUrl` values with a validation error,
   - async job submission,
-  - authenticated-only job status access,
+  - unauthenticated job status rejection,
+  - wrong-key job status rejection with `403`,
   - terminal job completion,
   - execution metadata plus provenance across multi-strategy parsing and browser-assisted fallback,
-  - authenticated-only artifact retrieval,
+  - unauthenticated artifact rejection,
+  - wrong-key artifact rejection with `403`,
+  - submitter-bound artifact retrieval,
   - explicit retention metadata on the preview job/artifact envelope.
 - Verifies `snapify-capture-screenshot-save-pdf`:
   - stays blocked from the free-tier profile by launch-guard contract checks,
@@ -58,7 +61,9 @@ confirmed the shared timing path stays stable after the change.
   - now rejects private-host targets by default unless explicitly allowlisted for controlled environments,
   - now returns browser-rendered screenshot/PDF artifacts plus page-evidence reports for in-budget pages,
   - now degrades cleanly to HTML-evidence-only when a page exceeds the render/artifact budget,
-  - and keeps beta status/artifact access behind authenticated-only reads with explicit TTL metadata.
+  - now rejects unauthenticated preview reads,
+  - now rejects wrong-key preview reads with `403`,
+  - and keeps beta status/artifact access submitter-bound with explicit TTL metadata.
 - Confirms the smoke harness now exits cleanly after teardown.
 
 ### Regression tests

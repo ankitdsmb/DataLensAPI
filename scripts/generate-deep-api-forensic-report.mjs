@@ -330,7 +330,7 @@ const routeOverrides = {
     strength: '3/5',
     coverage: '~55%',
     current:
-      'Real authenticated-beta async job submission plus browser-rendered screenshot and PDF artifacts, with HTML evidence fallback, public-host validation at the gateway, page/artifact budgets, authenticated-only status/artifact reads, and explicit TTL-based retention.',
+      'Real authenticated-beta async job submission plus browser-rendered screenshot and PDF artifacts, with HTML evidence fallback, public-host validation at the gateway, page/artifact budgets, submitter-bound status/artifact reads, and explicit TTL-based retention.',
     gap: 'Still remains excluded from the free-tier subset because browser execution limits, artifact delivery, and broader abuse safeguards are not yet hardened for broad launch.',
     upgrade:
       'Keep it as an authenticated beta outside free-tier mode until browser quotas, artifact delivery, and abuse controls are production-grade, then re-evaluate broader public promotion.'
@@ -429,7 +429,7 @@ const routeOverrides = {
     strength: '3/5',
     coverage: '~60%',
     current:
-      'Real credentialed-preview async job submission that enforces supported YouTube video URLs, uses multi-strategy YouTube search evidence parsing plus a browser-assisted DOM fallback with provenance, retains deterministic fallback, and keeps authenticated-only status/artifact reads with explicit TTL-based retention.',
+      'Real credentialed-preview async job submission that enforces supported YouTube video URLs, uses multi-strategy YouTube search evidence parsing plus a browser-assisted DOM fallback with provenance, retains deterministic fallback, and keeps submitter-bound status/artifact reads with explicit TTL-based retention.',
     gap:
       'The worker still depends on public YouTube search markup and can still degrade to simulation when live evidence is unavailable or markup shifts, so the route remains excluded from the supported free-tier subset.',
     upgrade:

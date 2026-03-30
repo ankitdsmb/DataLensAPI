@@ -1,6 +1,7 @@
+import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { RequestValidationError } from '@forensic/scraping-core';
+import { readApiKeyFromRequest, RequestValidationError } from '@forensic/scraping-core';
 import type {
   JobArtifactRef,
   JobContract,
@@ -22,25 +23,34 @@ const DEFAULT_RETENTION_POLICY: JobRetentionPolicy = {
   artifactAccess: 'public'
 };
 
-type SubmitJobOptions = Partial<JobRetentionPolicy>;
+type SubmitJobOptions = Partial<JobRetentionPolicy> & {
+  submitterApiKey?: string | null;
+};
+
+type StoredJobContract = JobContract & {
+  access?: {
+    scope: 'public' | 'authenticated' | 'submitter';
+    submitterKeyHash?: string | null;
+  };
+};
 
 type ArtifactLookupResult =
   | {
       status: 'found';
       artifact: JobArtifactRef;
-      job: JobContract;
+      job: StoredJobContract;
       content: unknown;
     }
   | {
       status: 'expired';
       artifact: JobArtifactRef;
-      job: JobContract;
+      job: StoredJobContract;
     }
   | {
       status: 'missing';
     };
 
-type JobsDb = { jobs: Record<string, JobContract> };
+type JobsDb = { jobs: Record<string, StoredJobContract> };
 
 type ExecuteResponse = {
   result: Record<string, unknown>;
@@ -101,7 +111,7 @@ function resolveRetentionPolicy(options?: SubmitJobOptions): JobRetentionPolicy 
   };
 }
 
-function markExpired(job: JobContract): JobContract {
+function markExpired(job: StoredJobContract): StoredJobContract {
   if ((job.state === 'queued' || job.state === 'running') && new Date(job.timestamps.expiresAt).getTime() <= Date.now()) {
     return {
       ...job,
@@ -124,13 +134,13 @@ function markExpired(job: JobContract): JobContract {
   return job;
 }
 
-function getRequestApiKey(req: Request): string {
-  const bearer = req.headers.get('authorization');
-  if (bearer?.startsWith('Bearer ')) {
-    return bearer.replace('Bearer ', '').trim();
+function hashApiKey(apiKey: string | null | undefined): string | null {
+  const normalized = apiKey?.trim();
+  if (!normalized) {
+    return null;
   }
 
-  return req.headers.get('x-api-key')?.trim() ?? '';
+  return createHash('sha256').update(normalized).digest('hex');
 }
 
 function isAuthenticatedJobAccess(req: Request): boolean {
@@ -143,33 +153,61 @@ function isAuthenticatedJobAccess(req: Request): boolean {
     return false;
   }
 
-  return configuredKeys.includes(getRequestApiKey(req));
+  return configuredKeys.includes(readApiKeyFromRequest(req));
 }
 
-export function assertJobReadAccess(req: Request, job: JobContract) {
+function resolveJobAccess(retention: JobRetentionPolicy, options?: SubmitJobOptions): StoredJobContract['access'] {
+  if (retention.artifactAccess !== 'authenticated') {
+    return { scope: 'public', submitterKeyHash: null };
+  }
+
+  const submitterKeyHash = hashApiKey(options?.submitterApiKey);
+  if (submitterKeyHash) {
+    return { scope: 'submitter', submitterKeyHash };
+  }
+
+  return { scope: 'authenticated', submitterKeyHash: null };
+}
+
+export function assertJobReadAccess(req: Request, job: StoredJobContract) {
   if (job.retention.artifactAccess !== 'authenticated') {
     return;
   }
 
-  if (isAuthenticatedJobAccess(req)) {
-    return;
+  if (!isAuthenticatedJobAccess(req)) {
+    const error = new RequestValidationError('valid API key is required for internal preview job access', {
+      jobId: job.id,
+      tool: job.tool,
+      acceptedHeaders: ['x-api-key', 'authorization: Bearer <key>'],
+      artifactAccess: job.retention.artifactAccess
+    });
+    error.status = 401;
+    error.code = 'unauthorized';
+    throw error;
   }
 
-  const error = new RequestValidationError('valid API key is required for internal preview job access', {
-    jobId: job.id,
-    tool: job.tool,
-    acceptedHeaders: ['x-api-key', 'authorization: Bearer <key>'],
-    artifactAccess: job.retention.artifactAccess
-  });
-  error.status = 401;
-  error.code = 'unauthorized';
-  throw error;
+  if (job.access?.scope === 'submitter') {
+    const callerKeyHash = hashApiKey(readApiKeyFromRequest(req));
+    if (!callerKeyHash || callerKeyHash !== job.access.submitterKeyHash) {
+      const ownershipError = new RequestValidationError(
+        'preview job access is restricted to the submitting API key',
+        {
+          jobId: job.id,
+          tool: job.tool,
+          accessScope: job.access.scope
+        }
+      );
+      ownershipError.status = 403;
+      ownershipError.code = 'forbidden';
+      throw ownershipError;
+    }
+  }
 }
 
 export async function submitJob(tool: string, payload: Record<string, unknown>, options?: SubmitJobOptions) {
   const queuedAt = nowIso();
   const retention = resolveRetentionPolicy(options);
-  const job: JobContract = {
+  const job: StoredJobContract = {
     id: createJobId(),
     tool,
     state: 'queued',
@@ -181,6 +219,7 @@ export async function submitJob(tool: string, payload: Record<string, unknown>, 
       expiresAt: toIsoFromNow(retention.jobTtlSeconds)
     },
     retention,
+    access: resolveJobAccess(retention, options),
     execution: {
       mode: 'template',
       readyForPublicLaunch: false,
@@ -199,7 +238,7 @@ export async function submitJob(tool: string, payload: Record<string, unknown>, 
   return job;
 }
 
-export async function getJob(jobId: string): Promise<JobContract | null> {
+export async function getJob(jobId: string): Promise<StoredJobContract | null> {
   const db = await readDb();
   const found = db.jobs[jobId];
   if (!found) return null;
@@ -216,7 +255,7 @@ export async function getJob(jobId: string): Promise<JobContract | null> {
   return normalized;
 }
 
-async function updateJob(jobId: string, updater: (current: JobContract) => JobContract | null) {
+async function updateJob(jobId: string, updater: (current: StoredJobContract) => StoredJobContract | null) {
   await enqueueWrite(async () => {
     const db = await readDb();
     const current = db.jobs[jobId];
@@ -246,7 +285,7 @@ function toJobError(error: unknown): JobError {
   };
 }
 
-async function persistArtifacts(job: JobContract, artifacts: NonNullable<ExecuteResponse['artifacts']>) {
+async function persistArtifacts(job: StoredJobContract, artifacts: NonNullable<ExecuteResponse['artifacts']>) {
   const refs: JobArtifactRef[] = [];
 
   for (let index = 0; index < artifacts.length; index += 1) {

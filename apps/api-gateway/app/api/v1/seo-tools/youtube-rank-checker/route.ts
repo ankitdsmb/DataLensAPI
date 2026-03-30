@@ -2,6 +2,7 @@ import {
   assertHttpUrl,
   createToolPolicy,
   readJsonBody,
+  readApiKeyFromRequest,
   RequestValidationError,
   withScrapingHandler,
   requireAllowedFields
@@ -64,7 +65,8 @@ export const POST = withScrapingHandler({ policy: youtubeRankPolicy }, async (re
     {
       jobTtlSeconds: 12 * 60 * 60,
       artifactTtlSeconds: 6 * 60 * 60,
-      artifactAccess: 'authenticated'
+      artifactAccess: 'authenticated',
+      submitterApiKey: readApiKeyFromRequest(req)
     }
   );
 
@@ -79,7 +81,7 @@ export const POST = withScrapingHandler({ policy: youtubeRankPolicy }, async (re
       implementationDepth: 'live_job_submission',
       launchRecommendation: 'credentialed_preview',
       notes:
-        'Submits a credentialed preview job that now enforces supported YouTube video URLs, attempts multi-strategy HTML parsing plus a browser-assisted DOM fallback with provenance, and still degrades honestly when live evidence cannot be collected. In free-tier launch mode this route stays blocked, but in non-free-tier mode it is available with API key auth and authenticated-only status/artifact reads, using a 12-hour job TTL and 6-hour artifact retention window.'
+        'Submits a credentialed preview job that now enforces supported YouTube video URLs, attempts multi-strategy HTML parsing plus a browser-assisted DOM fallback with provenance, and still degrades honestly when live evidence cannot be collected. In free-tier launch mode this route stays blocked, but in non-free-tier mode it is available with API key auth and submitter-bound status/artifact reads, using a 12-hour job TTL and 6-hour artifact retention window.'
     }
   };
 });

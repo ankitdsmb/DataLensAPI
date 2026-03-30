@@ -155,7 +155,7 @@ function isFreeTierLaunchMode(): boolean {
   return (process.env.FREE_TIER_LAUNCH_MODE ?? 'true').toLowerCase() !== 'false';
 }
 
-function getApiKey(req: Request): string {
+export function readApiKeyFromRequest(req: Request): string {
   const bearer = req.headers.get('authorization');
   if (bearer?.startsWith('Bearer ')) {
     return bearer.replace('Bearer ', '').trim();
@@ -174,7 +174,7 @@ function isApiKeyAuthorized(req: Request): boolean {
     return false;
   }
 
-  const key = getApiKey(req);
+  const key = readApiKeyFromRequest(req);
   return configuredKeys.includes(key);
 }
 
