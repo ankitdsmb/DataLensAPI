@@ -46,7 +46,7 @@ confirmed the shared timing path stays stable after the change.
   - is allowed in non-free-tier mode only with API key auth,
   - rejects unsupported non-YouTube `videoUrl` values with a validation error,
   - async job submission,
-  - preview access metadata in the job envelope,
+  - preview-only access metadata in the job envelope,
   - unauthenticated job status rejection,
   - wrong-key job status rejection with `403`,
   - terminal job completion,
@@ -58,7 +58,7 @@ confirmed the shared timing path stays stable after the change.
 - Verifies `snapify-capture-screenshot-save-pdf`:
   - stays blocked from the free-tier profile by launch-guard contract checks,
   - is allowed in non-free-tier mode only with API key auth,
-  - now submits and completes successfully through the public gateway in authenticated-beta mode,
+  - now submits and completes successfully through the public gateway in stable authenticated-beta mode,
   - now exposes submitter-bound preview access metadata in the job envelope,
   - now rejects private-host targets by default unless explicitly allowlisted for controlled environments,
   - now returns browser-rendered screenshot/PDF artifacts plus page-evidence reports for in-budget pages,

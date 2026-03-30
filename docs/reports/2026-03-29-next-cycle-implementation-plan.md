@@ -66,7 +66,7 @@ Exit criteria:
 
 all agree that these are deliberate internal templates unless a later provider approval changes the plan.
 
-### Phase 2: Decide whether the two async preview routes should stay preview-only or graduate further
+### Phase 2: Freeze the two async routes at explicit non-free-tier postures
 
 Routes:
 
@@ -83,11 +83,11 @@ Current truth:
 - both are useful internally,
 - and only `snapify-capture-screenshot-save-pdf` is now close to public-grade for authenticated non-free-tier use.
 
-Recommended default:
+Current decision on this branch:
 
 - do not widen the free-tier launch subset for either route.
-- keep `snapify-capture-screenshot-save-pdf` at authenticated-beta posture outside free-tier mode unless stronger browser quotas and delivery controls justify broader promotion later.
-- keep `youtube-rank-checker` at credentialed-preview posture outside free-tier mode until its evidence path is materially more stable.
+- keep `snapify-capture-screenshot-save-pdf` as the stable authenticated-beta route outside free-tier mode unless a later approved hardening phase broadens it.
+- keep `youtube-rank-checker` as a credentialed preview-only route outside free-tier mode until a materially more stable evidence path is approved.
 
 Suggested order:
 
@@ -104,12 +104,12 @@ Suggested order:
    - now enforces supported YouTube video URLs and uses multi-strategy live result collection plus a browser-assisted DOM fallback with provenance,
    - and now limits preview jobs to a 12-hour TTL with 6-hour authenticated artifact retention,
    - and now runs as a credentialed preview outside free-tier mode,
-   - but still needs a decision on further hardening versus permanent preview-only posture.
+   - and is now explicitly frozen at preview-only posture on this branch.
 
 Exit criteria:
 
 - both routes remain excluded from the free-tier subset,
-- `snapify-capture-screenshot-save-pdf` can remain at authenticated-beta posture while `youtube-rank-checker` stays preview-only,
+- `snapify-capture-screenshot-save-pdf` stays at authenticated-beta posture while `youtube-rank-checker` stays preview-only,
 - and neither is marketed as a general public route until its evidence path is stable enough.
 
 ### Phase 3: Curated expansion only where public evidence is believable

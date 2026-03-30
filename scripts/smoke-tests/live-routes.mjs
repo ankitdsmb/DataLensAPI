@@ -252,6 +252,7 @@ try {
   assertEnvelope(queued.json);
   const jobId = queued.json.data?.job?.id;
   assert.equal(typeof jobId, 'string');
+  assert.equal(queued.json.data?.contract?.launchRecommendation, 'credentialed_preview_only');
   assert.equal(queued.json.data?.job?.retention?.artifactAccess, 'authenticated');
   assert.equal(queued.json.data?.job?.retention?.jobTtlSeconds, 12 * 60 * 60);
   assert.equal(queued.json.data?.job?.retention?.artifactTtlSeconds, 6 * 60 * 60);
@@ -322,6 +323,7 @@ try {
   assertEnvelope(snapifyQueued.json);
   const snapifyJobId = snapifyQueued.json.data?.job?.id;
   assert.equal(typeof snapifyJobId, 'string');
+  assert.equal(snapifyQueued.json.data?.contract?.launchRecommendation, 'authenticated_beta');
   assert.equal(snapifyQueued.json.data?.job?.retention?.artifactAccess, 'authenticated');
   assert.equal(snapifyQueued.json.data?.job?.retention?.jobTtlSeconds, 6 * 60 * 60);
   assert.equal(snapifyQueued.json.data?.job?.retention?.artifactTtlSeconds, 2 * 60 * 60);

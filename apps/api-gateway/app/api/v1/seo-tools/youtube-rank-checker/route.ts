@@ -79,9 +79,9 @@ export const POST = withScrapingHandler({ policy: youtubeRankPolicy }, async (re
       productLabel: 'YouTube Rank Checker (Credentialed Preview)',
       forensicCategory: 'queued-simulated',
       implementationDepth: 'live_job_submission',
-      launchRecommendation: 'credentialed_preview',
+      launchRecommendation: 'credentialed_preview_only',
       notes:
-        'Submits a credentialed preview job that now enforces supported YouTube video URLs, attempts multi-strategy HTML parsing plus a browser-assisted DOM fallback with provenance, and still degrades honestly when live evidence cannot be collected. In free-tier launch mode this route stays blocked, but in non-free-tier mode it is available with API key auth and submitter-bound status/artifact reads, using a 12-hour job TTL and 6-hour artifact retention window.'
+        'Submits a credentialed preview-only job that enforces supported YouTube video URLs, attempts multi-strategy HTML parsing plus a browser-assisted DOM fallback with provenance, and still degrades honestly when live evidence cannot be collected. In free-tier launch mode this route stays blocked, and in non-free-tier mode it remains a submitter-bound preview path with API key auth, a 12-hour job TTL, and a 6-hour artifact retention window. It is intentionally not part of the supported public subset beyond preview use.'
     }
   };
 });

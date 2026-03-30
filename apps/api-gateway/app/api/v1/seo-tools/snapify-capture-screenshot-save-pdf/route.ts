@@ -51,9 +51,9 @@ export const POST = withScrapingHandler({ policy: snapifyPolicy }, async (req: R
       productLabel: 'Snapify Capture Screenshot / Save PDF (Authenticated Beta)',
       forensicCategory: 'queued-browser',
       implementationDepth: 'live_job_submission',
-      launchRecommendation: 'credentialed_beta',
+      launchRecommendation: 'authenticated_beta',
       notes:
-        'Submits an authenticated beta job to a browser-backed worker that renders real screenshot and PDF artifacts with page-dimension and artifact-size budgets plus public-host validation at the gateway. In free-tier launch mode this route stays blocked, but in non-free-tier mode it is available with API key auth, a single-URL limit, and submitter-bound status/artifact reads with a 6-hour job TTL and 2-hour artifact retention window.'
+        'Submits a stable authenticated-beta job to a browser-backed worker that renders real screenshot and PDF artifacts with page-dimension and artifact-size budgets plus public-host validation at the gateway. In free-tier launch mode this route stays blocked, but in non-free-tier mode it is available with API key auth, a single-URL limit, and submitter-bound status/artifact reads with a 6-hour job TTL and 2-hour artifact retention window. Broader promotion is intentionally deferred until a separate hardening phase is approved.'
     }
   };
 });
